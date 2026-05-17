@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="GymLog"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<title>Index</title>
+<title>GymLog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -84,6 +84,12 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
 .workout-note-wrap{margin:12px 12px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px}
 .workout-note-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .workout-note-title svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.date-picker-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.date-picker-label{font-size:12px;color:var(--muted);white-space:nowrap}
+.date-picker-input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Mono',monospace;color:var(--text);background:#fafaf8;outline:none;transition:border-color 0.15s}
+.date-picker-input:focus{border-color:var(--red)}
+.date-today-btn{padding:6px 11px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s}
+.date-today-btn:hover{border-color:var(--red);color:var(--red-dark)}
 .mood-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
 .mood-chip{padding:6px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;cursor:pointer;background:none;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all 0.15s}
 .mood-chip.selected{background:var(--red-light);border-color:var(--red);color:var(--red-dark);font-weight:500}
@@ -211,6 +217,11 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
         <div class="workout-note-title">
           <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Nota del entrenamiento
+        </div>
+        <div class="date-picker-row">
+          <span class="date-picker-label">📅 Fecha</span>
+          <input class="date-picker-input" type="date" id="workout-date-input"/>
+          <button class="date-today-btn" onclick="setDateToday()">Hoy</button>
         </div>
         <div class="mood-row" id="mood-row"></div>
         <textarea class="workout-note-input" id="workout-note" placeholder="¿Cómo te sentiste hoy? Ej: «Sentí que podía haber dado más» o «Me costó mucho el calor»…" rows="3"></textarea>
@@ -443,13 +454,21 @@ function selectMood(m,el){
   el.classList.add('selected');
 }
 
+/* ── DATE PICKER ── */
+function setDateToday(){
+  document.getElementById('workout-date-input').value=new Date().toISOString().slice(0,10);
+}
+function initDatePicker(){ setDateToday(); }
+
 /* ── SAVE WORKOUT ── */
 function saveWorkout(){
   const doneAny=state.exercises.some(e=>e.series.some(s=>s.done));
   if(!doneAny){ showToast('¡Marcá al menos una serie! ✓'); return; }
   const noteVal=document.getElementById('workout-note').value.trim();
+  const dateVal=document.getElementById('workout-date-input').value;
+  const chosenDate=dateVal?new Date(dateVal+'T12:00:00').toISOString():new Date().toISOString();
   const entry={
-    date:new Date().toISOString(),
+    date:chosenDate,
     mood:state.currentMood||null,
     note:noteVal||null,
     exercises:state.exercises.filter(e=>e.series.some(s=>s.done)).map(ex=>({
@@ -461,7 +480,7 @@ function saveWorkout(){
   state.exercises.forEach(ex=>{ ex.series.forEach(s=>s.done=false); ex.note=''; });
   state.currentMood=null;
   save();
-  renderExercises(); renderMoods();
+  renderExercises(); renderMoods(); initDatePicker();
   document.getElementById('workout-note').value='';
   calcStreak();
   showToast('¡Entrenamiento guardado! 💪');
@@ -604,6 +623,7 @@ calcStreak();
 renderFilters();
 renderExercises();
 renderMoods();
+initDatePicker();
 checkInstallHint();
 </script>
 </body>
