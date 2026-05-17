@@ -15,36 +15,31 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:#1a1a18;overflow:hidden}
-
 :root{
   --red:#E24B4A;--red-light:#FCEBEB;--red-dark:#A32D2D;
+  --green:#1D9E75;--green-light:#E1F5EE;--green-dark:#085041;
+  --blue:#3B7BE8;--blue-light:#EBF1FD;--blue-dark:#1a3f8a;
   --bg:#f5f4f1;--surface:#ffffff;--border:#e8e6e0;
   --text:#1a1a18;--muted:#7a7870;--subtle:#b4b2a9;
   --radius:14px;--radius-sm:10px;
 }
-
-/* LAYOUT */
-#app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:480px;margin:0 auto;background:var(--bg)}
-.header{padding:env(safe-area-inset-top,0) 0 0;background:var(--surface);border-bottom:1px solid var(--border)}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:480px;margin:0 auto;background:var(--bg);position:relative}#app::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%);width:480px;height:100vh;height:100dvh;background:linear-gradient(135deg,transparent 38%,rgba(200,15,15,0.13) 38%,rgba(200,15,15,0.13) 50%,transparent 50%);pointer-events:none;z-index:9999}
+.header{padding:env(safe-area-inset-top,0) 0 0;background:var(--surface);border-bottom:1px solid var(--border);position:relative;overflow:hidden}.header::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0px,transparent 52px,rgba(210,20,20,0.07) 52px,rgba(210,20,20,0.07) 90px,transparent 90px,transparent 140px);pointer-events:none;z-index:0}.header-inner{position:relative;z-index:1}.date-sub{position:relative;z-index:1}
 .header-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 12px}
 .app-title{font-size:22px;font-weight:600;letter-spacing:-0.5px;color:var(--text)}
 .app-title span{color:var(--red)}
 .streak-badge{background:var(--red-light);color:var(--red-dark);font-size:12px;font-weight:500;padding:4px 10px;border-radius:20px}
 .date-sub{font-size:12px;color:var(--muted);padding:0 16px 10px;font-family:'DM Mono',monospace}
-
-/* NAV */
 .nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border)}
-.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0;background:none;border:none;cursor:pointer;color:var(--subtle);font-family:'DM Sans',sans-serif;font-size:11px;transition:color 0.15s;position:relative}
-.nav-btn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0;background:none;border:none;cursor:pointer;color:var(--subtle);font-family:'DM Sans',sans-serif;font-size:10px;transition:color 0.15s;position:relative}
+.nav-btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .nav-btn.active{color:var(--red)}
-.nav-btn.active::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:2px;background:var(--red);border-radius:2px 2px 0 0}
-
-/* CONTENT */
+.nav-btn.active::after{content:'';position:absolute;bottom:0;left:20%;right:20%;height:2px;background:var(--red);border-radius:2px 2px 0 0}
 .content{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:env(safe-area-inset-bottom,16px)}
 .tab{display:none;padding:0 0 80px}
 .tab.active{display:block}
 
-/* CARDS */
+/* CARDS EJERCICIOS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin:12px 12px 0}
 .card-header{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;cursor:pointer;user-select:none}
 .card-header-left{flex:1;min-width:0}
@@ -56,8 +51,6 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
 .chevron.open{transform:rotate(180deg)}
 .card-body{display:none;border-top:1px solid var(--border);padding:12px 14px}
 .card-body.open{display:block}
-
-/* SERIES TABLE */
 .col-labels{display:grid;grid-template-columns:24px 1fr 1fr 36px;gap:8px;margin-bottom:6px;font-size:11px;color:var(--subtle);padding:0 2px}
 .series-row{display:grid;grid-template-columns:24px 1fr 1fr 36px;gap:8px;align-items:center;margin-bottom:7px}
 .series-num{font-size:12px;color:var(--subtle);text-align:center;font-family:'DM Mono',monospace}
@@ -67,35 +60,39 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
 .check-btn svg{width:16px;height:16px;stroke:var(--subtle);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;transition:stroke 0.15s}
 .check-btn.done{background:var(--red-light);border-color:var(--red)}
 .check-btn.done svg{stroke:var(--red)}
-
-/* EXERCISE NOTE */
 .ex-note-wrap{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
 .ex-note-label{font-size:11px;color:var(--subtle);margin-bottom:5px;display:flex;align-items:center;gap:4px}
 .note-textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:#fafaf8;resize:none;outline:none;transition:border-color 0.15s;min-height:60px}
 .note-textarea:focus{border-color:var(--red)}
 .note-textarea::placeholder{color:var(--subtle)}
-
 .add-series-btn{width:100%;margin-top:6px;padding:8px;background:none;border:1.5px dashed var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif}
 .del-btn{margin-top:8px;float:right;background:none;border:none;font-size:12px;color:var(--subtle);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:3px;padding:2px 0}
-.del-btn:hover{color:var(--red)}
 .clearfix::after{content:'';display:table;clear:both}
 
-/* WORKOUT NOTE */
-.workout-note-wrap{margin:12px 12px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px}
-.workout-note-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.workout-note-title svg{width:16px;height:16px;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+/* NOTA ENTRENAMIENTO */
+.section-card{margin:12px 12px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px}
+.section-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title svg{width:15px;height:15px;stroke:var(--muted);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .date-picker-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
 .date-picker-label{font-size:12px;color:var(--muted);white-space:nowrap}
 .date-picker-input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Mono',monospace;color:var(--text);background:#fafaf8;outline:none;transition:border-color 0.15s}
 .date-picker-input:focus{border-color:var(--red)}
-.date-today-btn{padding:6px 11px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all 0.15s}
-.date-today-btn:hover{border-color:var(--red);color:var(--red-dark)}
+.date-today-btn{padding:6px 11px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}
 .mood-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.mood-chip{padding:6px 12px;border-radius:20px;border:1px solid var(--border);font-size:12px;cursor:pointer;background:none;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all 0.15s}
+.mood-chip{padding:5px 10px;border-radius:20px;border:1px solid var(--border);font-size:12px;cursor:pointer;background:none;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all 0.15s}
 .mood-chip.selected{background:var(--red-light);border-color:var(--red);color:var(--red-dark);font-weight:500}
-.workout-note-input{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:#fafaf8;resize:none;outline:none;transition:border-color 0.15s;min-height:72px}
-.workout-note-input:focus{border-color:var(--red)}
-.workout-note-input::placeholder{color:var(--subtle)}
+.generic-textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:#fafaf8;resize:none;outline:none;transition:border-color 0.15s;min-height:68px}
+.generic-textarea:focus{border-color:var(--red)}
+.generic-textarea::placeholder{color:var(--subtle)}
+
+/* PESO CORPORAL */
+.peso-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.peso-label{font-size:12px;color:var(--muted);white-space:nowrap}
+.peso-input-wrap{display:flex;align-items:center;gap:6px;flex:1}
+.peso-input{width:90px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:16px;font-family:'DM Mono',monospace;color:var(--text);background:#fafaf8;outline:none;transition:border-color 0.15s;text-align:center;-webkit-appearance:none}
+.peso-input:focus{border-color:var(--red)}
+.peso-unit{font-size:13px;color:var(--muted)}
+.peso-last{font-size:12px;color:var(--subtle);flex:1;text-align:right}
 
 /* ADD EXERCISE */
 .add-ex-area{margin:12px 12px 0}
@@ -103,7 +100,7 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
 .add-ex-btn:hover{border-color:var(--red);color:var(--red)}
 
 /* SAVE BAR */
-.save-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(245,244,241,0.9);backdrop-filter:blur(12px);border-top:1px solid var(--border)}
+.save-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(245,244,241,0.92);backdrop-filter:blur(12px);border-top:1px solid var(--border)}
 .save-btn{width:100%;padding:14px;background:var(--red);border:none;border-radius:var(--radius-sm);color:#fff;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;letter-spacing:-0.2px;transition:opacity 0.15s}
 .save-btn:active{opacity:0.85}
 
@@ -121,22 +118,22 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
 .btn-cancel{flex:1;padding:13px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--muted)}
 .btn-confirm{flex:2;padding:13px;background:var(--red);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;color:#fff;cursor:pointer}
 
-/* HISTORY */
+/* HISTORIAL */
 .hist-day{margin:12px 12px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .hist-day-header{padding:12px 14px;background:#fafaf8;border-bottom:1px solid var(--border);display:flex;align-items:baseline;justify-content:space-between}
 .hist-day-date{font-size:13px;font-weight:600;color:var(--text)}
 .hist-day-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace}
 .hist-ex-item{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
-.hist-ex-item:last-child{border-bottom:none}
 .hist-ex-name{font-size:13px;font-weight:500;color:var(--text)}
 .hist-ex-detail{font-size:12px;color:var(--muted);margin-top:2px}
 .hist-ex-note{font-size:12px;color:var(--muted);margin-top:4px;font-style:italic}
 .hist-kg{font-size:13px;font-weight:600;color:var(--red-dark);font-family:'DM Mono',monospace;white-space:nowrap}
-.hist-workout-note{padding:10px 14px;background:var(--red-light);border-top:1px solid #f0c4c4;display:flex;align-items:flex-start;gap:8px}
-.hist-workout-note-text{font-size:12px;color:var(--red-dark)}
-.mood-tag{display:inline-block;background:var(--red-light);color:var(--red-dark);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin-bottom:3px}
+.hist-footer{padding:10px 14px;background:var(--red-light);border-top:1px solid #f0c4c4}
+.hist-mood-tag{display:inline-block;background:#fff;color:var(--red-dark);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin-bottom:4px;border:1px solid #f0c4c4}
+.hist-note-text{font-size:12px;color:var(--red-dark);line-height:1.4}
+.hist-peso-badge{display:inline-flex;align-items:center;gap:4px;background:var(--blue-light);color:var(--blue-dark);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:6px;font-family:'DM Mono',monospace}
 
-/* PROGRESS */
+/* PROGRESO */
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:12px 12px 0}
 .stat-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:13px}
 .stat-box-label{font-size:11px;color:var(--muted);margin-bottom:4px}
@@ -148,28 +145,52 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
 .pr-info-label{font-size:11px;color:var(--red-dark)}
 .pr-info-val{font-size:22px;font-weight:600;color:var(--red-dark);font-family:'DM Mono',monospace}
 .chart-wrap{margin:12px 12px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:relative;height:220px}
-.empty-state{text-align:center;padding:40px 20px;color:var(--subtle)}
-.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
-.empty-text{font-size:14px;line-height:1.5}
+.chart-title{font-size:11px;color:var(--muted);margin:14px 12px 0;font-weight:500}
 
-/* FILTER PILLS */
+/* PESO CHART */
+.peso-chart-wrap{margin:8px 12px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;position:relative;height:200px}
+
+/* NUTRICIÓN */
+.nutri-meal{margin:12px 12px 0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.nutri-meal-header{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:#fafaf8;border-bottom:1px solid var(--border)}
+.nutri-meal-title{font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px}
+.nutri-meal-body{padding:10px 14px}
+.nutri-meal-ta{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:#fafaf8;resize:none;outline:none;transition:border-color 0.15s;min-height:64px}
+.nutri-meal-ta:focus{border-color:var(--green)}
+.nutri-meal-ta::placeholder{color:var(--subtle)}
+.nutri-copy-wrap{margin:12px 12px 0;padding-bottom:4px}
+.nutri-copy-btn{width:100%;padding:12px;background:var(--green);border:none;border-radius:var(--radius-sm);color:#fff;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:opacity 0.15s}
+.nutri-copy-btn:active{opacity:0.8}
+.nutri-date-row{display:flex;align-items:center;gap:8px;margin:12px 12px 0}
+.nutri-date-label{font-size:12px;color:var(--muted)}
+.nutri-date-inp{padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Mono',monospace;color:var(--text);background:var(--surface);outline:none}
+.nutri-today-btn{padding:5px 10px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif}
+.nutri-save-btn{margin-left:auto;padding:7px 14px;background:var(--green);border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif}
+.nutri-history{margin:12px 12px 0}
+.nutri-history-title{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.nutri-hist-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;overflow:hidden}
+.nutri-hist-header{padding:9px 12px;background:#fafaf8;border-bottom:1px solid var(--border);font-size:12px;font-weight:600;color:var(--text);display:flex;justify-content:space-between;align-items:center}
+.nutri-hist-del{background:none;border:none;font-size:16px;color:var(--subtle);cursor:pointer;padding:0;line-height:1}
+.nutri-hist-body{padding:9px 12px;font-size:12px;color:var(--muted);line-height:1.7;white-space:pre-wrap}
+
+/* FILTROS */
 .filter-row{display:flex;gap:8px;overflow-x:auto;padding:10px 12px 0;scrollbar-width:none}
 .filter-row::-webkit-scrollbar{display:none}
 .filter-pill{flex-shrink:0;padding:6px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
 .filter-pill.active{background:var(--red-light);border-color:var(--red);color:var(--red-dark)}
 
-/* TOAST */
+/* MISC */
+.empty-state{text-align:center;padding:40px 20px;color:var(--subtle)}
+.empty-icon{font-size:48px;margin-bottom:12px;opacity:.5}
+.empty-text{font-size:14px;line-height:1.5}
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);background:#1a1a18;color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-family:'DM Sans',sans-serif;z-index:999;opacity:0;transition:all 0.25s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* PWA install hint */
 .install-hint{margin:12px 12px 0;background:#fff8e6;border:1px solid #f5d98a;border-radius:var(--radius-sm);padding:10px 12px;font-size:12px;color:#7a6520;line-height:1.5;display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 .install-hint-close{background:none;border:none;font-size:16px;cursor:pointer;color:#7a6520;flex-shrink:0;padding:0;line-height:1}
 </style>
 </head>
 <body>
 <div id="app">
-  <!-- HEADER -->
   <div class="header">
     <div class="header-inner">
       <div class="app-title">Gym<span>Log</span></div>
@@ -178,7 +199,6 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
     <div class="date-sub" id="date-sub">cargando...</div>
   </div>
 
-  <!-- NAV -->
   <nav class="nav">
     <button class="nav-btn active" onclick="switchTab('registro',this)">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="12" y1="9" x2="12" y2="15"/></svg>
@@ -192,29 +212,32 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
       Progreso
     </button>
+    <button class="nav-btn" onclick="switchTab('nutricion',this)">
+      <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+      Nutrición
+    </button>
   </nav>
 
-  <!-- CONTENT -->
   <div class="content">
 
     <!-- TAB REGISTRO -->
     <div id="tab-registro" class="tab active">
       <div id="install-hint" class="install-hint" style="display:none">
-        <span>💡 <strong>Instalá la app:</strong> tocá el menú del navegador → <strong>"Agregar a pantalla de inicio"</strong></span>
-        <button class="install-hint-close" onclick="document.getElementById('install-hint').style.display='none'">✕</button>
+        <span>💡 <strong>Instalá la app:</strong> menú del navegador → <strong>"Agregar a pantalla de inicio"</strong></span>
+        <button class="install-hint-close" onclick="closeHint()">✕</button>
       </div>
       <div class="filter-row" id="muscle-filters"></div>
       <div id="exercises-list"></div>
       <div class="add-ex-area">
         <button class="add-ex-btn" onclick="openModal()">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap:round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Agregar ejercicio
         </button>
       </div>
 
-      <!-- WORKOUT NOTE SECTION -->
-      <div class="workout-note-wrap" style="margin-top:12px">
-        <div class="workout-note-title">
+      <!-- NOTA + FECHA + PESO -->
+      <div class="section-card" style="margin-top:12px">
+        <div class="section-title">
           <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           Nota del entrenamiento
         </div>
@@ -223,8 +246,16 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
           <input class="date-picker-input" type="date" id="workout-date-input"/>
           <button class="date-today-btn" onclick="setDateToday()">Hoy</button>
         </div>
+        <div class="peso-row">
+          <span class="peso-label">⚖️ Peso corporal</span>
+          <div class="peso-input-wrap">
+            <input class="peso-input" type="number" id="peso-input" inputmode="decimal" step="0.1" min="30" max="250" placeholder="—"/>
+            <span class="peso-unit">kg</span>
+            <span class="peso-last" id="peso-last"></span>
+          </div>
+        </div>
         <div class="mood-row" id="mood-row"></div>
-        <textarea class="workout-note-input" id="workout-note" placeholder="¿Cómo te sentiste hoy? Ej: «Sentí que podía haber dado más» o «Me costó mucho el calor»…" rows="3"></textarea>
+        <textarea class="generic-textarea" id="workout-note" placeholder="¿Cómo te sentiste? Ej: «Sentí que podía haber dado más» o «Me costó mucho el calor»…" rows="3"></textarea>
       </div>
 
       <div style="height:80px"></div>
@@ -238,20 +269,65 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
     <!-- TAB PROGRESO -->
     <div id="tab-progreso" class="tab">
       <div class="stats-grid" id="global-stats"></div>
-      <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()"></select>
+      <div class="chart-title">Evolución de peso corporal</div>
+      <div class="peso-chart-wrap"><canvas id="pesoChart" role="img" aria-label="Evolución del peso corporal">Gráfico de peso</canvas></div>
+      <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()" style="margin-top:14px"></select>
       <div id="pr-banner"></div>
-      <div class="chart-wrap"><canvas id="progressChart" role="img" aria-label="Evolución de peso máximo en el ejercicio seleccionado">Gráfico de progreso</canvas></div>
+      <div class="chart-wrap"><canvas id="progressChart" role="img" aria-label="Evolución de peso máximo">Gráfico de progreso</canvas></div>
     </div>
 
-  </div><!-- end content -->
-</div><!-- end app -->
+    <!-- TAB NUTRICIÓN -->
+    <div id="tab-nutricion" class="tab">
+      <div class="nutri-date-row">
+        <span class="nutri-date-label">📅</span>
+        <input class="nutri-date-inp" type="date" id="nutri-date-inp"/>
+        <button class="nutri-today-btn" onclick="setNutriDateToday()">Hoy</button>
+        <button class="nutri-save-btn" onclick="saveNutri()">Guardar día</button>
+      </div>
 
-<!-- SAVE BAR (only visible on registro tab) -->
+      <div class="nutri-meal">
+        <div class="nutri-meal-header"><div class="nutri-meal-title">🌅 Desayuno</div></div>
+        <div class="nutri-meal-body"><textarea class="nutri-meal-ta" id="nutri-desayuno" placeholder="Ej: 2 huevos revueltos, 2 tostadas integrales, café con leche…" rows="3"></textarea></div>
+      </div>
+
+      <div class="nutri-meal">
+        <div class="nutri-meal-header"><div class="nutri-meal-title">☀️ Almuerzo</div></div>
+        <div class="nutri-meal-body"><textarea class="nutri-meal-ta" id="nutri-almuerzo" placeholder="Ej: 200g pechuga de pollo, arroz integral, ensalada…" rows="3"></textarea></div>
+      </div>
+
+      <div class="nutri-meal">
+        <div class="nutri-meal-header"><div class="nutri-meal-title">🍎 Merienda</div></div>
+        <div class="nutri-meal-body"><textarea class="nutri-meal-ta" id="nutri-merienda" placeholder="Ej: Yogur griego, 1 banana, puñado de nueces…" rows="2"></textarea></div>
+      </div>
+
+      <div class="nutri-meal">
+        <div class="nutri-meal-header"><div class="nutri-meal-title">🌙 Cena</div></div>
+        <div class="nutri-meal-body"><textarea class="nutri-meal-ta" id="nutri-cena" placeholder="Ej: Pasta con salsa de tomate, ensalada mixta…" rows="3"></textarea></div>
+      </div>
+
+      <div class="nutri-copy-wrap">
+        <button class="nutri-copy-btn" onclick="copyNutri()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copiar resumen del día
+        </button>
+      </div>
+
+      <div class="nutri-history" id="nutri-history-wrap" style="display:none">
+        <div class="nutri-history-title">Días anteriores</div>
+        <div id="nutri-history-list"></div>
+      </div>
+
+      <div style="height:20px"></div>
+    </div>
+
+  </div>
+</div>
+
 <div class="save-bar" id="save-bar">
   <button class="save-btn" onclick="saveWorkout()">💾 Guardar entrenamiento</button>
 </div>
 
-<!-- MODAL NUEVO EJERCICIO -->
+<!-- MODAL -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <div class="modal-handle"></div>
@@ -262,9 +338,13 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
     <select class="modal-select" id="ex-muscle-inp">
       <option value="Pecho">Pecho</option>
       <option value="Espalda">Espalda</option>
-      <option value="Piernas">Piernas</option>
       <option value="Hombros">Hombros</option>
-      <option value="Brazos">Brazos</option>
+      <option value="Bíceps">Bíceps</option>
+      <option value="Tríceps">Tríceps</option>
+      <option value="Cuádriceps">Cuádriceps</option>
+      <option value="Glúteos">Glúteos</option>
+      <option value="Piernas">Piernas</option>
+      <option value="Abdominales">Abdominales</option>
       <option value="Core">Core</option>
       <option value="Cardio">Cardio</option>
     </select>
@@ -275,75 +355,77 @@ html,body{height:100%;background:#f5f4f1;font-family:'DM Sans',sans-serif;color:
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-const STORAGE_KEY = 'gymlog_v3';
-const MOODS = ['💪 Excelente','😊 Bien','😐 Regular','😓 Cansado','🤒 Me sentí mal'];
-let state = { exercises:[], history:[], currentFilter:'Todos' };
-let progressChart = null;
+const STORAGE_KEY='gymlog_v4';
+const MOODS=['💪 Excelente','😊 Bien','😐 Regular','😓 Cansado','🤒 Me sentí mal'];
+const MUSCLES=['Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Cuádriceps','Glúteos','Piernas','Abdominales','Core','Cardio'];
+
+let state={exercises:[],history:[],nutricion:[],currentFilter:'Todos'};
+let progressChart=null, pesoChart=null;
 
 /* ── STORAGE ── */
 function load(){
-  try{ const r=localStorage.getItem(STORAGE_KEY); if(r) state=JSON.parse(r); }catch(e){}
-  if(!state.exercises) state.exercises=[];
-  if(!state.history) state.history=[];
-  if(!state.currentFilter) state.currentFilter='Todos';
+  try{const r=localStorage.getItem(STORAGE_KEY);if(r)state=JSON.parse(r);}catch(e){}
+  if(!state.exercises)state.exercises=[];
+  if(!state.history)state.history=[];
+  if(!state.nutricion)state.nutricion=[];
+  if(!state.currentFilter)state.currentFilter='Todos';
 }
-function save(){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }catch(e){} }
+function save(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state));}catch(e){}}
 
-/* ── DEFAULTS ── */
 function initDefaults(){
   if(state.exercises.length===0){
     state.exercises=[
-      {id:1,name:'Press de banca',muscle:'Pecho',note:'',series:[{reps:'10',kg:'60',done:false},{reps:'8',kg:'65',done:false},{reps:'6',kg:'70',done:false}]},
-      {id:2,name:'Sentadillas',muscle:'Piernas',note:'',series:[{reps:'10',kg:'80',done:false},{reps:'8',kg:'90',done:false}]},
-      {id:3,name:'Dominadas',muscle:'Espalda',note:'',series:[{reps:'8',kg:'0',done:false},{reps:'6',kg:'0',done:false}]}
+      {id:1,name:'Press de banca',muscle:'Pecho',note:'',series:[{reps:'10',kg:'60',done:false},{reps:'8',kg:'65',done:false}]},
+      {id:2,name:'Sentadillas',muscle:'Cuádriceps',note:'',series:[{reps:'10',kg:'80',done:false},{reps:'8',kg:'90',done:false}]},
+      {id:3,name:'Dominadas',muscle:'Espalda',note:'',series:[{reps:'8',kg:'0',done:false},{reps:'6',kg:'0',done:false}]},
+      {id:4,name:'Curl de bíceps',muscle:'Bíceps',note:'',series:[{reps:'12',kg:'15',done:false},{reps:'10',kg:'17',done:false}]},
+      {id:5,name:'Press francés',muscle:'Tríceps',note:'',series:[{reps:'12',kg:'20',done:false},{reps:'10',kg:'22',done:false}]},
+      {id:6,name:'Hip thrust',muscle:'Glúteos',note:'',series:[{reps:'12',kg:'60',done:false},{reps:'10',kg:'70',done:false}]}
     ];
     save();
   }
 }
 
 /* ── TABS ── */
-function switchTab(tab, btn){
+function switchTab(tab,btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');
   btn.classList.add('active');
-  document.getElementById('save-bar').style.display = tab==='registro' ? '' : 'none';
-  if(tab==='historial') renderHistory();
-  if(tab==='progreso') renderProgress();
+  document.getElementById('save-bar').style.display=tab==='registro'?'':'none';
+  if(tab==='historial')renderHistory();
+  if(tab==='progreso')renderProgress();
+  if(tab==='nutricion')renderNutriHistory();
 }
 
-/* ── FILTER ── */
-const MUSCLES = ['Todos','Pecho','Espalda','Piernas','Hombros','Brazos','Core','Cardio'];
+/* ── FILTROS ── */
 function renderFilters(){
-  const row = document.getElementById('muscle-filters');
-  row.innerHTML = MUSCLES.map(m=>
+  document.getElementById('muscle-filters').innerHTML=MUSCLES.map(m=>
     `<div class="filter-pill ${m===state.currentFilter?'active':''}" onclick="setFilter('${m}',this)">${m}</div>`
   ).join('');
 }
-function setFilter(m, el){
+function setFilter(m,el){
   state.currentFilter=m;
   document.querySelectorAll('.filter-pill').forEach(p=>p.classList.remove('active'));
   el.classList.add('active');
   renderExercises();
 }
 
-/* ── EXERCISES ── */
+/* ── EJERCICIOS ── */
 function renderExercises(){
-  const list = document.getElementById('exercises-list');
-  const items = state.currentFilter==='Todos' ? state.exercises : state.exercises.filter(e=>e.muscle===state.currentFilter);
+  const list=document.getElementById('exercises-list');
+  const items=state.currentFilter==='Todos'?state.exercises:state.exercises.filter(e=>e.muscle===state.currentFilter);
   if(!items.length){
     list.innerHTML=`<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">Sin ejercicios.<br>Tocá el botón para agregar uno.</div></div>`;
     return;
   }
-  list.innerHTML = items.map(ex => {
-    const done = ex.series.filter(s=>s.done).length;
-    const total = ex.series.length;
-    const pct = total>0?Math.round(done/total*100):0;
-    const maxKg = ex.series.reduce((a,s)=>Math.max(a,parseFloat(s.kg)||0),0);
+  list.innerHTML=items.map(ex=>{
+    const done=ex.series.filter(s=>s.done).length;
+    const total=ex.series.length;
+    const maxKg=ex.series.reduce((a,s)=>Math.max(a,parseFloat(s.kg)||0),0);
     return `<div class="card" id="card-${ex.id}">
       <div class="card-header" onclick="toggleCard(${ex.id})">
         <div class="card-header-left">
@@ -361,27 +443,21 @@ function renderExercises(){
           <div class="series-row">
             <span class="series-num">${i+1}</span>
             <input class="num-input" type="number" inputmode="decimal" value="${s.reps}" min="1"
-              onchange="updateSeries(${ex.id},${i},'reps',this.value)" placeholder="Reps"/>
+              onchange="updateSeries(${ex.id},${i},'reps',this.value)"/>
             <input class="num-input" type="number" inputmode="decimal" value="${s.kg}" min="0" step="0.5"
-              onchange="updateSeries(${ex.id},${i},'kg',this.value)" placeholder="kg"/>
-            <button class="check-btn ${s.done?'done':''}" onclick="toggleDone(${ex.id},${i})" aria-label="Marcar serie">
+              onchange="updateSeries(${ex.id},${i},'kg',this.value)"/>
+            <button class="check-btn ${s.done?'done':''}" onclick="toggleDone(${ex.id},${i})">
               <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
             </button>
           </div>`).join('')}
         <button class="add-series-btn" onclick="addSeries(${ex.id})">+ Agregar serie</button>
         <div class="ex-note-wrap">
-          <div class="ex-note-label">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-            Nota del ejercicio (opcional)
-          </div>
+          <div class="ex-note-label">✏️ Nota del ejercicio (opcional)</div>
           <textarea class="note-textarea" placeholder="Ej: «Subí el peso», «Me costó la última serie»…"
             onchange="updateExNote(${ex.id},this.value)">${ex.note||''}</textarea>
         </div>
         <div class="clearfix">
-          <button class="del-btn" onclick="deleteEx(${ex.id})">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            Eliminar
-          </button>
+          <button class="del-btn" onclick="deleteEx(${ex.id})">🗑 Eliminar</button>
         </div>
       </div>
     </div>`;
@@ -392,36 +468,32 @@ function toggleCard(id){
   const body=document.getElementById('body-'+id);
   const chev=document.getElementById('chev-'+id);
   const open=body.classList.toggle('open');
-  if(open) chev.classList.add('open'); else chev.classList.remove('open');
+  open?chev.classList.add('open'):chev.classList.remove('open');
 }
 function updateSeries(exId,idx,field,val){
   const ex=state.exercises.find(e=>e.id===exId);
-  if(ex&&ex.series[idx]){ ex.series[idx][field]=val; save(); }
+  if(ex&&ex.series[idx]){ex.series[idx][field]=val;save();}
 }
 function toggleDone(exId,idx){
   const ex=state.exercises.find(e=>e.id===exId);
-  if(ex&&ex.series[idx]){ ex.series[idx].done=!ex.series[idx].done; save(); renderExercises();
+  if(ex&&ex.series[idx]){
+    ex.series[idx].done=!ex.series[idx].done;save();renderExercises();
     const body=document.getElementById('body-'+exId);
-    if(body){ body.classList.add('open'); document.getElementById('chev-'+exId).classList.add('open'); }
+    if(body){body.classList.add('open');document.getElementById('chev-'+exId).classList.add('open');}
   }
 }
 function addSeries(id){
-  const ex=state.exercises.find(e=>e.id===id);
-  if(!ex) return;
+  const ex=state.exercises.find(e=>e.id===id);if(!ex)return;
   const last=ex.series[ex.series.length-1];
   ex.series.push({reps:last?last.reps:'10',kg:last?last.kg:'0',done:false});
-  save(); renderExercises();
+  save();renderExercises();
   const body=document.getElementById('body-'+id);
-  if(body){ body.classList.add('open'); document.getElementById('chev-'+id).classList.add('open'); }
+  if(body){body.classList.add('open');document.getElementById('chev-'+id).classList.add('open');}
 }
-function updateExNote(id,val){
-  const ex=state.exercises.find(e=>e.id===id);
-  if(ex){ ex.note=val; save(); }
-}
+function updateExNote(id,val){const ex=state.exercises.find(e=>e.id===id);if(ex){ex.note=val;save();}}
 function deleteEx(id){
-  if(!confirm('¿Eliminar este ejercicio?')) return;
-  state.exercises=state.exercises.filter(e=>e.id!==id);
-  save(); renderExercises();
+  if(!confirm('¿Eliminar este ejercicio?'))return;
+  state.exercises=state.exercises.filter(e=>e.id!==id);save();renderExercises();
 }
 
 /* ── MODAL ── */
@@ -430,21 +502,19 @@ function openModal(){
   document.getElementById('ex-name-inp').value='';
   setTimeout(()=>document.getElementById('ex-name-inp').focus(),100);
 }
-function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); }
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
 function addExercise(){
   const name=document.getElementById('ex-name-inp').value.trim();
-  if(!name){ document.getElementById('ex-name-inp').focus(); return; }
+  if(!name){document.getElementById('ex-name-inp').focus();return;}
   const muscle=document.getElementById('ex-muscle-inp').value;
   state.exercises.push({id:Date.now(),name,muscle,note:'',series:[{reps:'10',kg:'0',done:false}]});
-  save(); closeModal(); renderExercises();
-  showToast('Ejercicio agregado ✓');
+  save();closeModal();renderExercises();showToast('Ejercicio agregado ✓');
 }
-document.getElementById('modal-overlay').addEventListener('click',function(e){ if(e.target===this) closeModal(); });
+document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 /* ── MOODS ── */
 function renderMoods(){
-  const row=document.getElementById('mood-row');
-  row.innerHTML=MOODS.map(m=>
+  document.getElementById('mood-row').innerHTML=MOODS.map(m=>
     `<button class="mood-chip ${state.currentMood===m?'selected':''}" onclick="selectMood('${m}',this)">${m}</button>`
   ).join('');
 }
@@ -454,39 +524,49 @@ function selectMood(m,el){
   el.classList.add('selected');
 }
 
-/* ── DATE PICKER ── */
-function setDateToday(){
-  document.getElementById('workout-date-input').value=new Date().toISOString().slice(0,10);
-}
-function initDatePicker(){ setDateToday(); }
+/* ── FECHA + PESO ── */
+function setDateToday(){document.getElementById('workout-date-input').value=new Date().toISOString().slice(0,10);}
+function initDatePicker(){setDateToday();}
 
-/* ── SAVE WORKOUT ── */
+function updatePesoLast(){
+  const lastWithPeso=state.history.find(h=>h.peso);
+  if(lastWithPeso){
+    const d=new Date(lastWithPeso.date).toLocaleDateString('es-AR',{day:'numeric',month:'short'});
+    document.getElementById('peso-last').textContent=`Último: ${lastWithPeso.peso}kg (${d})`;
+  }
+}
+
+/* ── GUARDAR ENTRENAMIENTO ── */
 function saveWorkout(){
   const doneAny=state.exercises.some(e=>e.series.some(s=>s.done));
-  if(!doneAny){ showToast('¡Marcá al menos una serie! ✓'); return; }
+  if(!doneAny){showToast('¡Marcá al menos una serie! ✓');return;}
   const noteVal=document.getElementById('workout-note').value.trim();
   const dateVal=document.getElementById('workout-date-input').value;
+  const pesoVal=parseFloat(document.getElementById('peso-input').value)||null;
   const chosenDate=dateVal?new Date(dateVal+'T12:00:00').toISOString():new Date().toISOString();
   const entry={
     date:chosenDate,
     mood:state.currentMood||null,
     note:noteVal||null,
+    peso:pesoVal,
     exercises:state.exercises.filter(e=>e.series.some(s=>s.done)).map(ex=>({
-      name:ex.name, muscle:ex.muscle, note:ex.note||null,
+      name:ex.name,muscle:ex.muscle,note:ex.note||null,
       series:ex.series.filter(s=>s.done).map(s=>({reps:parseInt(s.reps)||0,kg:parseFloat(s.kg)||0}))
     }))
   };
   state.history.unshift(entry);
-  state.exercises.forEach(ex=>{ ex.series.forEach(s=>s.done=false); ex.note=''; });
+  state.exercises.forEach(ex=>{ex.series.forEach(s=>s.done=false);ex.note='';});
   state.currentMood=null;
   save();
-  renderExercises(); renderMoods(); initDatePicker();
+  renderExercises();renderMoods();initDatePicker();
   document.getElementById('workout-note').value='';
+  document.getElementById('peso-input').value='';
+  updatePesoLast();
   calcStreak();
   showToast('¡Entrenamiento guardado! 💪');
 }
 
-/* ── HISTORY ── */
+/* ── HISTORIAL ── */
 function renderHistory(){
   const list=document.getElementById('history-list');
   if(!state.history.length){
@@ -510,11 +590,13 @@ function renderHistory(){
         <div class="hist-kg">${maxKg>0?maxKg+'kg':'BW'}</div>
       </div>`;
     }).join('');
-    const noteBlock=(entry.mood||entry.note)?`<div class="hist-workout-note">
-      <div>
-        ${entry.mood?`<div class="mood-tag">${entry.mood}</div>`:''}
-        ${entry.note?`<div class="hist-workout-note-text">"${entry.note}"</div>`:''}
+    const hasFooter=entry.mood||entry.note||entry.peso;
+    const footer=hasFooter?`<div class="hist-footer">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:${entry.note?'4px':'0'}">
+        ${entry.mood?`<span class="hist-mood-tag">${entry.mood}</span>`:''}
+        ${entry.peso?`<span class="hist-peso-badge">⚖️ ${entry.peso}kg</span>`:''}
       </div>
+      ${entry.note?`<div class="hist-note-text">"${entry.note}"</div>`:''}
     </div>`:'';
     return `<div class="hist-day">
       <div class="hist-day-header">
@@ -522,51 +604,50 @@ function renderHistory(){
         <div class="hist-day-meta">${totalSeries} series · ${Math.round(totalVol)}kg vol</div>
       </div>
       ${exItems}
-      ${noteBlock}
+      ${footer}
     </div>`;
   }).join('');
 }
 
-/* ── PROGRESS ── */
+/* ── PROGRESO ── */
 function renderProgress(){
   const exNames=[...new Set(state.history.flatMap(h=>h.exercises.map(e=>e.name)))];
   const sel=document.getElementById('progress-ex-sel');
   const prev=sel.value;
-  sel.innerHTML=exNames.length?exNames.map(n=>`<option>${n}</option>`):'<option>Sin datos</option>';
-  if(prev&&exNames.includes(prev)) sel.value=prev;
+  sel.innerHTML=exNames.length?exNames.map(n=>`<option>${n}</option>`):'<option>Sin datos aún</option>';
+  if(prev&&exNames.includes(prev))sel.value=prev;
 
   const totalW=state.history.length;
   const totalS=state.history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.length,0),0);
   const totalKg=state.history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.reduce((c,s)=>c+(s.reps*s.kg),0),0),0);
   const streak=calcStreak();
+  const pesoEntries=state.history.filter(h=>h.peso).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const pesoActual=pesoEntries.length?pesoEntries[pesoEntries.length-1].peso:null;
+
   document.getElementById('global-stats').innerHTML=`
     <div class="stat-box"><div class="stat-box-label">Entrenamientos</div><div class="stat-box-val">${totalW}</div></div>
     <div class="stat-box"><div class="stat-box-label">Series totales</div><div class="stat-box-val">${totalS}</div></div>
     <div class="stat-box"><div class="stat-box-label">Volumen total</div><div class="stat-box-val">${Math.round(totalKg)}<span class="stat-box-unit">kg</span></div></div>
-    <div class="stat-box"><div class="stat-box-label">Racha</div><div class="stat-box-val">${streak}<span class="stat-box-unit"> días</span></div></div>
+    <div class="stat-box"><div class="stat-box-label">Peso actual</div><div class="stat-box-val">${pesoActual?pesoActual:'—'}<span class="stat-box-unit">${pesoActual?' kg':''}</span></div></div>
   `;
+
+  renderPesoChart(pesoEntries);
   renderProgressChart();
 }
 
-function renderProgressChart(){
-  const exName=document.getElementById('progress-ex-sel').value;
-  const banner=document.getElementById('pr-banner');
-  if(!exName||!state.history.length){ banner.innerHTML=''; return; }
-  const sessions=state.history
-    .filter(h=>h.exercises.some(e=>e.name===exName))
-    .map(h=>{ const ex=h.exercises.find(e=>e.name===exName); return {date:new Date(h.date),kg:Math.max(...ex.series.map(s=>s.kg),0)}; })
-    .sort((a,b)=>a.date-b.date);
-  if(!sessions.length){ banner.innerHTML=''; return; }
-  const pr=Math.max(...sessions.map(s=>s.kg));
-  banner.innerHTML=`<div class="pr-banner"><div class="pr-trophy">🏆</div><div><div class="pr-info-label">Récord personal · ${exName}</div><div class="pr-info-val">${pr}kg</div></div></div>`;
-  const labels=sessions.map(s=>s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'}));
-  const data=sessions.map(s=>s.kg);
-  if(progressChart){ progressChart.destroy(); progressChart=null; }
-  progressChart=new Chart(document.getElementById('progressChart'),{
+function renderPesoChart(entries){
+  if(pesoChart){pesoChart.destroy();pesoChart=null;}
+  if(!entries||!entries.length){
+    document.getElementById('pesoChart').getContext('2d').clearRect(0,0,9999,9999);
+    return;
+  }
+  const labels=entries.map(e=>new Date(e.date).toLocaleDateString('es-AR',{day:'numeric',month:'short'}));
+  const data=entries.map(e=>e.peso);
+  pesoChart=new Chart(document.getElementById('pesoChart'),{
     type:'line',
-    data:{ labels, datasets:[{ label:exName, data, borderColor:'#E24B4A', backgroundColor:'rgba(226,75,74,0.08)', pointBackgroundColor:'#E24B4A', pointRadius:5, tension:0.35, fill:true }] },
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{display:false} },
+    data:{labels,datasets:[{label:'Peso corporal',data,borderColor:'#3B7BE8',backgroundColor:'rgba(59,123,232,0.08)',pointBackgroundColor:'#3B7BE8',pointRadius:5,tension:0.35,fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
       scales:{
         x:{ticks:{font:{size:11},color:'#7a7870',maxRotation:30},grid:{display:false}},
         y:{ticks:{font:{size:11},color:'#7a7870',callback:v=>v+'kg'},grid:{color:'rgba(0,0,0,0.05)'}}
@@ -575,45 +656,146 @@ function renderProgressChart(){
   });
 }
 
+function renderProgressChart(){
+  const exName=document.getElementById('progress-ex-sel').value;
+  const banner=document.getElementById('pr-banner');
+  if(!exName||!state.history.length){banner.innerHTML='';return;}
+  const sessions=state.history
+    .filter(h=>h.exercises.some(e=>e.name===exName))
+    .map(h=>{const ex=h.exercises.find(e=>e.name===exName);return{date:new Date(h.date),kg:Math.max(...ex.series.map(s=>s.kg),0)};})
+    .sort((a,b)=>a.date-b.date);
+  if(!sessions.length){banner.innerHTML='';return;}
+  const pr=Math.max(...sessions.map(s=>s.kg));
+  banner.innerHTML=`<div class="pr-banner"><div class="pr-trophy">🏆</div><div><div class="pr-info-label">Récord personal · ${exName}</div><div class="pr-info-val">${pr}kg</div></div></div>`;
+  if(progressChart){progressChart.destroy();progressChart=null;}
+  progressChart=new Chart(document.getElementById('progressChart'),{
+    type:'line',
+    data:{labels:sessions.map(s=>s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
+      datasets:[{label:exName,data:sessions.map(s=>s.kg),borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.08)',pointBackgroundColor:'#E24B4A',pointRadius:5,tension:0.35,fill:true}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{ticks:{font:{size:11},color:'#7a7870',maxRotation:30},grid:{display:false}},
+        y:{ticks:{font:{size:11},color:'#7a7870',callback:v=>v+'kg'},grid:{color:'rgba(0,0,0,0.05)'}}
+      }
+    }
+  });
+}
+
+/* ── NUTRICIÓN ── */
+function setNutriDateToday(){document.getElementById('nutri-date-inp').value=new Date().toISOString().slice(0,10);}
+
+function saveNutri(){
+  const date=document.getElementById('nutri-date-inp').value;
+  if(!date){showToast('Seleccioná una fecha');return;}
+  const desayuno=document.getElementById('nutri-desayuno').value.trim();
+  const almuerzo=document.getElementById('nutri-almuerzo').value.trim();
+  const merienda=document.getElementById('nutri-merienda').value.trim();
+  const cena=document.getElementById('nutri-cena').value.trim();
+  if(!desayuno&&!almuerzo&&!merienda&&!cena){showToast('Anotá algo primero');return;}
+  const idx=state.nutricion.findIndex(n=>n.date===date);
+  const entry={date,desayuno,almuerzo,merienda,cena};
+  if(idx>=0)state.nutricion[idx]=entry;
+  else state.nutricion.unshift(entry);
+  state.nutricion.sort((a,b)=>b.date.localeCompare(a.date));
+  save();renderNutriHistory();showToast('Día guardado ✓');
+}
+
+function copyNutri(){
+  const desayuno=document.getElementById('nutri-desayuno').value.trim();
+  const almuerzo=document.getElementById('nutri-almuerzo').value.trim();
+  const merienda=document.getElementById('nutri-merienda').value.trim();
+  const cena=document.getElementById('nutri-cena').value.trim();
+  const date=document.getElementById('nutri-date-inp').value;
+  const dateStr=date?new Date(date+'T12:00:00').toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'}):'';
+  let text='';
+  if(dateStr)text+=`📅 ${dateStr}\n\n`;
+  if(desayuno)text+=`🌅 Desayuno\n${desayuno}\n\n`;
+  if(almuerzo)text+=`☀️ Almuerzo\n${almuerzo}\n\n`;
+  if(merienda)text+=`🍎 Merienda\n${merienda}\n\n`;
+  if(cena)text+=`🌙 Cena\n${cena}`;
+  if(!text.trim()){showToast('No hay nada que copiar');return;}
+  navigator.clipboard.writeText(text.trim()).then(()=>showToast('¡Copiado al portapapeles! 📋')).catch(()=>showToast('No se pudo copiar'));
+}
+
+function loadNutriForDate(date){
+  const entry=state.nutricion.find(n=>n.date===date);
+  document.getElementById('nutri-desayuno').value=entry?entry.desayuno:'';
+  document.getElementById('nutri-almuerzo').value=entry?entry.almuerzo:'';
+  document.getElementById('nutri-merienda').value=entry?entry.merienda:'';
+  document.getElementById('nutri-cena').value=entry?entry.cena:'';
+}
+
+function renderNutriHistory(){
+  const wrap=document.getElementById('nutri-history-wrap');
+  const list=document.getElementById('nutri-history-list');
+  if(!state.nutricion.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  list.innerHTML=state.nutricion.map(n=>{
+    const d=new Date(n.date+'T12:00:00').toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
+    let body='';
+    if(n.desayuno)body+=`🌅 Desayuno\n${n.desayuno}\n\n`;
+    if(n.almuerzo)body+=`☀️ Almuerzo\n${n.almuerzo}\n\n`;
+    if(n.merienda)body+=`🍎 Merienda\n${n.merienda}\n\n`;
+    if(n.cena)body+=`🌙 Cena\n${n.cena}`;
+    return `<div class="nutri-hist-item">
+      <div class="nutri-hist-header">
+        <span style="cursor:pointer" onclick="loadNutriEntry('${n.date}')">${d}</span>
+        <button class="nutri-hist-del" onclick="deleteNutri('${n.date}')">✕</button>
+      </div>
+      <div class="nutri-hist-body">${body.trim()}</div>
+    </div>`;
+  }).join('');
+}
+
+function loadNutriEntry(date){
+  document.getElementById('nutri-date-inp').value=date;
+  loadNutriForDate(date);
+  document.getElementById('tab-nutricion').scrollTop=0;
+}
+
+function deleteNutri(date){
+  state.nutricion=state.nutricion.filter(n=>n.date!==date);
+  save();renderNutriHistory();showToast('Eliminado');
+}
+
+document.getElementById('nutri-date-inp').addEventListener('change',function(){
+  loadNutriForDate(this.value);
+});
+
 /* ── STREAK ── */
 function calcStreak(){
-  if(!state.history.length){ updateStreakBadge(0); return 0; }
+  if(!state.history.length){updateStreakBadge(0);return 0;}
   const dates=[...new Set(state.history.map(h=>new Date(h.date).toDateString()))].sort((a,b)=>new Date(b)-new Date(a));
-  let streak=0, prev=new Date();
+  let streak=0,prev=new Date();
   for(let d of dates){
     const cur=new Date(d);
     const diff=Math.round((prev-cur)/(1000*60*60*24));
-    if(diff<=1){ streak++; prev=cur; } else break;
+    if(diff<=1){streak++;prev=cur;}else break;
   }
-  updateStreakBadge(streak); return streak;
+  updateStreakBadge(streak);return streak;
 }
-function updateStreakBadge(n){ document.getElementById('streak-badge').textContent=`🔥 ${n} día${n===1?'':'s'}`; }
+function updateStreakBadge(n){document.getElementById('streak-badge').textContent=`🔥 ${n} día${n===1?'':'s'}`;}
 
-/* ── TOAST ── */
+/* ── MISC ── */
 function showToast(msg){
   const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
+  t.textContent=msg;t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2200);
 }
-
-/* ── DATE ── */
 function setDate(){
   const d=new Date();
   document.getElementById('date-sub').textContent=d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
-
-/* ── PWA install hint ── */
+function closeHint(){
+  document.getElementById('install-hint').style.display='none';
+  localStorage.setItem('gymlog_hint_closed','1');
+}
 function checkInstallHint(){
   const shown=localStorage.getItem('gymlog_hint_closed');
   const isStandalone=window.matchMedia('(display-mode:standalone)').matches||window.navigator.standalone;
-  if(!isStandalone&&!shown){
-    document.getElementById('install-hint').style.display='flex';
-  }
+  if(!isStandalone&&!shown)document.getElementById('install-hint').style.display='flex';
 }
-document.getElementById('install-hint') && document.querySelector('.install-hint-close') &&
-  document.querySelector('.install-hint-close').addEventListener('click',()=>{
-    localStorage.setItem('gymlog_hint_closed','1');
-  });
 
 /* ── INIT ── */
 load();
@@ -624,7 +806,10 @@ renderFilters();
 renderExercises();
 renderMoods();
 initDatePicker();
+setNutriDateToday();
+updatePesoLast();
 checkInstallHint();
 </script>
 </body>
 </html>
+
