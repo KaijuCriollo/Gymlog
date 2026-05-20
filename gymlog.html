@@ -99,30 +99,12 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
 .check-btn.done{background:var(--green-light);border-color:var(--green)}
 .check-btn.done svg{stroke:var(--green)}
 .bw-note{font-size:11px;color:var(--blue-dark);background:var(--blue-light);border-radius:6px;padding:4px 8px;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.ex-note-wrap{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
+.note-textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);background:#fafaf8;resize:none;outline:none;min-height:56px}
+.note-textarea::placeholder{color:var(--subtle)}
 .add-series-btn{width:100%;margin-top:6px;padding:7px;background:none;border:1.5px dashed var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif}
 .del-btn{margin-top:8px;float:right;background:none;border:none;font-size:12px;color:var(--subtle);cursor:pointer;font-family:'DM Sans',sans-serif}
 .clearfix::after{content:'';display:table;clear:both}
-
-/* PR inline badge */
-.pr-inline{font-size:11px;color:var(--orange);background:var(--orange-light);padding:2px 7px;border-radius:10px;font-weight:600;margin-bottom:8px;display:inline-block}
-
-/* REST TIMER */
-.rest-timer-bar{position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;z-index:9999;background:var(--surface2);border-bottom:1px solid var(--border);display:none;align-items:center;justify-content:space-between;padding:10px 16px;gap:12px;box-shadow:0 2px 12px rgba(0,0,0,0.1)}
-.rest-timer-bar.show{display:flex}
-.rest-timer-label{font-size:12px;color:var(--muted)}
-.rest-timer-count{font-size:24px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text)}
-.rest-timer-count.urgent{color:var(--red)}
-.rest-btns{display:flex;gap:6px}
-.rest-btn{padding:6px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);background:none;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--muted)}
-.rest-btn-stop{background:var(--red-light);color:var(--red-dark);border-color:var(--red)}
-.rest-timer-presets{display:flex;gap:4px}
-.preset-btn{padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:none;font-size:11px;cursor:pointer;font-family:'DM Mono',monospace;color:var(--muted)}
-.preset-btn.active{background:var(--red-light);border-color:var(--red);color:var(--red-dark)}
-
-/* STOPWATCH BUTTON */
-.chrono-fab{position:fixed;bottom:80px;right:16px;width:48px;height:48px;border-radius:50%;background:var(--text);border:none;color:#fff;font-size:20px;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:9990;box-shadow:0 4px 16px rgba(0,0,0,0.25)}
-.chrono-fab.show{display:flex}
-.chrono-fab.running{background:var(--green)}
 
 /* SECTION CARDS */
 .section-card{margin:10px 12px 0;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:13px 14px}
@@ -193,8 +175,7 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
 .hist-mood-tag{display:inline-block;background:#fff;color:var(--red-dark);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin-bottom:4px;border:1px solid #f0c4c4}
 .hist-note-text{font-size:12px;color:var(--red-dark);line-height:1.4}
 .hist-peso-badge{display:inline-flex;align-items:center;gap:4px;background:var(--blue-light);color:var(--blue-dark);font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin-left:6px;font-family:'DM Mono',monospace}
-.hist-export-row{display:flex;gap:8px;margin:10px 12px 0}
-.hist-export-btn{flex:1;padding:11px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px}
+.hist-export-btn{margin:10px 12px 0;width:calc(100% - 24px);padding:11px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px}
 
 /* PROGRESO */
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:10px 12px 0}
@@ -306,7 +287,18 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
     <use href="#db" transform="translate(380,280) rotate(10)" fill="rgba(200,15,15,0.06)"/>
     <use href="#db" transform="translate(110,410) rotate(-15)" fill="rgba(200,15,15,0.06)"/>
     <use href="#db" transform="translate(310,390) rotate(35)" fill="rgba(200,15,15,0.07)"/>
+    <use href="#db" transform="translate(60,490) rotate(5)" fill="rgba(200,15,15,0.055)"/>
+    <use href="#db" transform="translate(400,450) rotate(-20)" fill="rgba(200,15,15,0.065)"/>
     <use href="#db" transform="translate(190,540) rotate(25)" fill="rgba(200,15,15,0.075)"/>
+    <use href="#db" transform="translate(350,580) rotate(-10)" fill="rgba(200,15,15,0.06)"/>
+    <use href="#db" transform="translate(70,630) rotate(40)" fill="rgba(200,15,15,0.065)"/>
+    <use href="#db" transform="translate(250,670) rotate(-30)" fill="rgba(200,15,15,0.07)"/>
+    <use href="#db" transform="translate(410,710) rotate(15)" fill="rgba(200,15,15,0.055)"/>
+    <use href="#db" transform="translate(90,750) rotate(-5)" fill="rgba(200,15,15,0.065)"/>
+    <use href="#db" transform="translate(180,810) rotate(20)" fill="rgba(200,15,15,0.06)"/>
+    <use href="#db" transform="translate(360,840) rotate(-35)" fill="rgba(200,15,15,0.075)"/>
+    <use href="#db" transform="translate(130,330) rotate(12)" fill="rgba(200,15,15,0.06)"/>
+    <use href="#db" transform="translate(290,470) rotate(-18)" fill="rgba(200,15,15,0.065)"/>
   </svg>
   <div class="auth-box">
     <div class="auth-logo">Kaiju<span>GymLog</span></div>
@@ -335,26 +327,6 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
 
 <!-- APP -->
 <div id="app">
-  <!-- REST TIMER -->
-  <div class="rest-timer-bar" id="rest-timer-bar">
-    <div>
-      <div class="rest-timer-label">⏱ Descanso</div>
-      <div class="rest-timer-count" id="rest-count">1:30</div>
-    </div>
-    <div class="rest-timer-presets">
-      <button class="preset-btn" onclick="setRestPreset(60)">1'</button>
-      <button class="preset-btn active" onclick="setRestPreset(90)">1'30</button>
-      <button class="preset-btn" onclick="setRestPreset(120)">2'</button>
-      <button class="preset-btn" onclick="setRestPreset(180)">3'</button>
-    </div>
-    <div class="rest-btns">
-      <button class="rest-btn" onclick="resetRest()">↺</button>
-      <button class="rest-btn rest-btn-stop" onclick="stopRest()">✕</button>
-    </div>
-  </div>
-
-  <!-- STOPWATCH FAB -->
-  <button class="chrono-fab" id="chrono-fab" onclick="toggleChrono()" title="Cronómetro">⏱</button>
 
   <div class="header">
     <div class="header-inner">
@@ -438,10 +410,7 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
 
     <!-- HISTORIAL -->
     <div id="tab-historial" class="tab">
-      <div class="hist-export-row">
-        <button class="hist-export-btn" onclick="exportData('json')">⬇️ JSON</button>
-        <button class="hist-export-btn" onclick="exportData('csv')">⬇️ CSV</button>
-      </div>
+      <button class="hist-export-btn" onclick="exportData()">⬇️ Exportar mis datos (JSON)</button>
       <div id="history-list"></div>
     </div>
 
@@ -484,7 +453,7 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
         <div class="profile-avatar-wrap">
           <div class="profile-avatar" id="profile-avatar-display" onclick="pickAvatar()">🏋️</div>
           <div class="profile-avatar-hint" onclick="pickAvatar()">Tocá para cambiar la foto</div>
-          <input type="file" id="avatar-file-input" accept="image/*" capture="environment" style="display:none" onchange="handleAvatarChange(this)"/>
+          <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarChange(this)"/>
         </div>
         <div class="profile-field">
           <div class="profile-label">Apodo</div>
@@ -537,7 +506,7 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
       <option value="bw">Peso corporal (reps, sin peso extra)</option>
       <option value="bw_lastre">Peso corporal + lastre opcional</option>
       <option value="time">Por tiempo (segundos)</option>
-      <option value="abs">Abdominales/Core (reps, sin peso)</option>
+      <option value="abs">Abdominales (reps, sin peso)</option>
     </select>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-add-ex')">Cancelar</button>
@@ -580,7 +549,7 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
       <option value="bw">Peso corporal (reps)</option>
       <option value="bw_lastre">Peso corporal + lastre opcional</option>
       <option value="time">Por tiempo (segundos)</option>
-      <option value="abs">Abdominales/Core (reps, sin peso)</option>
+      <option value="abs">Abdominales (reps, sin peso)</option>
     </select>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-add-to-routine')">Cancelar</button>
@@ -603,20 +572,6 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
       <button class="btn-cancel" onclick="closeModal('modal-edit-entry')">Cancelar</button>
       <button class="btn-confirm" onclick="saveEditEntry()">Guardar</button>
     </div>
-  </div>
-</div>
-
-<!-- CHRONO MODAL -->
-<div class="modal-overlay" id="modal-chrono">
-  <div class="modal" style="text-align:center">
-    <div class="modal-handle"></div>
-    <div class="modal-title">⏱ Cronómetro</div>
-    <div style="font-size:56px;font-weight:600;font-family:'DM Mono',monospace;color:var(--text);margin:10px 0" id="chrono-display">00:00</div>
-    <div style="display:flex;gap:10px;margin-top:16px">
-      <button class="btn-cancel" onclick="chronoReset()">↺ Reset</button>
-      <button class="btn-confirm" id="chrono-start-btn" onclick="chronoToggle()">▶ Iniciar</button>
-    </div>
-    <button class="btn-cancel" style="width:100%;margin-top:10px" onclick="closeModal('modal-chrono')">Cerrar</button>
   </div>
 </div>
 
@@ -653,6 +608,8 @@ const db = getFirestore(fbApp);
 
 const MOODS = ['💪 Excelente','😊 Bien','😐 Regular','😓 Cansado','🤒 Me sentí mal'];
 const MUSCLES = ['Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Cuádriceps','Glúteos','Piernas','Abdominales','Core','Cardio'];
+const BW_MUSCLES = ['Abdominales','Core'];
+const BW_LASTRE = ['Espalda']; // dominadas default
 
 let currentUser = null;
 let exercises = [], history = [], nutricion = [], routines = [];
@@ -660,10 +617,6 @@ let profile = { nickname:'', objetivo:'', avatarUrl:'' };
 let currentFilter = 'Todos', currentMood = null, authMode = 'login';
 let editingEntryId = null, editMood = null, currentRoutineTarget = null;
 let progressChart = null, pesoChart = null, weeklyChart = null;
-let restInterval = null, restSeconds = 90, restTotal = 90;
-
-// Chrono state
-let chronoInterval = null, chronoRunning = false, chronoElapsed = 0, chronoStart = 0;
 
 /* ── AUTH ── */
 window.setAuthMode = (mode, btn) => {
@@ -713,6 +666,13 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('auth-loading').classList.remove('show');
     setDate(); initDatePicker(); setNutriDateToday();
     await loadUserData();
+    // Always start on registro tab with save bar visible
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-registro').classList.add('active');
+    const regBtn = document.querySelector('[data-tab=registro]');
+    if (regBtn) regBtn.classList.add('active');
+    document.getElementById('save-bar').style.display = '';
     renderAll();
   } else {
     currentUser = null;
@@ -797,8 +757,6 @@ window.switchTab = (tab, btn) => {
   document.getElementById('tab-'+tab).classList.add('active');
   if (btn) btn.classList.add('active');
   document.getElementById('save-bar').style.display = tab === 'registro' ? '' : 'none';
-  // Show/hide chrono FAB only on registro tab
-  document.getElementById('chrono-fab').classList.toggle('show', tab === 'registro');
   if (tab === 'historial') renderHistory();
   if (tab === 'progreso') renderProgress();
   if (tab === 'rutinas') renderRoutines();
@@ -813,7 +771,7 @@ function renderFilters() {
 }
 window.setFilter = (m, el) => { currentFilter = m; document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active')); el.classList.add('active'); renderExercises(); };
 
-/* ── PR HELPERS ── */
+/* ── PR HELPER ── */
 function getPR(exName) {
   let pr = 0;
   history.forEach(h => h.exercises && h.exercises.forEach(e => {
@@ -825,13 +783,6 @@ function getPRTime(exName) {
   let pr = 0;
   history.forEach(h => h.exercises && h.exercises.forEach(e => {
     if (e.name === exName) e.series && e.series.forEach(s => { if ((s.secs||0) > pr) pr = s.secs||0; });
-  }));
-  return pr;
-}
-function getPRReps(exName) {
-  let pr = 0;
-  history.forEach(h => h.exercises && h.exercises.forEach(e => {
-    if (e.name === exName) e.series && e.series.forEach(s => { if ((s.reps||0) > pr) pr = s.reps||0; });
   }));
   return pr;
 }
@@ -858,15 +809,12 @@ function buildExCard(ex) {
   const isTime = type === 'time';
   const bw = getLastBodyWeight();
 
-  // PR line
   let prLine = '';
-  if (isTime) { const pr = getPRTime(ex.name); if (pr > 0) prLine = `⏱ Mejor: ${pr}s`; }
-  else if (isBW || type === 'abs') { const pr = getPRReps(ex.name); if (pr > 0) prLine = `🏆 Mejor: ${pr} reps`; }
-  else { const pr = getPR(ex.name); if (pr > 0) prLine = `🏆 Récord: ${pr}kg`; }
+  if (isTime) { const pr = getPRTime(ex.name); if (pr > 0) prLine = `⏱ Mejor marca: ${pr}s`; }
+  else if (!isBW) { const pr = getPR(ex.name); if (pr > 0) prLine = `🏆 Récord: ${pr}kg`; }
 
   let bodyContent = '';
-  if (isBWL && bw) bodyContent += `<div class="bw-note">⚖️ Tu peso hoy: ${bw}kg — lastre extra abajo</div>`;
-  if (prLine) bodyContent += `<div class="pr-inline">${prLine}</div>`;
+  if (isBWL && bw) bodyContent += `<div class="bw-note">⚖️ Tu peso hoy: ${bw}kg — podés agregar lastre extra abajo</div>`;
 
   if (isTime) {
     bodyContent += `<div class="col-labels col-time"><span>#</span><span>Segundos</span><span></span></div>`;
@@ -875,108 +823,93 @@ function buildExCard(ex) {
         <span class="series-num">${i+1}</span>
         <input class="num-input" type="number" inputmode="decimal" value="${s.secs||30}" min="1"
           onchange="updateSeries(${ex.id},${i},'secs',this.value)"/>
-        <button class="check-btn ${s.done?'done':''}" onclick="doneAndRest(${ex.id},${i})">
+        <button class="check-btn ${s.done?'done':''}" onclick="toggleDone(${ex.id},${i})">
           <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
       </div>`).join('');
-  } else if (isBW) {
+  } else if (isBW || type === 'abs') {
     bodyContent += `<div class="col-labels col-bw"><span>#</span><span>Reps</span><span></span></div>`;
     bodyContent += ex.series.map((s,i) => `
       <div class="series-row col-bw">
         <span class="series-num">${i+1}</span>
         <input class="num-input" type="number" inputmode="decimal" value="${s.reps||10}" min="1"
           onchange="updateSeries(${ex.id},${i},'reps',this.value)"/>
-        <button class="check-btn ${s.done?'done':''}" onclick="doneAndRest(${ex.id},${i})">
+        <button class="check-btn ${s.done?'done':''}" onclick="toggleDone(${ex.id},${i})">
           <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
       </div>`).join('');
   } else if (isBWL) {
-    bodyContent += `<div class="col-labels col-normal"><span>#</span><span>Reps</span><span>Lastre +kg</span><span></span></div>`;
+    bodyContent += `<div class="col-labels col-normal"><span>#</span><span>Reps</span><span>Lastre kg</span><span></span></div>`;
     bodyContent += ex.series.map((s,i) => `
       <div class="series-row col-normal">
         <span class="series-num">${i+1}</span>
         <input class="num-input" type="number" inputmode="decimal" value="${s.reps||8}" min="1"
           onchange="updateSeries(${ex.id},${i},'reps',this.value)"/>
         <input class="num-input" type="number" inputmode="decimal" value="${s.kg||0}" min="0" step="0.5"
-          onchange="updateSeries(${ex.id},${i},'kg',this.value)"/>
-        <button class="check-btn ${s.done?'done':''}" onclick="doneAndRest(${ex.id},${i})">
+          onchange="updateSeries(${ex.id},${i},'kg',this.value)" placeholder="0"/>
+        <button class="check-btn ${s.done?'done':''}" onclick="toggleDone(${ex.id},${i})">
           <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
       </div>`).join('');
   } else {
-    // normal or abs
-    const isAbs = type === 'abs';
-    if (isAbs) {
-      bodyContent += `<div class="col-labels col-bw"><span>#</span><span>Reps</span><span></span></div>`;
-      bodyContent += ex.series.map((s,i) => `
-        <div class="series-row col-bw">
-          <span class="series-num">${i+1}</span>
-          <input class="num-input" type="number" inputmode="decimal" value="${s.reps||15}" min="1"
-            onchange="updateSeries(${ex.id},${i},'reps',this.value)"/>
-          <button class="check-btn ${s.done?'done':''}" onclick="doneAndRest(${ex.id},${i})">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          </button>
-        </div>`).join('');
-    } else {
-      bodyContent += `<div class="col-labels col-normal"><span>#</span><span>Reps</span><span>Peso kg</span><span></span></div>`;
-      bodyContent += ex.series.map((s,i) => `
-        <div class="series-row col-normal">
-          <span class="series-num">${i+1}</span>
-          <input class="num-input" type="number" inputmode="decimal" value="${s.reps||10}" min="1"
-            onchange="updateSeries(${ex.id},${i},'reps',this.value)"/>
-          <input class="num-input" type="number" inputmode="decimal" value="${s.kg||0}" min="0" step="0.5"
-            onchange="updateSeries(${ex.id},${i},'kg',this.value)"/>
-          <button class="check-btn ${s.done?'done':''}" onclick="doneAndRest(${ex.id},${i})">
-            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          </button>
-        </div>`).join('');
-    }
+    bodyContent += `<div class="col-labels col-normal"><span>#</span><span>Reps</span><span>Peso kg</span><span></span></div>`;
+    bodyContent += ex.series.map((s,i) => `
+      <div class="series-row col-normal">
+        <span class="series-num">${i+1}</span>
+        <input class="num-input" type="number" inputmode="decimal" value="${s.reps||10}" min="1"
+          onchange="updateSeries(${ex.id},${i},'reps',this.value)"/>
+        <input class="num-input" type="number" inputmode="decimal" value="${s.kg||0}" min="0" step="0.5"
+          onchange="updateSeries(${ex.id},${i},'kg',this.value)"/>
+        <button class="check-btn ${s.done?'done':''}" onclick="toggleDone(${ex.id},${i})">
+          <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+      </div>`).join('');
   }
 
-  bodyContent += `<button class="add-series-btn" onclick="addSeries(${ex.id})">+ Serie</button>`;
-  bodyContent += `<div class="clearfix"><button class="del-btn" onclick="deleteEx(${ex.id})">Eliminar ejercicio</button></div>`;
-
-  return `<div class="card">
+  return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
       <div class="card-header-left">
         <div class="ex-name">${ex.name}</div>
-        <div class="ex-muscle">${ex.muscle} · ${typeLabel(type)}</div>
+        <div class="ex-muscle">${ex.muscle}</div>
+        ${prLine ? `<div class="ex-pr">${prLine}</div>` : ''}
       </div>
       <div class="card-header-right">
         <div class="prog-pill ${allDone?'done-all':''}">${done}/${total}</div>
         <svg class="chevron" id="chev-${ex.id}" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
     </div>
-    <div class="card-body" id="body-${ex.id}">${bodyContent}</div>
+    <div class="card-body" id="body-${ex.id}">
+      ${bodyContent}
+      <button class="add-series-btn" onclick="addSeries(${ex.id})">+ Agregar serie</button>
+      <div class="ex-note-wrap">
+        <div style="font-size:11px;color:var(--subtle);margin-bottom:4px">✏️ Nota</div>
+        <textarea class="note-textarea" placeholder="Opcional…" onchange="updateExNote(${ex.id},this.value)">${ex.note||''}</textarea>
+      </div>
+      <div class="clearfix"><button class="del-btn" onclick="deleteEx(${ex.id})">🗑 Eliminar</button></div>
+    </div>
   </div>`;
-}
-
-function typeLabel(t) {
-  const map = {normal:'Normal',bw:'Peso corporal',bw_lastre:'BW + lastre',time:'Por tiempo',abs:'Abdominales'};
-  return map[t]||t;
 }
 
 window.toggleCard = (id) => {
   const body = document.getElementById('body-'+id);
   const chev = document.getElementById('chev-'+id);
-  body.classList.toggle('open');
-  chev.classList.toggle('open');
+  const open = body.classList.toggle('open');
+  open ? chev.classList.add('open') : chev.classList.remove('open');
 };
 
-window.updateSeries = (id, idx, field, val) => {
-  const ex = exercises.find(e => e.id === id); if (!ex) return;
-  ex.series[idx][field] = field === 'reps' ? parseInt(val)||0 : parseFloat(val)||0;
-  saveEx(ex);
+window.updateSeries = (exId, idx, field, val) => {
+  const ex = exercises.find(e => e.id === exId);
+  if (ex && ex.series[idx]) { ex.series[idx][field] = val; saveEx(ex); }
 };
 
-window.doneAndRest = (id, idx) => {
-  const ex = exercises.find(e => e.id === id); if (!ex) return;
-  ex.series[idx].done = !ex.series[idx].done;
-  saveEx(ex);
-  renderExercises();
-  const body = document.getElementById('body-'+id);
-  if (body) { body.classList.add('open'); document.getElementById('chev-'+id).classList.add('open'); }
-  if (ex.series[idx].done) startRest();
+window.toggleDone = (exId, idx) => {
+  const ex = exercises.find(e => e.id === exId);
+  if (ex && ex.series[idx]) {
+    ex.series[idx].done = !ex.series[idx].done;
+    saveEx(ex); renderExercises();
+    const body = document.getElementById('body-'+exId);
+    if (body) { body.classList.add('open'); document.getElementById('chev-'+exId).classList.add('open'); }
+  }
 };
 
 window.addSeries = (id) => {
@@ -990,6 +923,8 @@ window.addSeries = (id) => {
   if (body) { body.classList.add('open'); document.getElementById('chev-'+id).classList.add('open'); }
 };
 
+window.updateExNote = (id, val) => { const ex = exercises.find(e => e.id === id); if (ex) { ex.note = val; saveEx(ex); } };
+
 window.deleteEx = async (id) => {
   if (!confirm('¿Eliminar este ejercicio?')) return;
   const ex = exercises.find(e => e.id === id);
@@ -998,64 +933,6 @@ window.deleteEx = async (id) => {
   renderExercises();
 };
 
-/* ── REST TIMER ── */
-function startRest() {
-  stopRest();
-  restSeconds = restTotal;
-  updateRestDisplay();
-  document.getElementById('rest-timer-bar').classList.add('show');
-  restInterval = setInterval(() => {
-    restSeconds--;
-    updateRestDisplay();
-    if (restSeconds <= 0) { stopRest(); showToast('¡Tiempo! Siguiente serie 💪'); }
-  }, 1000);
-}
-function updateRestDisplay() {
-  const m = Math.floor(restSeconds/60), s = restSeconds%60;
-  const el = document.getElementById('rest-count');
-  el.textContent = m > 0 ? `${m}:${s.toString().padStart(2,'0')}` : `${restSeconds}s`;
-  el.classList.toggle('urgent', restSeconds <= 10 && restSeconds > 0);
-}
-window.stopRest = () => { clearInterval(restInterval); document.getElementById('rest-timer-bar').classList.remove('show'); };
-window.resetRest = () => { restSeconds = restTotal; updateRestDisplay(); };
-window.setRestPreset = (secs) => {
-  restTotal = secs; restSeconds = secs; updateRestDisplay();
-  document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-};
-
-/* ── CRONÓMETRO INDEPENDIENTE ── */
-window.toggleChrono = () => {
-  document.getElementById('modal-chrono').classList.add('open');
-};
-window.chronoToggle = () => {
-  if (chronoRunning) {
-    clearInterval(chronoInterval);
-    chronoElapsed += Date.now() - chronoStart;
-    chronoRunning = false;
-    document.getElementById('chrono-start-btn').textContent = '▶ Continuar';
-    document.getElementById('chrono-fab').classList.remove('running');
-  } else {
-    chronoStart = Date.now();
-    chronoRunning = true;
-    document.getElementById('chrono-start-btn').textContent = '⏸ Pausar';
-    document.getElementById('chrono-fab').classList.add('running');
-    chronoInterval = setInterval(() => {
-      const total = chronoElapsed + (Date.now() - chronoStart);
-      const secs = Math.floor(total/1000);
-      const m = Math.floor(secs/60), s = secs%60;
-      document.getElementById('chrono-display').textContent = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-    }, 500);
-  }
-};
-window.chronoReset = () => {
-  clearInterval(chronoInterval);
-  chronoRunning = false; chronoElapsed = 0;
-  document.getElementById('chrono-display').textContent = '00:00';
-  document.getElementById('chrono-start-btn').textContent = '▶ Iniciar';
-  document.getElementById('chrono-fab').classList.remove('running');
-};
-document.getElementById('modal-chrono').addEventListener('click', function(e){ if(e.target===this) closeModal('modal-chrono'); });
 
 /* ── MODAL ADD EX ── */
 window.openAddExModal = () => { document.getElementById('modal-add-ex').classList.add('open'); document.getElementById('ex-name-inp').value=''; };
@@ -1065,7 +942,7 @@ window.addExercise = async () => {
   if (!name) return;
   const muscle = document.getElementById('ex-muscle-inp').value;
   const type = document.getElementById('ex-type-inp').value;
-  const s0 = type === 'time' ? {secs:'30',done:false} : (type==='abs'||type==='bw') ? {reps:'10',done:false} : {reps:'10',kg:'0',done:false};
+  const s0 = type === 'time' ? {secs:'30',done:false} : {reps:'10',kg:'0',done:false};
   const newEx = { id: Date.now(), name, muscle, type, note:'', series:[s0] };
   await saveEx(newEx); exercises.push(newEx);
   closeModal('modal-add-ex'); renderExercises(); showToast('Ejercicio agregado ✓');
@@ -1118,6 +995,7 @@ window.saveWorkout = async () => {
   await addHistEntry(entry);
   history.unshift(entry);
 
+  // Build summary
   buildSummary(entry);
 
   for (const ex of exercises) { ex.series.forEach(s => s.done = false); ex.note = ''; await saveEx(ex); }
@@ -1137,16 +1015,11 @@ function buildSummary(entry) {
     ex.series.forEach(s => {
       if ((s.kg||0) > maxKg) { maxKg = s.kg; maxKgEx = ex.name; }
     });
+    // Check if PR broken
     const pr = getPR(ex.name);
     const sessionMax = Math.max(...ex.series.map(s=>s.kg||0));
     if (sessionMax > 0 && sessionMax >= pr && history.filter(h=>h.exercises.some(e=>e.name===ex.name)).length > 1) {
-      records.push({label:`¡Récord en ${ex.name}!`, val:`${sessionMax}kg`});
-    }
-    // PR for time
-    const prTime = getPRTime(ex.name);
-    const sessionMaxSecs = Math.max(...ex.series.map(s=>s.secs||0));
-    if (sessionMaxSecs > 0 && sessionMaxSecs >= prTime && prTime > 0 && history.filter(h=>h.exercises.some(e=>e.name===ex.name)).length > 1) {
-      records.push({label:`¡Récord de tiempo en ${ex.name}!`, val:`${sessionMaxSecs}s`});
+      records.push(`🏆 ¡Nuevo récord en ${ex.name}! ${sessionMax}kg`);
     }
   });
   const totalSeries = entry.exercises.reduce((a,e)=>a+e.series.length,0);
@@ -1155,9 +1028,9 @@ function buildSummary(entry) {
   document.getElementById('sum-emoji').textContent = emojis[entry.mood] || '💪';
   document.getElementById('sum-title').textContent = records.length ? '¡Rompiste un récord!' : '¡Sesión completada!';
   document.getElementById('sum-sub').textContent = `${entry.exercises.length} ejercicios · ${totalSeries} series · ${Math.round(totalVol)}kg de volumen`;
-  let recHtml = records.map(r => `<div class="summary-record"><div class="summary-record-icon">🏆</div><div><div class="summary-record-label">${r.label}</div><div class="summary-record-val">${r.val}</div></div></div>`).join('');
-  if (!records.length && maxKgEx) recHtml = `<div class="summary-record"><div class="summary-record-icon">💪</div><div><div class="summary-record-label">Peso más alto hoy</div><div class="summary-record-val">${maxKgEx} · ${maxKg}kg</div></div></div>`;
-  document.getElementById('sum-records').innerHTML = recHtml;
+  const recHtml = records.map(r => `<div class="summary-record"><div class="summary-record-icon">🏆</div><div><div class="summary-record-label">Nuevo récord</div><div class="summary-record-val">${r.replace('🏆 ','')}</div></div></div>`).join('');
+  const maxHtml = maxKgEx && !records.length ? `<div class="summary-record"><div class="summary-record-icon">💪</div><div><div class="summary-record-label">Peso más alto hoy</div><div class="summary-record-val">${maxKgEx} · ${maxKg}kg</div></div></div>` : '';
+  document.getElementById('sum-records').innerHTML = recHtml + maxHtml;
   document.getElementById('summary-overlay').classList.add('open');
 }
 window.closeSummary = () => { document.getElementById('summary-overlay').classList.remove('open'); };
@@ -1172,15 +1045,11 @@ function renderRoutinePillsSelector() {
 
 window.loadRoutine = (fid) => {
   const r = routines.find(x => x.fid === fid); if (!r) return;
+  // Add routine exercises to today if not already there
   let added = 0;
   (r.exercises||[]).forEach(re => {
     if (!exercises.find(e => e.name === re.name)) {
-      const type = re.type||'normal';
-      let s0;
-      if (type==='time') s0={secs:'30',done:false};
-      else if (type==='abs'||type==='bw') s0={reps:'10',done:false};
-      else s0={reps:'10',kg:'0',done:false};
-      const newEx = { id: Date.now() + Math.random(), name: re.name, muscle: re.muscle, type, note:'', series:[s0] };
+      const newEx = { id: Date.now() + Math.random(), name: re.name, muscle: re.muscle, type: re.type||'normal', note:'', series:[re.type==='time'?{secs:'30',done:false}:{reps:'10',kg:'0',done:false}] };
       saveEx(newEx); exercises.push(newEx); added++;
     }
   });
@@ -1207,7 +1076,7 @@ function renderRoutines() {
       <div class="routine-ex-list">
         ${(r.exercises||[]).map((e,i) => `
           <div class="routine-ex-row">
-            <div><div>${e.name}</div><div class="routine-ex-muscle">${e.muscle} · ${typeLabel(e.type||'normal')}</div></div>
+            <div><div>${e.name}</div><div class="routine-ex-muscle">${e.muscle} · ${e.type||'normal'}</div></div>
             <button class="routine-del-btn" onclick="removeExFromRoutine('${r.fid}',${i})">✕</button>
           </div>`).join('')}
         ${!(r.exercises||[]).length ? '<div style="padding:10px 14px;font-size:13px;color:var(--subtle)">Sin ejercicios aún</div>' : ''}
@@ -1229,7 +1098,7 @@ window.createRoutine = async () => {
 
 window.openAddToRoutine = (fid) => {
   currentRoutineTarget = fid;
-  document.getElementById('modal-add-to-routine-title').textContent = 'Agregar a ' + (routines.find(r=>r.fid===fid)||{}).name;
+  document.getElementById('modal-add-to-routine-title').textContent = 'Agregar ejercicio a ' + (routines.find(r=>r.fid===fid)||{}).name;
   document.getElementById('rout-ex-name-inp').value = '';
   document.getElementById('modal-add-to-routine').classList.add('open');
 };
@@ -1276,6 +1145,7 @@ function renderHistory() {
         <div>
           <div class="hist-ex-name">${ex.name}</div>
           <div class="hist-ex-detail">${ex.series.length} series${maxKg>0?' · '+maxKg+'kg max':''}${maxSecs>0?' · '+maxSecs+'s max':''}</div>
+          ${ex.note?`<div class="hist-ex-note">✏️ ${ex.note}</div>`:''}
         </div>
         <div class="hist-kg">${isTime?(maxSecs+'s'):maxKg>0?maxKg+'kg':'BW'}</div>
       </div>`;
@@ -1322,34 +1192,14 @@ window.saveEditEntry = async () => {
 document.getElementById('modal-edit-entry').addEventListener('click', function(e){ if(e.target===this) closeModal('modal-edit-entry'); });
 
 /* EXPORT */
-window.exportData = (format) => {
-  if (format === 'json') {
-    const data = { exportDate: new Date().toISOString(), history, nutricion };
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url;
-    a.download = `kaijugymlog_${new Date().toISOString().slice(0,10)}.json`;
-    a.click(); URL.revokeObjectURL(url);
-    showToast('Exportado como JSON ✓');
-  } else {
-    // CSV
-    const rows = [['Fecha','Ejercicio','Músculo','Tipo','Serie','Reps','Kg','Segundos']];
-    history.forEach(h => {
-      const date = new Date(h.date).toLocaleDateString('es-AR');
-      h.exercises.forEach(ex => {
-        ex.series.forEach((s, idx) => {
-          rows.push([date, ex.name, ex.muscle, ex.type||'normal', idx+1, s.reps||0, s.kg||0, s.secs||0]);
-        });
-      });
-    });
-    const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url;
-    a.download = `kaijugymlog_${new Date().toISOString().slice(0,10)}.csv`;
-    a.click(); URL.revokeObjectURL(url);
-    showToast('Exportado como CSV ✓');
-  }
+window.exportData = () => {
+  const data = { exportDate: new Date().toISOString(), history, nutricion };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `kaijugymlog_${new Date().toISOString().slice(0,10)}.json`;
+  a.click(); URL.revokeObjectURL(url);
+  showToast('Datos exportados ✓');
 };
 
 /* ── PROGRESO ── */
@@ -1367,22 +1217,14 @@ function renderProgress() {
   const pesoEntries = history.filter(h=>h.peso).sort((a,b)=>new Date(a.date)-new Date(b.date));
   const pesoActual = pesoEntries.length ? pesoEntries[pesoEntries.length-1].peso : null;
 
-  // Days since last
-  let daysSinceTxt = '—';
-  if (history.length) {
-    const diff = Math.floor((new Date() - new Date(history[0].date))/(1000*60*60*24));
-    daysSinceTxt = diff === 0 ? 'Hoy' : `${diff}d atrás`;
-  }
-
   document.getElementById('global-stats').innerHTML = `
     <div class="stat-box"><div class="stat-box-label">Entrenamientos</div><div class="stat-box-val">${totalW}</div></div>
     <div class="stat-box"><div class="stat-box-label">Series totales</div><div class="stat-box-val">${totalS}</div></div>
     <div class="stat-box"><div class="stat-box-label">Volumen total</div><div class="stat-box-val">${Math.round(totalKg)}<span class="stat-box-unit">kg</span></div></div>
     <div class="stat-box"><div class="stat-box-label">Peso actual</div><div class="stat-box-val">${pesoActual||'—'}<span class="stat-box-unit">${pesoActual?' kg':''}</span></div></div>
-    <div class="stat-box"><div class="stat-box-label">Racha actual</div><div class="stat-box-val">${streak}<span class="stat-box-unit"> días</span></div></div>
-    <div class="stat-box"><div class="stat-box-label">Último entreno</div><div class="stat-box-val" style="font-size:16px">${daysSinceTxt}</div></div>
   `;
 
+  // Objetivo banner
   if (profile.objetivo || profile.objetivoCustom) {
     document.getElementById('objetivo-banner').innerHTML = `<div class="objetivo-banner">🎯 Objetivo: <strong>${profile.objetivoCustom||profile.objetivo}</strong></div>`;
   }
@@ -1394,6 +1236,7 @@ function renderProgress() {
 
 function renderWeeklyChart() {
   if (weeklyChart) { weeklyChart.destroy(); weeklyChart = null; }
+  // Last 8 weeks
   const weeks = [];
   for (let i = 7; i >= 0; i--) {
     const d = new Date(); d.setDate(d.getDate() - i*7);
@@ -1498,6 +1341,9 @@ function renderProfile() {
     const hdrAvatar = document.getElementById('avatar-btn');
     hdrAvatar.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar"/>`;
   }
+  if (profile.nickname) {
+    document.getElementById('avatar-btn').title = profile.nickname;
+  }
 }
 
 window.selectObjetivo = (obj, el) => {
@@ -1539,6 +1385,7 @@ function updateStreakBadge(n) { document.getElementById('streak-badge').textCont
 /* ── MISC ── */
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 function setDate() { document.getElementById('date-sub').textContent = new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
+window.setNutriDateToday = () => { document.getElementById('nutri-date-inp').value = new Date().toISOString().slice(0,10); };
 </script>
 </body>
 </html>
