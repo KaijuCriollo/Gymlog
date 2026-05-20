@@ -139,7 +139,7 @@ html,body{height:100%;background:#e8e6e2;font-family:'DM Sans',sans-serif;color:
 .add-ex-btn{width:100%;padding:12px;background:none;border:1.5px dashed var(--border);border-radius:var(--radius);color:var(--muted);cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px}
 
 /* SAVE BAR */
-.save-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(232,230,226,0.92);backdrop-filter:blur(12px);border-top:1px solid var(--border);display:none}
+.save-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));background:rgba(232,230,226,0.92);backdrop-filter:blur(12px);border-top:1px solid var(--border)}
 .save-btn{width:100%;padding:13px;background:var(--red);border:none;border-radius:var(--radius-sm);color:#fff;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
 .save-btn:disabled{opacity:0.6;cursor:not-allowed}
 
@@ -1130,7 +1130,7 @@ window.deleteRoutine = async (fid) => {
 function renderHistory() {
   const list = document.getElementById('history-list');
   if (!history.length) { list.innerHTML = `<div class="empty-state" style="padding-top:40px"><div class="empty-icon">📋</div><div class="empty-text">Sin entrenamientos aún.</div></div>`; return; }
-  list.innerHTML = history.map(entry => {
+  list.innerHTML = history.map((entry, idx) => {
     const d = new Date(entry.date);
     const dateStr = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
     const timeStr = d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
@@ -1158,15 +1158,32 @@ function renderHistory() {
       </div>
       ${entry.note?`<div class="hist-note-text">"${entry.note}"</div>`:''}
     </div>` : '';
-    return `<div class="hist-day">
-      <div class="hist-day-header">
-        <div><div class="hist-day-date">${dateStr}</div><div class="hist-day-meta">${timeStr} · ${totalS} series · ${Math.round(totalV)}kg vol</div></div>
-        <div class="hist-day-actions"><button class="hist-edit-btn" onclick="openEditEntry('${entry.fid}')">✏️ Editar</button></div>
+    const moodIcon = {'💪 Excelente':'💪','😊 Bien':'😊','😐 Regular':'😐','😓 Cansado':'😓','🤒 Me sentí mal':'🤕'}[entry.mood]||'';
+    return `<div class="hist-day" id="hday-${idx}">
+      <div class="hist-day-header" onclick="toggleHistDay(${idx})" style="cursor:pointer">
+        <div>
+          <div class="hist-day-date">${moodIcon} ${dateStr}</div>
+          <div class="hist-day-meta">${timeStr} · ${totalS} series · ${Math.round(totalV)}kg vol${entry.peso?' · ⚖️'+entry.peso+'kg':''}</div>
+        </div>
+        <div class="hist-day-actions">
+          <button class="hist-edit-btn" onclick="event.stopPropagation();openEditEntry('${entry.fid}')">✏️</button>
+          <svg id="hchev-${idx}" style="width:18px;height:18px;stroke:var(--subtle);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s;flex-shrink:0" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
       </div>
-      ${exItems}${footer}
+      <div id="hbody-${idx}" style="display:none">
+        ${exItems}${footer}
+      </div>
     </div>`;
   }).join('');
 }
+
+window.toggleHistDay = (idx) => {
+  const body = document.getElementById('hbody-'+idx);
+  const chev = document.getElementById('hchev-'+idx);
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  chev.style.transform = open ? 'rotate(180deg)' : '';
+};
 
 /* EDIT ENTRY */
 window.openEditEntry = (fid) => {
