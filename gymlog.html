@@ -797,13 +797,17 @@ function renderExercises() {
   let items;
   if (currentFilter === 'Ahora') {
     items = exercises.filter(e => e.series.some(s => s.done));
-    if (!items.length) items = exercises; // show all if nothing done yet
   } else if (currentFilter === 'Todos') {
     items = exercises;
   } else {
     items = exercises.filter(e => e.muscle === currentFilter);
   }
-  if (!items.length) { list.innerHTML = `<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">Sin ejercicios.</div></div>`; return; }
+  if (!items.length) {
+    const msg = currentFilter === 'Ahora'
+      ? `<div class="empty-state"><div class="empty-icon">💤</div><div class="empty-text">Todavía no completaste<br>ninguna serie hoy.<br><span style="color:#E83535;font-weight:700">¡A entrenar!</span></div></div>`
+      : `<div class="empty-state"><div class="empty-icon">🏋️</div><div class="empty-text">Sin ejercicios.</div></div>`;
+    list.innerHTML = msg; return;
+  }
   list.innerHTML = items.map(ex => buildExCard(ex)).join('');
 }
 
