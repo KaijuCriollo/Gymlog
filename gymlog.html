@@ -854,7 +854,7 @@ function getPR(exName) {
   const aliases = getAliases(exName);
   let pr = 0;
   history.forEach(h => h.exercises && h.exercises.forEach(e => {
-    if (aliases.includes(normalizeExName(e.name))) e.series && e.series.forEach(s => { if ((s.kg||0) > pr) pr = s.kg||0; });
+    if (aliases.includes(normalizeExName(e.name).toLowerCase())) e.series && e.series.forEach(s => { if ((s.kg||0) > pr) pr = s.kg||0; });
   }));
   return pr;
 }
@@ -1395,9 +1395,9 @@ function renderBig3Charts() {
   ];
   big3.forEach(ex => {
     const sessions = history
-      .filter(h => h.exercises && h.exercises.some(e => e.name === ex.name))
+      .filter(h => h.exercises && h.exercises.some(e => getAliases(ex.name).includes(normalizeExName(e.name).toLowerCase())))
       .map(h => {
-        const e = h.exercises.find(x => x.name === ex.name);
+        const e = h.exercises.find(x => getAliases(ex.name).includes(normalizeExName(x.name).toLowerCase()));
         const val = ex.type === 'reps'
           ? Math.max(...e.series.map(s => parseInt(s.reps)||0), 0)
           : Math.max(...e.series.map(s => parseFloat(s.kg)||0), 0);
