@@ -791,7 +791,7 @@ function showSync(on) { document.getElementById('sync-dot').classList.toggle('sh
 
 /* ── QUICK PESO SAVE ── */
 window.saveQuickPeso = async () => {
-  const val = parseFloat(document.getElementById('quick-peso-input').value);
+  const val = Math.round(parseFloat(document.getElementById('quick-peso-input').value)*10)/10;
   if (!val || val < 30 || val > 250) { showToast('Ingresá un peso válido'); return; }
   // Save as a lightweight history entry (no exercises)
   const entry = {
@@ -1113,7 +1113,7 @@ window.saveWorkout = async () => {
   document.getElementById('save-btn').disabled = true;
   showSync(true);
   const dateVal = document.getElementById('workout-date-input').value;
-  const pesoVal = parseFloat(document.getElementById('peso-input').value) || null;
+  const pesoVal = document.getElementById('peso-input').value ? Math.round(parseFloat(document.getElementById('peso-input').value)*10)/10 : null;
   const entry = {
     date: dateVal ? new Date(dateVal+'T12:00:00').toISOString() : new Date().toISOString(),
     mood: currentMood || null,
@@ -1301,7 +1301,7 @@ function renderHistory() {
           <div class="hist-day-meta">${timeStr} · ${totalS} series · ${Math.round(totalV)}kg vol${entry.peso?' · ⚖️'+entry.peso+'kg':''}</div>
         </div>
         <div class="hist-day-actions">
-          <button class="hist-edit-btn" onclick="event.stopPropagation();openEditEntry('${entry.fid}')">✏️</button>
+          <button class="hist-edit-btn" onclick="event.stopPropagation();openEditEntry('${entry.fid}')">✏️</button><button class="hist-edit-btn" style="color:#E83535;border-color:#333" onclick="event.stopPropagation();deleteHistEntry('${entry.fid}')">🗑</button>
           <svg id="hchev-${idx}" style="width:18px;height:18px;stroke:var(--subtle);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s;flex-shrink:0" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
@@ -1332,6 +1332,24 @@ window.openEditEntry = (fid) => {
   document.getElementById('modal-edit-entry').classList.add('open');
 };
 window.setEditMood = (m, el) => { editMood = m; document.querySelectorAll('#edit-mood-row .mood-chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); };
+window.deleteHistEntry = async (fid) => {
+  // Triple confirmation
+  if (!confirm('⚠️ ¿Seguro que querés eliminar este entrenamiento? Esta acción no se puede deshacer.')) return;
+  if (!confirm('🔴 Segunda confirmación: ¿estás completamente seguro? Se perderán todos los datos de esa sesión.')) return;
+  if (!confirm('❌ Última oportunidad: ¿confirmas que querés eliminar este entrenamiento definitivamente?')) return;
+  showSync(true);
+  try {
+    await deleteDoc(doc(db, 'users', uid(), 'history', fid));
+    history = history.filter(h => h.fid !== fid);
+    showSync(false);
+    renderHistory();
+    showToast('Entrenamiento eliminado');
+  } catch(e) {
+    showSync(false);
+    showToast('Error al eliminar, intentá de nuevo');
+  }
+};
+
 window.saveEditEntry = async () => {
   const entry = history.find(h => h.fid === editingEntryId); if (!entry) return;
   const dateVal = document.getElementById('edit-date-inp').value;
@@ -1366,7 +1384,7 @@ function renderProgress() {
   const totalS = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.length,0),0);
   const totalKg = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.reduce((c,s)=>c+(s.reps*s.kg),0),0),0);
   const streak = calcStreak();
-  const pesoEntries = history.filter(h=>h.peso).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const pesoEntries = history.filter(h=>h.peso).map(h=>({...h,peso:Math.round((h.peso||0)*10)/10})).sort((a,b)=>new Date(a.date)-new Date(b.date));
   const pesoActual = pesoEntries.length ? pesoEntries[pesoEntries.length-1].peso : null;
 
   document.getElementById('global-stats').innerHTML = `
@@ -1464,7 +1482,7 @@ function renderPesoChart(entries) {
   pesoChart = new Chart(document.getElementById('pesoChart'), {
     type:'line',
     data:{ labels: entries.map(e=>new Date(e.date).toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
-      datasets:[{data:entries.map(e=>e.peso),borderColor:'#3B7BE8',backgroundColor:'rgba(59,123,232,0.08)',pointBackgroundColor:'#3B7BE8',pointRadius:4,tension:0.35,fill:true}]},
+      datasets:[{data:entries.map(e=>Math.round((e.peso||0)*10)/10),borderColor:'#3B7BE8',backgroundColor:'rgba(59,123,232,0.08)',pointBackgroundColor:'#3B7BE8',pointRadius:4,tension:0.35,fill:true}]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
       scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',callback:v=>v+'kg'},grid:{color:'rgba(255,255,255,0.06)'}} } }
   });
