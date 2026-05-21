@@ -380,6 +380,16 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <div class="add-ex-area">
         <button class="add-ex-btn" onclick="openAddExModal()">+ Agregar ejercicio suelto</button>
       </div>
+      <!-- QUICK PESO SAVE -->
+      <div style="margin:10px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+        <span style="font-size:12px;color:#888;font-weight:700;white-space:nowrap">⚖️ Registrar peso</span>
+        <input type="number" id="quick-peso-input" inputmode="decimal" step="0.1" min="30" max="250" placeholder="kg"
+          style="width:80px;padding:7px 8px;border:1px solid #333;border-radius:10px;font-size:15px;font-family:'DM Mono',monospace;color:#f0ede8;background:#111;outline:none;text-align:center;font-weight:700;-webkit-appearance:none"/>
+        <span style="font-size:13px;color:#666">kg</span>
+        <span id="quick-peso-last" style="font-size:11px;color:#555;flex:1"></span>
+        <button onclick="saveQuickPeso()" style="padding:7px 14px;background:#E83535;border:none;border-radius:10px;color:#fff;font-size:12px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer">Guardar</button>
+      </div>
+
       <div class="section-card" style="margin-top:10px">
         <div class="section-title">✏️ Nota del entrenamiento</div>
         <div class="date-picker-row">
@@ -422,6 +432,26 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <div class="weekly-wrap"><canvas id="weeklyChart">Gráfico semanal</canvas></div>
       <div class="chart-title">PESO CORPORAL</div>
       <div class="peso-chart-wrap"><canvas id="pesoChart">Gráfico peso</canvas></div>
+      <div class="chart-title">📊 LOS 3 GRANDES</div>
+      <div style="margin:6px 12px 0;font-size:11px;color:#555;font-weight:600">Press de banca · Dominadas · Sentadillas</div>
+      <div id="big3-charts">
+        <div style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px">
+          <div style="font-size:12px;font-weight:700;color:#E83535;margin-bottom:8px">🏋️ Press de banca</div>
+          <div id="pr-banca" style="font-size:11px;color:#f0a04b;font-weight:700;margin-bottom:6px"></div>
+          <div style="position:relative;height:150px"><canvas id="chart-banca">Gráfico press banca</canvas></div>
+        </div>
+        <div style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px">
+          <div style="font-size:12px;font-weight:700;color:#E83535;margin-bottom:8px">🔝 Dominadas</div>
+          <div id="pr-dominadas" style="font-size:11px;color:#f0a04b;font-weight:700;margin-bottom:6px"></div>
+          <div style="position:relative;height:150px"><canvas id="chart-dominadas">Gráfico dominadas</canvas></div>
+        </div>
+        <div style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px">
+          <div style="font-size:12px;font-weight:700;color:#E83535;margin-bottom:8px">🦵 Sentadillas</div>
+          <div id="pr-sentadillas" style="font-size:11px;color:#f0a04b;font-weight:700;margin-bottom:6px"></div>
+          <div style="position:relative;height:150px"><canvas id="chart-sentadillas">Gráfico sentadillas</canvas></div>
+        </div>
+      </div>
+      <div class="chart-title" style="margin-top:14px">OTRO EJERCICIO</div>
       <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()"></select>
       <div id="pr-banner"></div>
       <div class="chart-wrap"><canvas id="progressChart">Gráfico progreso</canvas></div>
@@ -744,10 +774,37 @@ async function deleteNutriDB(fid) { if (fid) await deleteDoc(doc(db,'users',uid(
 
 function showSync(on) { document.getElementById('sync-dot').classList.toggle('show', on); }
 
+/* ── QUICK PESO SAVE ── */
+window.saveQuickPeso = async () => {
+  const val = parseFloat(document.getElementById('quick-peso-input').value);
+  if (!val || val < 30 || val > 250) { showToast('Ingresá un peso válido'); return; }
+  // Save as a lightweight history entry (no exercises)
+  const entry = {
+    date: new Date().toISOString(),
+    mood: null, note: null,
+    peso: val,
+    exercises: [],
+    pesoOnly: true
+  };
+  showSync(true);
+  await addHistEntry(entry);
+  history.unshift(entry);
+  showSync(false);
+  document.getElementById('quick-peso-input').value = '';
+  updatePesoLast();
+  updateQuickPesoLast();
+  showToast(`⚖️ ${val}kg guardado ✓`);
+};
+function updateQuickPesoLast() {
+  const last = history.find(h => h.peso);
+  const el = document.getElementById('quick-peso-last');
+  if (el && last) el.textContent = `Último: ${last.peso}kg`;
+}
+
 /* ── RENDER ALL ── */
 function renderAll() {
   renderFilters(); renderExercises(); renderMoods(); renderRoutinePillsSelector();
-  updatePesoLast(); calcStreak(); renderProfile(); updateDaysSince();
+  updatePesoLast(); updateQuickPesoLast(); calcStreak(); renderProfile(); updateDaysSince();
 }
 
 /* ── TABS ── */
@@ -779,12 +836,28 @@ function getPR(exName) {
   }));
   return pr;
 }
+function getPRReps(exName) {
+  // Best single series reps ever for BW exercises
+  let pr = 0;
+  history.forEach(h => h.exercises && h.exercises.forEach(e => {
+    if (e.name === exName) e.series && e.series.forEach(s => { if ((s.reps||0) > pr) pr = parseInt(s.reps)||0; });
+  }));
+  return pr;
+}
 function getPRTime(exName) {
   let pr = 0;
   history.forEach(h => h.exercises && h.exercises.forEach(e => {
     if (e.name === exName) e.series && e.series.forEach(s => { if ((s.secs||0) > pr) pr = s.secs||0; });
   }));
   return pr;
+}
+function getLastSessionReps(exName) {
+  // Max reps in a single series from last session
+  const lastSession = history.find(h => h.exercises && h.exercises.some(e => e.name === exName));
+  if (!lastSession) return 0;
+  const ex = lastSession.exercises.find(e => e.name === exName);
+  if (!ex) return 0;
+  return Math.max(...ex.series.map(s => parseInt(s.reps)||0), 0);
 }
 function getLastBodyWeight() {
   const last = history.find(h => h.peso);
@@ -822,8 +895,29 @@ function buildExCard(ex) {
   const bw = getLastBodyWeight();
 
   let prLine = '';
-  if (isTime) { const pr = getPRTime(ex.name); if (pr > 0) prLine = `⏱ Mejor marca: ${pr}s`; }
-  else if (!isBW) { const pr = getPR(ex.name); if (pr > 0) prLine = `🏆 Récord: ${pr}kg`; }
+  if (isTime) {
+    const pr = getPRTime(ex.name);
+    if (pr > 0) prLine = `⏱ Mejor marca: ${pr}s`;
+  } else if (isBW || type === 'abs') {
+    const pr = getPRReps(ex.name);
+    const lastReps = getLastSessionReps(ex.name);
+    if (pr > 0) {
+      prLine = `🏆 Récord: ${pr} reps`;
+      if (lastReps > 0 && history.length > 1) prLine += ` · Última vez: ${lastReps}`;
+    }
+  } else if (isBWL) {
+    const prReps = getPRReps(ex.name);
+    const lastReps = getLastSessionReps(ex.name);
+    const prKg = getPR(ex.name);
+    if (prReps > 0) {
+      prLine = `🏆 Récord: ${prReps} reps`;
+      if (lastReps > 0 && history.length > 1) prLine += ` · Última: ${lastReps}`;
+      if (prKg > 0) prLine += ` · Lastre max: ${prKg}kg`;
+    }
+  } else {
+    const pr = getPR(ex.name);
+    if (pr > 0) prLine = `🏆 Récord: ${pr}kg`;
+  }
 
   let bodyContent = '';
   if (isBWL && bw) bodyContent += `<div class="bw-note">⚖️ Tu peso hoy: ${bw}kg — podés agregar lastre extra abajo</div>`;
@@ -1142,7 +1236,8 @@ window.deleteRoutine = async (fid) => {
 function renderHistory() {
   const list = document.getElementById('history-list');
   if (!history.length) { list.innerHTML = `<div class="empty-state" style="padding-top:40px"><div class="empty-icon">📋</div><div class="empty-text">Sin entrenamientos aún.</div></div>`; return; }
-  list.innerHTML = history.map((entry, idx) => {
+  const displayHistory = history.filter(h => !h.pesoOnly);
+  list.innerHTML = displayHistory.map((entry, idx) => {
     const d = new Date(entry.date);
     const dateStr = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
     const timeStr = d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
@@ -1260,7 +1355,59 @@ function renderProgress() {
 
   renderWeeklyChart();
   renderPesoChart(pesoEntries);
+  renderBig3Charts();
   renderProgressChart();
+}
+
+function renderBig3Charts() {
+  const big3 = [
+    { name: 'Press de banca', canvasId: 'chart-banca', prId: 'pr-banca', type: 'kg' },
+    { name: 'Dominadas', canvasId: 'chart-dominadas', prId: 'pr-dominadas', type: 'reps' },
+    { name: 'Sentadillas', canvasId: 'chart-sentadillas', prId: 'pr-sentadillas', type: 'kg' }
+  ];
+  big3.forEach(ex => {
+    const sessions = history
+      .filter(h => h.exercises && h.exercises.some(e => e.name === ex.name))
+      .map(h => {
+        const e = h.exercises.find(x => x.name === ex.name);
+        const val = ex.type === 'reps'
+          ? Math.max(...e.series.map(s => parseInt(s.reps)||0), 0)
+          : Math.max(...e.series.map(s => parseFloat(s.kg)||0), 0);
+        return { date: new Date(h.date), val };
+      })
+      .sort((a,b) => a.date - b.date);
+
+    const prEl = document.getElementById(ex.prId);
+    if (sessions.length) {
+      const pr = Math.max(...sessions.map(s => s.val));
+      const last = sessions[sessions.length-1].val;
+      const prev = sessions.length > 1 ? sessions[sessions.length-2].val : null;
+      const trend = prev !== null ? (last > prev ? '📈' : last < prev ? '📉' : '➡️') : '';
+      prEl.textContent = `🏆 Récord: ${pr}${ex.type==='reps'?' reps':'kg'} · Última: ${last}${ex.type==='reps'?' reps':'kg'} ${trend}`;
+    } else {
+      prEl.textContent = 'Sin datos aún';
+    }
+
+    const canvasEl = document.getElementById(ex.canvasId);
+    // Destroy existing chart if any
+    const existingChart = Chart.getChart(canvasEl);
+    if (existingChart) existingChart.destroy();
+
+    if (!sessions.length) return;
+    new Chart(canvasEl, {
+      type: 'line',
+      data: {
+        labels: sessions.map(s => s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
+        datasets: [{ data: sessions.map(s => s.val), borderColor:'#E83535', backgroundColor:'rgba(232,53,53,0.08)', pointBackgroundColor:'#E83535', pointRadius:4, tension:0.35, fill:true }]
+      },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{
+          x:{ticks:{font:{size:9},color:'#555',maxRotation:30},grid:{display:false}},
+          y:{ticks:{font:{size:9},color:'#555',callback:v=>ex.type==='reps'?v+'r':v+'kg'},grid:{color:'rgba(255,255,255,0.04)'}}
+        }
+      }
+    });
+  });
 }
 
 function renderWeeklyChart() {
