@@ -722,7 +722,7 @@ async function loadUserData() {
       getDocs(collection(db,'users',uid(),'profile'))
     ]);
     exercises = exSnap.docs.map(d => ({fid:d.id,...d.data()}));
-    history = hSnap.docs.map(d => { const data = d.data(); if (data.peso) data.peso = Math.round(data.peso*10)/10; return {fid:d.id,...data}; });
+    history = hSnap.docs.map(d => { const data = d.data(); if (data.peso != null) data.peso = parseFloat((Math.round(parseFloat(data.peso)*10)/10).toFixed(1)); return {fid:d.id,...data}; });
     nutricion = nSnap.docs.map(d => ({fid:d.id,...d.data()}));
     routines = rSnap.docs.map(d => ({fid:d.id,...d.data()}));
     if (profSnap.docs.length) profile = profSnap.docs[0].data();
@@ -1384,7 +1384,7 @@ function renderProgress() {
   const totalS = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.length,0),0);
   const totalKg = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.reduce((c,s)=>c+(s.reps*s.kg),0),0),0);
   const streak = calcStreak();
-  const pesoEntries = history.filter(h=>h.peso).map(h=>({...h,peso:Math.round((h.peso||0)*10)/10})).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const pesoEntries = history.filter(h=>h.peso).map(h=>({...h,peso:parseFloat((Math.round(parseFloat(h.peso)*10)/10).toFixed(1))})).sort((a,b)=>new Date(a.date)-new Date(b.date));
   const pesoActual = pesoEntries.length ? pesoEntries[pesoEntries.length-1].peso : null;
 
   document.getElementById('global-stats').innerHTML = `
@@ -1484,7 +1484,7 @@ function renderPesoChart(entries) {
     data:{ labels: entries.map(e=>new Date(e.date).toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
       datasets:[{data:entries.map(e=>Math.round((e.peso||0)*10)/10),borderColor:'#3B7BE8',backgroundColor:'rgba(59,123,232,0.08)',pointBackgroundColor:'#3B7BE8',pointRadius:4,tension:0.35,fill:true}]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',callback:v=>(Math.round(v*10)/10).toFixed(1)+'kg'},grid:{color:'rgba(255,255,255,0.06)'}} } }
+      scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',precision:1,callback:v=>parseFloat(v.toFixed(1))+'kg'},grid:{color:'rgba(255,255,255,0.06)'},grace:'5%'} } }
   });
 }
 
