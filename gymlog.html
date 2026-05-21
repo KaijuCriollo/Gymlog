@@ -533,10 +533,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <div class="field-label">Tipo</div>
     <select class="modal-select" id="ex-type-inp">
       <option value="normal">Normal (reps + peso)</option>
-      <option value="bw">Peso corporal (reps, sin peso extra)</option>
       <option value="bw_lastre">Peso corporal + lastre opcional</option>
       <option value="time">Por tiempo (segundos)</option>
-      <option value="abs">Abdominales (reps, sin peso)</option>
     </select>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-add-ex')">Cancelar</button>
@@ -576,10 +574,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <div class="field-label">Tipo</div>
     <select class="modal-select" id="rout-ex-type-inp">
       <option value="normal">Normal (reps + peso)</option>
-      <option value="bw">Peso corporal (reps)</option>
       <option value="bw_lastre">Peso corporal + lastre opcional</option>
       <option value="time">Por tiempo (segundos)</option>
-      <option value="abs">Abdominales (reps, sin peso)</option>
     </select>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-add-to-routine')">Cancelar</button>
@@ -637,7 +633,7 @@ const auth = getAuth(fbApp);
 const db = getFirestore(fbApp);
 
 const MOODS = ['💪 Excelente','😊 Bien','😐 Regular','😓 Cansado','🤒 Me sentí mal'];
-const MUSCLES = ['Ahora','Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Cuádriceps','Glúteos','Piernas','Abdominales','Core','Cardio'];
+const MUSCLES = ['Ahora','Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Cuádriceps','Glúteos','Piernas','Core','Cardio'];
 const BW_MUSCLES = ['Abdominales','Core'];
 const BW_LASTRE = ['Espalda']; // dominadas default
 
@@ -737,14 +733,33 @@ async function loadUserData() {
 
 async function initDefaults() {
   const defs = [
-    {id:1,name:'Press de banca',muscle:'Pecho',type:'normal',note:'',series:[{reps:'10',kg:'60',done:false},{reps:'8',kg:'65',done:false}]},
-    {id:2,name:'Sentadillas',muscle:'Cuádriceps',type:'normal',note:'',series:[{reps:'10',kg:'80',done:false},{reps:'8',kg:'90',done:false}]},
-    {id:3,name:'Dominadas',muscle:'Espalda',type:'bw_lastre',note:'',series:[{reps:'8',kg:'0',done:false},{reps:'6',kg:'0',done:false}]},
-    {id:4,name:'Curl de bíceps',muscle:'Bíceps',type:'normal',note:'',series:[{reps:'12',kg:'15',done:false},{reps:'10',kg:'17',done:false}]},
-    {id:5,name:'Press francés',muscle:'Tríceps',type:'normal',note:'',series:[{reps:'12',kg:'20',done:false},{reps:'10',kg:'22',done:false}]},
-    {id:6,name:'Hip thrust',muscle:'Glúteos',type:'normal',note:'',series:[{reps:'12',kg:'60',done:false},{reps:'10',kg:'70',done:false}]},
-    {id:7,name:'Plancha',muscle:'Core',type:'time',note:'',series:[{secs:'30',done:false},{secs:'30',done:false}]},
-    {id:8,name:'Crunches',muscle:'Abdominales',type:'abs',note:'',series:[{reps:'20',done:false},{reps:'15',done:false}]}
+    // PECHO
+    {id:1, name:'Press de banca',   muscle:'Pecho', type:'normal',    note:'', series:[{reps:'10',kg:'60',done:false},{reps:'8',kg:'65',done:false}]},
+    {id:2, name:'Fondos',           muscle:'Pecho', type:'bw_lastre', note:'', series:[{reps:'10',kg:'0',done:false},{reps:'8',kg:'0',done:false}]},
+    {id:3, name:'Cruces Polea',     muscle:'Pecho', type:'normal',    note:'', series:[{reps:'12',kg:'15',done:false},{reps:'10',kg:'17',done:false}]},
+    {id:4, name:'Press Inclinado',  muscle:'Pecho', type:'normal',    note:'', series:[{reps:'10',kg:'50',done:false},{reps:'8',kg:'55',done:false}]},
+    {id:5, name:'Flexiones pecho',  muscle:'Pecho', type:'bw_lastre', note:'', series:[{reps:'15',kg:'0',done:false},{reps:'12',kg:'0',done:false}]},
+    // ESPALDA
+    {id:6, name:'Dominadas',              muscle:'Espalda', type:'bw_lastre', note:'', series:[{reps:'8',kg:'0',done:false},{reps:'6',kg:'0',done:false}]},
+    {id:7, name:'Dorsalera unilateral',   muscle:'Espalda', type:'normal',    note:'', series:[{reps:'12',kg:'20',done:false},{reps:'10',kg:'22',done:false}]},
+    {id:8, name:'Remo Bajo Polea',        muscle:'Espalda', type:'normal',    note:'', series:[{reps:'12',kg:'40',done:false},{reps:'10',kg:'45',done:false}]},
+    {id:9, name:'Remo Bajo Máquina',      muscle:'Espalda', type:'normal',    note:'', series:[{reps:'12',kg:'50',done:false},{reps:'10',kg:'55',done:false}]},
+    {id:10,name:'Remo con Mancuerna',     muscle:'Espalda', type:'normal',    note:'', series:[{reps:'12',kg:'24',done:false},{reps:'10',kg:'28',done:false}]},
+    {id:11,name:'Dorsalera',              muscle:'Espalda', type:'normal',    note:'', series:[{reps:'12',kg:'50',done:false},{reps:'10',kg:'55',done:false}]},
+    {id:12,name:'Face Pull Over',         muscle:'Espalda', type:'normal',    note:'', series:[{reps:'15',kg:'20',done:false},{reps:'12',kg:'22',done:false}]},
+    // BÍCEPS
+    {id:13,name:'Curl Martillo',          muscle:'Bíceps', type:'normal', note:'', series:[{reps:'12',kg:'14',done:false},{reps:'10',kg:'16',done:false}]},
+    {id:14,name:'Curl de Bíceps',         muscle:'Bíceps', type:'normal', note:'', series:[{reps:'12',kg:'12',done:false},{reps:'10',kg:'14',done:false}]},
+    {id:15,name:'Curl en Polea',          muscle:'Bíceps', type:'normal', note:'', series:[{reps:'12',kg:'15',done:false},{reps:'10',kg:'17',done:false}]},
+    {id:16,name:'Curl con barra 2 manos', muscle:'Bíceps', type:'normal', note:'', series:[{reps:'12',kg:'20',done:false},{reps:'10',kg:'24',done:false}]},
+    // TRÍCEPS
+    {id:17,name:'Press francés',    muscle:'Tríceps', type:'normal',    note:'', series:[{reps:'12',kg:'20',done:false},{reps:'10',kg:'22',done:false}]},
+    // PIERNAS
+    {id:18,name:'Sentadillas',      muscle:'Cuádriceps', type:'normal', note:'', series:[{reps:'10',kg:'80',done:false},{reps:'8',kg:'90',done:false}]},
+    {id:19,name:'Hip thrust',       muscle:'Glúteos',    type:'normal', note:'', series:[{reps:'12',kg:'60',done:false},{reps:'10',kg:'70',done:false}]},
+    // CORE
+    {id:20,name:'Plancha',          muscle:'Core', type:'time',     note:'', series:[{secs:'30',done:false},{secs:'30',done:false}]},
+    {id:21,name:'Crunches cortos',  muscle:'Core', type:'bw_lastre',note:'', series:[{reps:'20',kg:'0',done:false},{reps:'15',kg:'0',done:false}]},
   ];
   for (const ex of defs) { const ref = await addDoc(collection(db,'users',uid(),'exercises'), ex); ex.fid = ref.id; }
   exercises = [...defs];
@@ -829,33 +844,46 @@ function renderFilters() {
 window.setFilter = (m, el) => { currentFilter = m; document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active')); el.classList.add('active'); renderExercises(); };
 
 /* ── PR HELPER ── */
+function normalizeExName(name) {
+  if (!name) return name;
+  const n = name.toLowerCase().trim();
+  if (n === 'press banca' || n === 'press de banca' || n === 'press banca plano') return 'Press de banca';
+  return name;
+}
 function getPR(exName) {
+  const aliases = getAliases(exName);
   let pr = 0;
   history.forEach(h => h.exercises && h.exercises.forEach(e => {
-    if (e.name === exName) e.series && e.series.forEach(s => { if ((s.kg||0) > pr) pr = s.kg||0; });
+    if (aliases.includes(normalizeExName(e.name))) e.series && e.series.forEach(s => { if ((s.kg||0) > pr) pr = s.kg||0; });
   }));
   return pr;
 }
+function getAliases(exName) {
+  const bancaGroup = ['Press de banca','Press banca','Press Banca','Press de Banca','Press banca plano'];
+  if (bancaGroup.map(x=>x.toLowerCase()).includes(exName.toLowerCase())) return bancaGroup.map(x=>x.toLowerCase());
+  return [exName.toLowerCase()];
+}
 function getPRReps(exName) {
-  // Best single series reps ever for BW exercises
+  const aliases = getAliases(exName);
   let pr = 0;
   history.forEach(h => h.exercises && h.exercises.forEach(e => {
-    if (e.name === exName) e.series && e.series.forEach(s => { if ((s.reps||0) > pr) pr = parseInt(s.reps)||0; });
+    if (aliases.includes(normalizeExName(e.name).toLowerCase())) e.series && e.series.forEach(s => { if ((s.reps||0) > pr) pr = parseInt(s.reps)||0; });
   }));
   return pr;
 }
 function getPRTime(exName) {
+  const aliases = getAliases(exName);
   let pr = 0;
   history.forEach(h => h.exercises && h.exercises.forEach(e => {
-    if (e.name === exName) e.series && e.series.forEach(s => { if ((s.secs||0) > pr) pr = s.secs||0; });
+    if (aliases.includes(normalizeExName(e.name).toLowerCase())) e.series && e.series.forEach(s => { if ((s.secs||0) > pr) pr = s.secs||0; });
   }));
   return pr;
 }
 function getLastSessionReps(exName) {
-  // Max reps in a single series from last session
-  const lastSession = history.find(h => h.exercises && h.exercises.some(e => e.name === exName));
+  const aliases = getAliases(exName);
+  const lastSession = history.find(h => h.exercises && h.exercises.some(e => aliases.includes(normalizeExName(e.name).toLowerCase())));
   if (!lastSession) return 0;
-  const ex = lastSession.exercises.find(e => e.name === exName);
+  const ex = lastSession.exercises.find(e => aliases.includes(normalizeExName(e.name).toLowerCase()));
   if (!ex) return 0;
   return Math.max(...ex.series.map(s => parseInt(s.reps)||0), 0);
 }
@@ -889,7 +917,7 @@ function buildExCard(ex) {
   const total = ex.series.length;
   const allDone = done === total && total > 0;
   const type = ex.type || 'normal';
-  const isBW = type === 'bw' || type === 'abs';
+  const isBW = false; // type 'bw' and 'abs' unified into bw_lastre
   const isBWL = type === 'bw_lastre';
   const isTime = type === 'time';
   const bw = getLastBodyWeight();
