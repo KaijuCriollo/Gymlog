@@ -341,6 +341,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     </div>
     <div class="date-sub" id="date-sub"></div>
     <div class="days-since" id="days-since"></div>
+    <div id="offline-banner" style="display:none;padding:3px 16px 6px;font-size:11px;color:#f0a04b;font-weight:600">📡 Sin conexión — los cambios se guardarán cuando vuelva internet</div>
   </div>
 
   <nav class="nav">
@@ -532,7 +533,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 </div>
 
 <!-- SAVE BAR -->
-<div class="save-bar" id="save-bar">
+<div class="save-bar" id="save-bar" style="display:none">
   <button class="save-btn" id="save-btn" onclick="saveWorkout()">💾 Guardar entrenamiento</button>
 </div>
 
@@ -639,7 +640,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, updateDoc, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, initializeFirestore, persistentLocalCache, doc, setDoc, collection, addDoc, getDocs, deleteDoc, updateDoc, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCgPk8QisGhFz7z4ow2AaTzDwx3ddc2rng",
@@ -652,7 +653,12 @@ const firebaseConfig = {
 
 const fbApp = initializeApp(firebaseConfig);
 const auth = getAuth(fbApp);
-const db = getFirestore(fbApp);
+let db;
+try {
+  db = initializeFirestore(fbApp, { localCache: persistentLocalCache() });
+} catch(e) {
+  db = getFirestore(fbApp);
+}
 
 const MOODS = ['💪 Excelente','😊 Bien','😐 Regular','😓 Cansado','🤒 Me sentí mal'];
 const MUSCLES = ['Ahora','Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Cuádriceps','Glúteos','Piernas','Core','Cardio'];
@@ -923,6 +929,74 @@ function getLastSessionStats(exName) {
   return { kg: maxKg, reps: maxReps, secs: maxSecs, totalReps };
 }
 
+// Feature 7: suggest next session weight/reps based on history
+function getNextSessionSuggestion(exName, exType) {
+  const aliases = getAliases(exName);
+  // Get last 3 sessions for this exercise
+  const sessions = history
+    .filter(h => h.exercises && h.exercises.some(e => aliases.includes(normalizeExName(e.name))))
+    .slice(0, 3)
+    .map(h => {
+      const ex = h.exercises.find(e => aliases.includes(normalizeExName(e.name)));
+      return ex ? ex.series : [];
+    });
+
+  if (!sessions.length) return null;
+
+  const lastSession = sessions[0];
+  if (!lastSession.length) return null;
+
+  if (exType === 'time') {
+    const lastMax = Math.max(...lastSession.map(s => parseInt(s.secs)||0));
+    // Suggest +5s if held well, same if struggled
+    const avgSecs = lastSession.reduce((a,s)=>a+(parseInt(s.secs)||0),0) / lastSession.length;
+    const suggestion = avgSecs >= lastMax * 0.9 ? lastMax + 5 : lastMax;
+    return { type:'time', secs: suggestion, message: avgSecs >= lastMax * 0.9 ? `Intentá ${suggestion}s 💪` : `Mantené ${suggestion}s` };
+  }
+
+  if (exType === 'bw_lastre') {
+    const lastMaxReps = Math.max(...lastSession.map(s => parseInt(s.reps)||0));
+    const lastKg = Math.max(...lastSession.map(s => parseFloat(s.kg)||0));
+    const avgReps = lastSession.reduce((a,s)=>a+(parseInt(s.reps)||0),0) / lastSession.length;
+    // If avg reps > 10, suggest adding lastre; if struggled, keep same
+    if (avgReps >= 10 && lastKg === 0) {
+      return { type:'bw', reps: lastMaxReps, message: `${lastMaxReps} reps — considerá agregar lastre 🔝` };
+    } else if (avgReps >= 10 && lastKg > 0) {
+      return { type:'bw', reps: lastMaxReps, kg: lastKg + 2.5, message: `Probá +2.5kg lastre (${lastKg+2.5}kg) 🔝` };
+    }
+    return { type:'bw', reps: lastMaxReps, message: `Apuntá a ${lastMaxReps} reps` };
+  }
+
+  // Normal exercise: analyze last 3 sessions trend
+  const lastMaxKg = Math.max(...lastSession.map(s => parseFloat(s.kg)||0));
+  const lastAvgReps = lastSession.reduce((a,s)=>a+(parseInt(s.reps)||0),0) / lastSession.length;
+
+  // Check if reps were consistently high (>10 avg across last 2 sessions)
+  let repsConsistentlyHigh = lastAvgReps >= 10;
+  if (sessions.length >= 2) {
+    const prev = sessions[1];
+    const prevAvgReps = prev.reduce((a,s)=>a+(parseInt(s.reps)||0),0) / prev.length;
+    repsConsistentlyHigh = lastAvgReps >= 10 && prevAvgReps >= 9;
+  }
+
+  // Check if weight increased last session vs the one before
+  let weightTrend = 0;
+  if (sessions.length >= 2) {
+    const prevMaxKg = Math.max(...sessions[1].map(s => parseFloat(s.kg)||0));
+    weightTrend = lastMaxKg - prevMaxKg;
+  }
+
+  if (repsConsistentlyHigh) {
+    const suggestedKg = lastMaxKg + 2.5;
+    return { type:'normal', kg: suggestedKg, message: `Subí a ${suggestedKg}kg — venís haciendo ${Math.round(lastAvgReps)} reps 🔥` };
+  } else if (lastAvgReps >= 8) {
+    return { type:'normal', kg: lastMaxKg, message: `Mantené ${lastMaxKg}kg, apuntá a más reps 📈` };
+  } else {
+    const suggestedKg = Math.max(lastMaxKg - 2.5, 0);
+    return { type:'normal', kg: suggestedKg, message: `Probá con ${suggestedKg}kg y enfocate en la técnica` };
+  }
+}
+
 // Convenience wrappers for backward compat
 function getPR(exName) { return getAllPRs(exName).kg; }
 function getPRReps(exName) { return getAllPRs(exName).reps; }
@@ -1086,12 +1160,17 @@ function buildExCard(ex) {
     }
   }
 
+  // Feature 7: next session suggestion
+  const suggestion = getNextSessionSuggestion(ex.name, type);
+  const suggLine = suggestion ? suggestion.message : '';
+
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
       <div class="card-header-left">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-muscle">${ex.muscle}</div>
         ${compLine ? `<div style="font-size:11px;color:#5b9cf6;font-weight:600;margin-top:1px">${compLine}</div>` : ''}
+        ${suggLine ? `<div style="font-size:11px;color:#22c97a;font-weight:600;margin-top:1px">💡 ${suggLine}</div>` : ''}
         ${prLine ? `<div class="ex-pr">${prLine}</div>` : ''}
       </div>
       <div class="card-header-right">
@@ -1700,6 +1779,15 @@ window.renderProgressChart = () => {
 
 /* ── NUTRICIÓN ── */
 window.setNutriDateToday = () => { document.getElementById('nutri-date-inp').value = new Date().toISOString().slice(0,10); };
+
+// Feature 9: connectivity monitor
+function updateConnectivity() {
+  const banner = document.getElementById('offline-banner');
+  if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
+}
+window.addEventListener('online', () => { updateConnectivity(); showToast('✅ Conexión restaurada — sincronizando...'); });
+window.addEventListener('offline', () => { updateConnectivity(); showToast('📡 Sin conexión — modo offline activo'); });
+updateConnectivity();
 window.saveNutri = async () => {
   const date = document.getElementById('nutri-date-inp').value;
   if (!date) { showToast('Seleccioná una fecha'); return; }
@@ -1872,6 +1960,15 @@ function updateStreakBadge(n) { document.getElementById('streak-badge').textCont
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 function setDate() { document.getElementById('date-sub').textContent = new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
 window.setNutriDateToday = () => { document.getElementById('nutri-date-inp').value = new Date().toISOString().slice(0,10); };
+
+// Feature 9: connectivity monitor
+function updateConnectivity() {
+  const banner = document.getElementById('offline-banner');
+  if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
+}
+window.addEventListener('online', () => { updateConnectivity(); showToast('✅ Conexión restaurada — sincronizando...'); });
+window.addEventListener('offline', () => { updateConnectivity(); showToast('📡 Sin conexión — modo offline activo'); });
+updateConnectivity();
 </script>
 </body>
 </html>
