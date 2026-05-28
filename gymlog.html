@@ -322,7 +322,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <label class="auth-label">Tu apodo (opcional)</label>
       <input class="auth-input" type="text" id="auth-name" placeholder="Ej: Kaiju"/>
     </div>
-    <button class="auth-btn" id="auth-btn" onclick="doAuth()">Entrar</button>
+    <button class="auth-btn" id="auth-btn" onclick="this.style.background='#2d6fd4';doAuth()">Entrar</button>
     <div class="auth-loading" id="auth-loading">Cargando...</div>
     <div class="auth-error" id="auth-error"></div>
   </div>
@@ -1948,16 +1948,6 @@ function updateStreakBadge(n) { document.getElementById('streak-badge').textCont
 /* ── MISC ── */
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
 function setDate() { document.getElementById('date-sub').textContent = new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
-window.setNutriDateToday = () => { document.getElementById('nutri-date-inp').value = new Date().toISOString().slice(0,10); };
-
-// Feature 9: connectivity monitor
-function updateConnectivity() {
-  const banner = document.getElementById('offline-banner');
-  if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
-}
-window.addEventListener('online', () => { updateConnectivity(); showToast('✅ Conexión restaurada — sincronizando...'); });
-window.addEventListener('offline', () => { updateConnectivity(); showToast('📡 Sin conexión — modo offline activo'); });
-updateConnectivity();
 </script>
 </body>
 </html>
