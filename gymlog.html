@@ -95,9 +95,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .num-input{width:100%;padding:8px 6px;border:1px solid #333;border-radius:var(--radius-sm);font-size:14px;font-family:'DM Mono',monospace;text-align:center;background:#111;color:#f0ede8;outline:none;transition:border-color 0.15s;-webkit-appearance:none;font-weight:600}
 .num-input:focus{border-color:var(--red)}
 .check-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid #444;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;flex-shrink:0}
-.check-btn svg{width:16px;height:16px;stroke:var(--subtle);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.check-btn svg{width:16px;height:16px;stroke:#555;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .check-btn.done{background:rgba(34,201,122,0.2);border-color:#22c97a}
-.check-btn.done svg{stroke:var(--green)}
+.check-btn.done svg{stroke:#22c97a}
 .bw-note{font-size:11px;color:#93bfff;background:rgba(91,156,246,0.12);border-radius:6px;padding:4px 8px;margin-bottom:8px;display:flex;align-items:center;gap:4px;font-weight:600}
 .ex-note-wrap{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
 .note-textarea{width:100%;padding:8px 10px;border:1px solid #333;border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:#f0ede8;background:#111;resize:none;outline:none;min-height:56px}
@@ -457,7 +457,11 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
           <div style="position:relative;height:150px"><canvas id="chart-sentadillas">Gráfico sentadillas</canvas></div>
         </div>
       </div>
-      <div class="chart-title" style="margin-top:14px">MÚSCULOS — ÚLTIMO MES</div>
+      <div class="chart-title" style="margin-top:14px">MÚSCULOS</div>
+      <div style="margin:6px 12px 0;display:flex;gap:8px">
+        <button id="muscle-filter-week" onclick="setMuscleFilter('week')" style="padding:5px 14px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Última semana</button>
+        <button id="muscle-filter-month" onclick="setMuscleFilter('month')" style="padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Último mes</button>
+      </div>
       <div id="muscle-stats" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
       <div class="chart-title" style="margin-top:14px">OTRO EJERCICIO</div>
       <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()"></select>
@@ -879,10 +883,14 @@ function getAliases(exName) {
   return [normalizeExName(exName)];
 }
 
-// Returns { kg, reps, secs, volume(kg*reps) } PRs for an exercise
+// Returns { kg, reps, secs, bestKgReps, bestRepsKg } PRs for an exercise
+// bestKgReps = reps done in the serie with the highest kg
+// bestRepsKg = kg used in the serie with the highest reps
 function getAllPRs(exName) {
   const aliases = getAliases(exName);
   let prKg = 0, prReps = 0, prSecs = 0, prVolume = 0;
+  let bestKgReps = 0; // reps at the heaviest weight
+  let bestRepsKg = 0; // kg at the most reps
   history.forEach(h => {
     if (!h.exercises) return;
     h.exercises.forEach(e => {
@@ -892,14 +900,16 @@ function getAllPRs(exName) {
         const reps = parseInt(s.reps)||0;
         const secs = parseInt(s.secs)||0;
         const vol = kg * reps;
-        if (kg > prKg) prKg = kg;
-        if (reps > prReps) prReps = reps;
+        if (kg > prKg) { prKg = kg; bestKgReps = reps; }
+        else if (kg === prKg && reps > bestKgReps) bestKgReps = reps;
+        if (reps > prReps) { prReps = reps; bestRepsKg = kg; }
+        else if (reps === prReps && kg > bestRepsKg) bestRepsKg = kg;
         if (secs > prSecs) prSecs = secs;
         if (vol > prVolume) prVolume = vol;
       });
     });
   });
-  return { kg: prKg, reps: prReps, secs: prSecs, volume: prVolume };
+  return { kg: prKg, reps: prReps, secs: prSecs, volume: prVolume, bestKgReps, bestRepsKg };
 }
 
 // Get stats from the last session of an exercise
@@ -1059,20 +1069,12 @@ function buildExCard(ex) {
       }
     }
   } else {
-    // Normal: track kg AND reps as separate PRs
-    const parts = [];
-    if (prs.kg > 0) parts.push(`${prs.kg}kg`);
-    if (prs.reps > 0) parts.push(`${prs.reps} reps`);
-    if (parts.length) {
-      prLine = `🏆 Récord: ${parts.join(' · ')}`;
+    // Normal: show best serie as "Xkg x Y reps"
+    if (prs.kg > 0) {
+      prLine = `🏆 Récord: ${prs.kg}kg x ${prs.bestKgReps} reps`;
       if (lastStats && history.length > 1) {
-        const lastParts = [];
-        if (lastStats.kg > 0) lastParts.push(`${lastStats.kg}kg`);
-        if (lastStats.reps > 0) lastParts.push(`${lastStats.reps} reps`);
-        const betterKg = lastStats.kg >= prs.kg;
-        const betterReps = lastStats.reps >= prs.reps;
-        const trend = (betterKg || betterReps) ? '🔥' : '📉';
-        if (lastParts.length) prLine += ` · Última: ${lastParts.join(' · ')} ${trend}`;
+        const trend = (lastStats.kg >= prs.kg || lastStats.reps >= prs.bestKgReps) ? '🔥' : '📉';
+        if (lastStats.kg > 0) prLine += ` · Última: ${lastStats.kg}kg x ${lastStats.reps} reps ${trend}`;
       }
     }
   }
@@ -1623,11 +1625,25 @@ function renderConsistencyGrid() {
   el.innerHTML = html;
 }
 
+let muscleFilterPeriod = 'week';
+window.setMuscleFilter = (period) => {
+  muscleFilterPeriod = period;
+  document.getElementById('muscle-filter-week').style.cssText = period==='week'
+    ? 'padding:5px 14px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif'
+    : 'padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+  document.getElementById('muscle-filter-month').style.cssText = period==='month'
+    ? 'padding:5px 14px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif'
+    : 'padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+  renderMuscleStats();
+};
+
 function renderMuscleStats() {
   const el = document.getElementById('muscle-stats');
   if (!el) return;
   const today = new Date();
-  const monthAgo = new Date(today); monthAgo.setDate(today.getDate() - 30);
+  const days = muscleFilterPeriod === 'week' ? 7 : 30;
+  const monthAgo = new Date(today); monthAgo.setDate(today.getDate() - days);
+  const periodLabel = muscleFilterPeriod === 'week' ? 'última semana' : 'último mes';
 
   const muscleSeries = {};
   history.filter(h => !h.pesoOnly && new Date(h.date) >= monthAgo).forEach(h => {
@@ -1639,7 +1655,7 @@ function renderMuscleStats() {
   });
 
   if (!Object.keys(muscleSeries).length) {
-    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos del último mes</div>';
+    el.innerHTML = `<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos de la ${periodLabel}</div>`;
     return;
   }
 
@@ -1674,10 +1690,19 @@ function renderBig3Charts() {
       .filter(h => h.exercises && h.exercises.some(e => getAliases(ex.name).includes(normalizeExName(e.name).toLowerCase())))
       .map(h => {
         const e = h.exercises.find(x => getAliases(ex.name).includes(normalizeExName(x.name).toLowerCase()));
-        const val = ex.type === 'reps'
-          ? Math.max(...e.series.map(s => parseInt(s.reps)||0), 0)
-          : Math.max(...e.series.map(s => parseFloat(s.kg)||0), 0);
-        return { date: new Date(h.date), val };
+        let val;
+        if (ex.type === 'reps') {
+          // For BW exercises: show max reps per session
+          val = Math.max(...e.series.map(s => parseInt(s.reps)||0), 0);
+        } else if (ex.type === 'kg') {
+          // For weighted: show max kg
+          val = Math.max(...e.series.map(s => parseFloat(s.kg)||0), 0);
+        } else {
+          // Auto-detect: if has kg > 0, show kg; else show reps
+          const maxKg = Math.max(...e.series.map(s => parseFloat(s.kg)||0), 0);
+          val = maxKg > 0 ? maxKg : Math.max(...e.series.map(s => parseInt(s.reps)||0), 0);
+        }
+        return { date: new Date(h.date), val, hasKg: Math.max(...e.series.map(s=>parseFloat(s.kg)||0),0) > 0 };
       })
       .sort((a,b) => a.date - b.date);
 
@@ -1687,7 +1712,8 @@ function renderBig3Charts() {
       const last = sessions[sessions.length-1].val;
       const prev = sessions.length > 1 ? sessions[sessions.length-2].val : null;
       const trend = prev !== null ? (last > prev ? '📈' : last < prev ? '📉' : '➡️') : '';
-      prEl.textContent = `🏆 Récord: ${pr}${ex.type==='reps'?' reps':'kg'} · Última: ${last}${ex.type==='reps'?' reps':'kg'} ${trend}`;
+      const unit = ex.type === 'reps' ? ' reps' : sessions[0].hasKg ? 'kg' : ' reps';
+      prEl.textContent = `🏆 Récord: ${pr}${unit} · Última: ${last}${unit} ${trend}`;
     } else {
       prEl.textContent = 'Sin datos aún';
     }
@@ -1707,7 +1733,7 @@ function renderBig3Charts() {
       options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
         scales:{
           x:{ticks:{font:{size:9},color:'#555',maxRotation:30},grid:{display:false}},
-          y:{ticks:{font:{size:9},color:'#555',callback:v=>ex.type==='reps'?v+'r':v+'kg'},grid:{color:'rgba(255,255,255,0.04)'}}
+          y:{ticks:{font:{size:9},color:'#555',callback:(v,i,vals)=>{const hasKg=sessions.length&&sessions[0].hasKg;return ex.type==='reps'||!hasKg?v+'r':v+'kg'}},grid:{color:'rgba(255,255,255,0.04)'}}
         }
       }
     });
