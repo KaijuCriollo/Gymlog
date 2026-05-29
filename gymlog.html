@@ -80,8 +80,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .ex-muscle{font-size:12px;color:#777;margin-top:1px;font-weight:600}
 .ex-pr{font-size:11px;color:#f0a04b;font-weight:700;margin-top:2px}
 .card-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.prog-pill{background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
-.prog-pill.done-all{background:rgba(34,201,122,0.2);color:#22c97a}
+.prog-pill{background:rgba(232,53,53,0.18);color:#ff7070;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px}
+.prog-pill.done-all{background:rgba(34,201,122,0.25) !important;color:#22c97a !important;border:1px solid #22c97a}
 .chevron{width:18px;height:18px;stroke:var(--subtle);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s;flex-shrink:0}
 .chevron.open{transform:rotate(180deg)}
 .card-body{display:none;border-top:1px solid #2e2e2e;padding:12px 14px}
@@ -273,6 +273,86 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
 /* WEEKLY BARS */
 .weekly-wrap{margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);padding:13px;height:160px;position:relative}
+
+/* PLAYER CARD */
+.player-card{margin:10px 12px 0;background:linear-gradient(145deg,#1a1a1a,#0d0d0d);border:1px solid #2e2e2e;border-radius:20px;padding:20px 16px;position:relative;overflow:hidden}
+.player-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 38%,rgba(232,53,53,0.07) 38%,rgba(232,53,53,0.07) 50%,transparent 50%);pointer-events:none}
+.player-card-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.player-card-avatar{width:72px;height:72px;border-radius:50%;border:3px solid var(--accent,#E83535);overflow:hidden;background:#222;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.player-card-avatar img{width:100%;height:100%;object-fit:cover}
+.player-card-name{font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+.player-card-objetivo{font-size:12px;color:var(--accent,#E83535);font-weight:600;margin-top:2px}
+.player-card-frase{font-size:11px;color:#666;margin-top:4px;font-style:italic;line-height:1.4}
+.player-card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.player-stat{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;padding:9px 6px;text-align:center}
+.player-stat-val{font-size:18px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;line-height:1}
+.player-stat-unit{font-size:10px;color:#555;font-weight:600}
+.player-stat-label{font-size:10px;color:#666;margin-top:3px;font-weight:600}
+.player-records{background:#161616;border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.player-records-title{font-size:10px;color:#555;font-weight:700;letter-spacing:0.5px;margin-bottom:8px}
+.player-record-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.player-record-row:last-child{margin-bottom:0}
+.player-record-name{font-size:12px;color:#aaa;font-weight:600}
+.player-record-val{font-size:13px;color:var(--accent,#E83535);font-weight:700;font-family:'DM Mono',monospace}
+.player-body-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.player-body-stat{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;padding:8px 6px;text-align:center}
+.player-body-val{font-size:16px;font-weight:700;color:#fff;font-family:'DM Mono',monospace}
+.player-body-label{font-size:10px;color:#555;margin-top:2px;font-weight:600}
+.player-body-input{width:100%;background:none;border:none;outline:none;font-size:16px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none}
+.player-body-input::placeholder{color:#333;font-size:13px}
+
+/* LOGROS */
+.logros-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 12px 0}
+.logro{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;padding:12px 8px;text-align:center;position:relative;transition:all 0.2s}
+.logro.unlocked{border-color:var(--accent,#E83535);background:rgba(232,53,53,0.08)}
+.logro.locked{opacity:0.4;filter:grayscale(1)}
+.logro-icon{font-size:28px;margin-bottom:6px}
+.logro-name{font-size:10px;font-weight:700;color:#fff;line-height:1.3}
+.logro-desc{font-size:9px;color:#555;margin-top:3px;line-height:1.3}
+.logro-badge{position:absolute;top:-4px;right:-4px;background:var(--accent,#E83535);color:#fff;font-size:9px;font-weight:700;padding:2px 5px;border-radius:10px}
+
+/* CIERRE DE MES */
+.mes-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:10002;align-items:center;justify-content:center;padding:20px}
+.mes-overlay.open{display:flex}
+.mes-box{background:#1a1a1a;border:1px solid #2e2e2e;border-radius:20px;padding:24px 20px;width:100%;max-width:380px;max-height:90vh;overflow-y:auto}
+.mes-title{font-size:22px;font-weight:700;color:#fff;text-align:center;margin-bottom:4px}
+.mes-sub{font-size:13px;color:#666;text-align:center;margin-bottom:20px}
+.mes-verdict{background:linear-gradient(135deg,rgba(232,53,53,0.15),rgba(232,53,53,0.05));border:1px solid rgba(232,53,53,0.3);border-radius:14px;padding:16px;margin-bottom:16px;text-align:center}
+.mes-verdict-emoji{font-size:40px;margin-bottom:8px}
+.mes-verdict-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:6px}
+.mes-verdict-text{font-size:13px;color:#aaa;line-height:1.5}
+.mes-records{margin-bottom:16px}
+.mes-record-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #2a2a2a}
+.mes-record-item:last-child{border-bottom:none}
+.mes-close-btn{width:100%;padding:13px;background:var(--accent,#E83535);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer}
+
+/* MODO ENTRENAMIENTO */
+.workout-mode-overlay{display:none;position:fixed;inset:0;background:#0d0d0d;z-index:10003;flex-direction:column}
+.workout-mode-overlay.open{display:flex}
+.wm-header{background:#E83535;padding:env(safe-area-inset-top,0) 16px 12px;padding-top:calc(env(safe-area-inset-top,0) + 12px);display:flex;align-items:center;justify-content:space-between}
+.wm-title{font-size:13px;font-weight:700;color:rgba(255,255,255,0.8)}
+.wm-close{background:rgba(0,0,0,0.2);border:none;color:#fff;font-size:14px;font-weight:700;padding:6px 12px;border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.wm-body{flex:1;overflow-y:auto;padding:16px}
+.wm-ex-name{font-size:28px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-0.5px}
+.wm-ex-muscle{font-size:13px;color:#666;margin-bottom:12px;font-weight:600}
+.wm-info-row{display:flex;gap:10px;margin-bottom:16px}
+.wm-info-box{flex:1;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;padding:10px;text-align:center}
+.wm-info-label{font-size:10px;color:#555;font-weight:700;margin-bottom:4px}
+.wm-info-val{font-size:16px;font-weight:700;color:#fff;font-family:'DM Mono',monospace}
+.wm-series-list{margin-bottom:20px}
+.wm-serie-row{display:flex;align-items:center;gap:10px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;padding:12px 14px;margin-bottom:8px;transition:all 0.2s}
+.wm-serie-row.done{border-color:#22c97a;background:rgba(34,201,122,0.08)}
+.wm-serie-num{font-size:13px;color:#555;font-weight:700;width:20px;flex-shrink:0}
+.wm-serie-detail{flex:1;font-size:16px;font-weight:700;color:#fff;font-family:'DM Mono',monospace}
+.wm-serie-check{width:36px;height:36px;border-radius:50%;border:2px solid #333;background:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s}
+.wm-serie-check.done{background:rgba(34,201,122,0.2);border-color:#22c97a}
+.wm-serie-check svg{width:18px;height:18px;stroke:#555;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.wm-serie-check.done svg{stroke:#22c97a}
+.wm-nav{display:flex;gap:10px;margin-top:8px}
+.wm-nav-btn{flex:1;padding:14px;border-radius:12px;border:1px solid #2e2e2e;background:#1e1e1e;color:#aaa;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.wm-nav-btn.primary{background:var(--accent,#E83535);border-color:var(--accent,#E83535);color:#fff}
+.wm-progress-bar{height:3px;background:#2e2e2e;margin-bottom:16px;border-radius:2px}
+.wm-progress-fill{height:100%;background:var(--accent,#E83535);border-radius:2px;transition:width 0.3s}
 </style>
 </head>
 <body>
@@ -381,8 +461,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       </div>
       <div class="filter-row" id="muscle-filters"></div>
       <div id="exercises-list"></div>
-      <div class="add-ex-area">
-        <button class="add-ex-btn" onclick="openAddExModal()">+ Agregar ejercicio suelto</button>
+      <div class="add-ex-area" style="display:flex;gap:8px">
+        <button class="add-ex-btn" style="flex:1" onclick="openAddExModal()">+ Agregar ejercicio</button>
+        <button onclick="openWorkoutMode()" style="padding:12px 14px;background:var(--accent,#E83535);border:none;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">⚡ Modo</button>
       </div>
       <!-- QUICK PESO SAVE -->
       <div style="margin:10px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px">
@@ -491,30 +572,55 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
     <!-- PERFIL -->
     <div id="tab-perfil" class="tab">
-      <div class="profile-section">
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar" id="profile-avatar-display" onclick="pickAvatar()">🏋️</div>
-          <div class="profile-avatar-hint" onclick="pickAvatar()">Tocá para cambiar la foto</div>
-          <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarChange(this)"/>
-        </div>
-        <div class="profile-field">
-          <div class="profile-label">Color de acento</div>
-          <div id="color-palette" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px">
-            <div class="color-swatch" data-color="#E83535" style="background:#E83535" title="Rojo" onclick="selectAccent('#E83535',this)"></div>
-            <div class="color-swatch" data-color="#22c97a" style="background:#22c97a" title="Verde" onclick="selectAccent('#22c97a',this)"></div>
-            <div class="color-swatch" data-color="#3B7BE8" style="background:#3B7BE8" title="Azul" onclick="selectAccent('#3B7BE8',this)"></div>
-            <div class="color-swatch" data-color="#f0a04b" style="background:#f0a04b" title="Naranja" onclick="selectAccent('#f0a04b',this)"></div>
-            <div class="color-swatch" data-color="#f5e642" style="background:#f5e642" title="Amarillo" onclick="selectAccent('#f5e642',this)"></div>
-            <div class="color-swatch" data-color="#e84dbb" style="background:#e84dbb" title="Rosa" onclick="selectAccent('#e84dbb',this)"></div>
-            <div class="color-swatch" data-color="#9b5cf6" style="background:#9b5cf6" title="Violeta" onclick="selectAccent('#9b5cf6',this)"></div>
-            <div class="color-swatch" data-color="#aaaaaa" style="background:#aaaaaa" title="Gris" onclick="selectAccent('#aaaaaa',this)"></div>
-          </div>
-          <div style="font-size:11px;color:#555;margin-top:2px">El color se aplica al header, botones y acentos</div>
-        </div>
 
+      <!-- PLAYER CARD -->
+      <div class="player-card" id="player-card">
+        <div class="player-card-top">
+          <div class="player-card-avatar" id="pc-avatar" onclick="pickAvatar()">🏋️</div>
+          <div>
+            <div class="player-card-name" id="pc-name">Atleta</div>
+            <div class="player-card-objetivo" id="pc-objetivo"></div>
+            <div class="player-card-frase" id="pc-frase"></div>
+          </div>
+        </div>
+        <div class="player-card-stats" id="pc-stats"></div>
+        <div class="player-records">
+          <div class="player-records-title">🏆 RÉCORDS PERSONALES</div>
+          <div id="pc-records"></div>
+        </div>
+        <div style="font-size:10px;color:#444;font-weight:700;letter-spacing:0.5px;margin-bottom:8px">📊 MEDIDAS CORPORALES</div>
+        <div class="player-body-stats">
+          <div class="player-body-stat">
+            <div class="player-body-val" id="pc-peso-val">—</div>
+            <div class="player-body-label">Peso kg</div>
+          </div>
+          <div class="player-body-stat">
+            <input class="player-body-input" type="number" id="pc-grasa" placeholder="—" inputmode="decimal" step="0.1" onchange="saveBodyStat('grasa',this.value)"/>
+            <div class="player-body-label">% Grasa</div>
+          </div>
+          <div class="player-body-stat">
+            <input class="player-body-input" type="number" id="pc-musculo" placeholder="—" inputmode="decimal" step="0.1" onchange="saveBodyStat('musculo',this.value)"/>
+            <div class="player-body-label">% Músculo</div>
+          </div>
+        </div>
+        <div style="font-size:10px;color:#333;margin-top:8px;text-align:center">Tocá % Grasa o % Músculo para cargar medición</div>
+      </div>
+
+      <!-- LOGROS -->
+      <div style="margin:14px 12px 6px;font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px">🎖 LOGROS</div>
+      <div class="logros-grid" id="logros-grid"></div>
+
+      <!-- CONFIG -->
+      <div class="profile-section" style="margin-top:14px">
+        <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px;margin-bottom:12px">⚙️ CONFIGURACIÓN</div>
+        <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarChange(this)"/>
         <div class="profile-field">
           <div class="profile-label">Apodo</div>
           <input class="profile-input" type="text" id="profile-nickname" placeholder="Ej: Kaiju"/>
+        </div>
+        <div class="profile-field">
+          <div class="profile-label">Frase motivacional</div>
+          <input class="profile-input" type="text" id="profile-frase" placeholder="Ej: Sin excusas, solo resultados"/>
         </div>
         <div class="profile-field">
           <div class="profile-label">Objetivo actual</div>
@@ -525,10 +631,22 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
             <button class="objetivo-chip" onclick="selectObjetivo('Fuerza máxima',this)">🏆 Fuerza</button>
             <button class="objetivo-chip" onclick="selectObjetivo('Resistencia',this)">🏃 Resistencia</button>
           </div>
-          <input class="profile-input" type="text" id="profile-objetivo-custom" placeholder="O escribí tu objetivo libremente…" style="margin-top:6px"/>
+        </div>
+        <div class="profile-field">
+          <div class="profile-label">Color de acento</div>
+          <div id="color-palette" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px">
+            <div class="color-swatch" data-color="#E83535" style="background:#E83535" onclick="selectAccent('#E83535',this)"></div>
+            <div class="color-swatch" data-color="#22c97a" style="background:#22c97a" onclick="selectAccent('#22c97a',this)"></div>
+            <div class="color-swatch" data-color="#3B7BE8" style="background:#3B7BE8" onclick="selectAccent('#3B7BE8',this)"></div>
+            <div class="color-swatch" data-color="#f0a04b" style="background:#f0a04b" onclick="selectAccent('#f0a04b',this)"></div>
+            <div class="color-swatch" data-color="#f5e642" style="background:#f5e642" onclick="selectAccent('#f5e642',this)"></div>
+            <div class="color-swatch" data-color="#e84dbb" style="background:#e84dbb" onclick="selectAccent('#e84dbb',this)"></div>
+            <div class="color-swatch" data-color="#9b5cf6" style="background:#9b5cf6" onclick="selectAccent('#9b5cf6',this)"></div>
+            <div class="color-swatch" data-color="#aaaaaa" style="background:#aaaaaa" onclick="selectAccent('#aaaaaa',this)"></div>
+          </div>
         </div>
         <button class="profile-save-btn" onclick="saveProfile()">Guardar perfil</button>
-        <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--muted);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
+        <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
       </div>
       <div style="height:20px"></div>
     </div>
@@ -640,6 +758,48 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- MODO ENTRENAMIENTO -->
+<div class="workout-mode-overlay" id="workout-mode-overlay">
+  <div class="wm-header">
+    <div>
+      <div class="wm-title">MODO ENTRENAMIENTO</div>
+      <div id="wm-progress-text" style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px"></div>
+    </div>
+    <button class="wm-close" onclick="closeWorkoutMode()">✕ Salir</button>
+  </div>
+  <div class="wm-progress-bar"><div class="wm-progress-fill" id="wm-progress-fill"></div></div>
+  <div class="wm-body">
+    <div class="wm-ex-name" id="wm-ex-name">—</div>
+    <div class="wm-ex-muscle" id="wm-ex-muscle">—</div>
+    <div class="wm-info-row">
+      <div class="wm-info-box">
+        <div class="wm-info-label">📋 ÚLTIMA VEZ</div>
+        <div class="wm-info-val" id="wm-last">—</div>
+      </div>
+      <div class="wm-info-box">
+        <div class="wm-info-label">🏆 RÉCORD</div>
+        <div class="wm-info-val" id="wm-pr">—</div>
+      </div>
+    </div>
+    <div class="wm-series-list" id="wm-series-list"></div>
+    <div class="wm-nav">
+      <button class="wm-nav-btn" id="wm-prev-btn" onclick="wmNavigate(-1)">← Anterior</button>
+      <button class="wm-nav-btn primary" id="wm-next-btn" onclick="wmNavigate(1)">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CIERRE DE MES -->
+<div class="mes-overlay" id="mes-overlay">
+  <div class="mes-box">
+    <div class="mes-title" id="mes-title">📅 Cierre de mes</div>
+    <div class="mes-sub" id="mes-sub"></div>
+    <div class="mes-verdict" id="mes-verdict"></div>
+    <div class="mes-records" id="mes-records"></div>
+    <button class="mes-close-btn" onclick="document.getElementById('mes-overlay').classList.remove('open')">¡Vamos por más! 💪</button>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -847,6 +1007,7 @@ function updateQuickPesoLast() {
 function renderAll() {
   renderFilters(); renderExercises(); renderMoods(); renderRoutinePillsSelector();
   updatePesoLast(); updateQuickPesoLast(); calcStreak(); renderProfile(); updateDaysSince();
+  setTimeout(checkCierreDeMes, 2000);
 }
 
 /* ── TABS ── */
@@ -1846,27 +2007,306 @@ document.getElementById('nutri-date-inp').addEventListener('change', function(){
 /* ── PERFIL ── */
 function renderProfile() {
   if (profile.nickname) document.getElementById('profile-nickname').value = profile.nickname;
-  if (profile.objetivoCustom) document.getElementById('profile-objetivo-custom').value = profile.objetivoCustom;
+  if (profile.frase) document.getElementById('profile-frase').value = profile.frase;
   if (profile.objetivo) {
-    document.querySelectorAll('.objetivo-chip').forEach(c => { if (c.textContent.includes(profile.objetivo.split(' ').pop())) c.classList.add('selected'); });
+    document.querySelectorAll('.objetivo-chip').forEach(ch => { if (ch.textContent.includes(profile.objetivo.split(' ').pop())) ch.classList.add('selected'); });
   }
   if (profile.avatarUrl) {
-    const avEl = document.getElementById('profile-avatar-display');
-    avEl.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar"/>`;
     const hdrAvatar = document.getElementById('avatar-btn');
-    hdrAvatar.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar"/>`;
+    if (hdrAvatar) hdrAvatar.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar"/>`;
   }
   if (profile.nickname) {
-    document.getElementById('avatar-btn').title = profile.nickname;
+    const btn = document.getElementById('avatar-btn');
+    if (btn) btn.title = profile.nickname;
   }
-  // Apply saved accent color
   const accent = profile.accentColor || '#E83535';
   applyAccent(accent);
-  // Mark selected swatch
   document.querySelectorAll('.color-swatch').forEach(s => {
     s.classList.toggle('selected', s.dataset.color === accent);
   });
+  renderPlayerCard();
+  renderLogros();
 }
+
+/* ── LOGROS DEFINITIONS ── */
+const LOGROS_DEF = [
+  { id:'first_workout', icon:'🎯', name:'Primer paso', desc:'Completá tu primer entrenamiento', check: (h,p) => h.filter(x=>!x.pesoOnly).length >= 1 },
+  { id:'week_streak', icon:'🔥', name:'Sin excusas', desc:'3 días seguidos entrenando', check: (h,p) => calcStreakFromHistory(h) >= 3 },
+  { id:'six_days', icon:'⚡', name:'Máquina', desc:'6 días en una semana', check: (h,p) => maxDaysInWeek(h) >= 6 },
+  { id:'fifty_workouts', icon:'🏆', name:'Élite', desc:'50 entrenamientos completados', check: (h,p) => h.filter(x=>!x.pesoOnly).length >= 50 },
+  { id:'hundred_series', icon:'💯', name:'Centenar', desc:'100 series históricas', check: (h,p) => totalSeries(h) >= 100 },
+  { id:'thousand_series', icon:'🌟', name:'Mil series', desc:'1000 series históricas', check: (h,p) => totalSeries(h) >= 1000 },
+  { id:'half_ton', icon:'🏋️', name:'Medio tonelada', desc:'500kg en una sola sesión', check: (h,p) => maxSessionVolume(h) >= 500 },
+  { id:'ten_thousand', icon:'🗻', name:'Everest', desc:'10.000kg de volumen histórico', check: (h,p) => totalVolume(h) >= 10000 },
+  { id:'pr_broken', icon:'🦾', name:'Superación', desc:'Rompiste tu primer récord', check: (h,p) => historyHasPR(h) },
+  { id:'body_measured', icon:'📊', name:'Medido', desc:'Cargaste % grasa o músculo', check: (h,p) => (p.grasa || p.musculo) },
+];
+
+function calcStreakFromHistory(h) {
+  if (!h.length) return 0;
+  const dates = [...new Set(h.filter(x=>!x.pesoOnly).map(x=>new Date(x.date).toDateString()))].sort((a,b)=>new Date(b)-new Date(a));
+  let streak=0, prev=new Date();
+  for (let d of dates) { const cur=new Date(d); if(Math.round((prev-cur)/86400000)<=1){streak++;prev=cur;}else break; }
+  return streak;
+}
+function maxDaysInWeek(h) {
+  const weeks = {};
+  h.filter(x=>!x.pesoOnly).forEach(x => {
+    const d = new Date(x.date);
+    const week = `${d.getFullYear()}-${Math.floor((d - new Date(d.getFullYear(),0,1))/604800000)}`;
+    if (!weeks[week]) weeks[week] = new Set();
+    weeks[week].add(d.toDateString());
+  });
+  return Math.max(0, ...Object.values(weeks).map(s=>s.size));
+}
+function totalSeries(h) { return h.reduce((a,x)=>a+(x.exercises||[]).reduce((b,e)=>b+(e.series||[]).length,0),0); }
+function totalVolume(h) { return h.reduce((a,x)=>a+(x.exercises||[]).reduce((b,e)=>b+(e.series||[]).reduce((c,s)=>c+((s.reps||0)*(s.kg||0)),0),0),0); }
+function maxSessionVolume(h) { return Math.max(0,...h.map(x=>(x.exercises||[]).reduce((b,e)=>b+(e.series||[]).reduce((c,s)=>c+((s.reps||0)*(s.kg||0)),0),0))); }
+function historyHasPR(h) {
+  // Check if any exercise has a session better than its previous best
+  const exNames = [...new Set(h.flatMap(x=>(x.exercises||[]).map(e=>e.name)))];
+  for (const name of exNames) {
+    const sessions = h.filter(x=>x.exercises&&x.exercises.some(e=>e.name===name))
+      .sort((a,b)=>new Date(a.date)-new Date(b.date))
+      .map(x=>Math.max(...(x.exercises.find(e=>e.name===name).series||[]).map(s=>parseFloat(s.kg)||0),0));
+    for (let i=1;i<sessions.length;i++) if(sessions[i]>sessions[i-1]) return true;
+  }
+  return false;
+}
+
+function renderLogros() {
+  const grid = document.getElementById('logros-grid');
+  if (!grid) return;
+  grid.innerHTML = LOGROS_DEF.map(l => {
+    const unlocked = l.check(history, profile);
+    return `<div class="logro ${unlocked?'unlocked':'locked'}">
+      ${unlocked?'<div class="logro-badge">✓</div>':''}
+      <div class="logro-icon">${l.icon}</div>
+      <div class="logro-name">${l.name}</div>
+      <div class="logro-desc">${l.desc}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── PLAYER CARD ── */
+function renderPlayerCard() {
+  const el = document.getElementById('player-card'); if (!el) return;
+  const name = profile.nickname || currentUser?.email?.split('@')[0] || 'Atleta';
+  const objetivo = profile.objetivoCustom || profile.objetivo || '';
+  const frase = profile.frase || '';
+
+  document.getElementById('pc-name').textContent = name;
+  document.getElementById('pc-objetivo').textContent = objetivo;
+  document.getElementById('pc-frase').textContent = frase ? `"${frase}"` : '';
+
+  // Avatar
+  const avEl = document.getElementById('pc-avatar');
+  if (profile.avatarUrl) avEl.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar"/>`;
+
+  // Stats
+  const totalW = history.filter(h=>!h.pesoOnly).length;
+  const streak = calcStreakFromHistory(history);
+  const vol = Math.round(totalVolume(history));
+  document.getElementById('pc-stats').innerHTML = `
+    <div class="player-stat"><div class="player-stat-val">${totalW}</div><div class="player-stat-label">Entrenos</div></div>
+    <div class="player-stat"><div class="player-stat-val">${streak}</div><div class="player-stat-label">Racha días</div></div>
+    <div class="player-stat"><div class="player-stat-val">${vol>999?Math.round(vol/1000)+'k':vol}</div><div class="player-stat-unit">${vol>999?'ton':'kg'}</div><div class="player-stat-label">Volumen</div></div>
+  `;
+
+  // Records
+  const keyExercises = [
+    { name:'Press de banca', type:'kg' },
+    { name:'Dominadas', type:'reps' },
+    { name:'Plancha', type:'time' },
+    { name:'Sentadillas', type:'kg' },
+  ];
+  const recHtml = keyExercises.map(ex => {
+    const prs = getAllPRs(ex.name);
+    let val = '—';
+    if (ex.type==='kg' && prs.kg>0) val = `${prs.kg}kg × ${prs.bestKgReps}r`;
+    else if (ex.type==='reps' && prs.reps>0) val = `${prs.reps} reps`;
+    else if (ex.type==='time' && prs.secs>0) val = `${prs.secs}s`;
+    return `<div class="player-record-row"><span class="player-record-name">${ex.name}</span><span class="player-record-val">${val}</span></div>`;
+  }).join('');
+  document.getElementById('pc-records').innerHTML = recHtml;
+
+  // Peso corporal
+  const lastPeso = history.find(h=>h.peso);
+  document.getElementById('pc-peso-val').textContent = lastPeso ? lastPeso.peso+'kg' : '—';
+
+  // Body stats
+  if (profile.grasa) document.getElementById('pc-grasa').value = profile.grasa;
+  if (profile.musculo) document.getElementById('pc-musculo').value = profile.musculo;
+}
+
+window.saveBodyStat = async (field, val) => {
+  profile[field] = parseFloat(val)||null;
+  await saveProfileDB();
+  renderPlayerCard();
+};
+
+/* ── CIERRE DE MES ── */
+function checkCierreDeMes() {
+  if (!history.length) return;
+  const lastShown = profile.lastMesClose || null;
+  const today = new Date();
+  const thisMonth = `${today.getFullYear()}-${today.getMonth()}`;
+  if (lastShown === thisMonth) return;
+
+  // Check if we have at least 2 weeks of data in the previous month
+  const prevMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
+  const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+  const prevKey = `${prevMonth.getFullYear()}-${prevMonth.getMonth()}`;
+  if (lastShown === prevKey) return;
+
+  const monthHistory = history.filter(h => {
+    if (h.pesoOnly) return false;
+    const d = new Date(h.date);
+    return d >= prevMonth && d <= prevMonthEnd;
+  });
+  if (monthHistory.length < 4) return; // Need at least 4 sessions
+
+  showCierreDeMes(monthHistory, prevMonth);
+  profile.lastMesClose = prevKey;
+  saveProfileDB();
+}
+
+function showCierreDeMes(monthHistory, month) {
+  const monthName = month.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+  document.getElementById('mes-title').textContent = `📅 Cierre de ${monthName}`;
+  document.getElementById('mes-sub').textContent = `${monthHistory.length} sesiones este mes`;
+
+  // Analyze PRs broken this month
+  const prsBroken = [];
+  monthHistory.forEach(h => {
+    (h.exercises||[]).forEach(ex => {
+      const prs = getAllPRs(ex.name);
+      const sessionMax = Math.max(...(ex.series||[]).map(s=>parseFloat(s.kg)||0),0);
+      const sessionReps = Math.max(...(ex.series||[]).map(s=>parseInt(s.reps)||0),0);
+      if (sessionMax > 0 && sessionMax >= prs.kg) prsBroken.push(`${ex.name}: ${sessionMax}kg`);
+      else if (sessionReps > prs.reps && prs.kg === 0) prsBroken.push(`${ex.name}: ${sessionReps} reps`);
+    });
+  });
+
+  // Peso trend
+  const pesoEntries = history.filter(h=>h.peso).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const startPeso = pesoEntries.length >= 2 ? pesoEntries[0].peso : null;
+  const endPeso = pesoEntries.length >= 1 ? pesoEntries[pesoEntries.length-1].peso : null;
+  const pesoDiff = startPeso && endPeso ? Math.round((endPeso-startPeso)*10)/10 : null;
+
+  // Verdict logic
+  let emoji, title, text;
+  const hasPRs = prsBroken.length > 0;
+  const bajoPeso = pesoDiff !== null && pesoDiff < -0.5;
+  const subPeso = pesoDiff !== null && pesoDiff > 0.5;
+
+  if (hasPRs && bajoPeso) {
+    emoji='🔥'; title='¡Quemando grasa y ganando fuerza!';
+    text='Rompiste récords mientras bajaste de peso. Eso es lo más difícil de lograr — estás en un déficit inteligente. Seguí así.';
+  } else if (hasPRs && subPeso) {
+    emoji='💪'; title='¡Ganando masa muscular!';
+    text='Subiste de peso Y rompiste récords. Estás en un volumen que funciona — tu cuerpo está creciendo. Bien hecho.';
+  } else if (hasPRs && !pesoDiff) {
+    emoji='⚖️'; title='¡Fuerza en mantenimiento!';
+    text='Mantuviste tu peso y aun así mejoraste. Eso significa más músculo y menos grasa, aunque no se vea en la balanza.';
+  } else if (!hasPRs && bajoPeso) {
+    emoji='✅'; title='Bajando con cabeza';
+    text='Mantuviste tus cargas mientras perdías peso. Eso es excelente — significa que estás preservando el músculo en el proceso.';
+  } else {
+    emoji='📈'; title='Un mes más en el camino';
+    text=`${monthHistory.length} sesiones completadas. La consistencia es el récord más importante. Mes a mes construís la base.`;
+  }
+
+  document.getElementById('mes-verdict').innerHTML = `
+    <div class="mes-verdict-emoji">${emoji}</div>
+    <div class="mes-verdict-title">${title}</div>
+    <div class="mes-verdict-text">${text}</div>
+    ${pesoDiff!==null?`<div style="margin-top:10px;font-size:12px;color:#666">Peso: ${pesoDiff>0?'+':''}${pesoDiff}kg este mes</div>`:''}
+  `;
+
+  const recs = [...new Set(prsBroken)].slice(0,5);
+  document.getElementById('mes-records').innerHTML = recs.length ? `
+    <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px;margin-bottom:8px">🏆 RÉCORDS ROTOS ESTE MES</div>
+    ${recs.map(r=>`<div class="mes-record-item"><span style="font-size:18px">🔥</span><span style="font-size:13px;color:#eee;font-weight:600">${r}</span></div>`).join('')}
+  ` : '<div style="font-size:12px;color:#555;text-align:center">Sin récords rotos este mes — el próximo es tuyo</div>';
+
+  document.getElementById('mes-overlay').classList.add('open');
+}
+
+/* ── WORKOUT MODE ── */
+let wmExIndex = 0;
+window.openWorkoutMode = () => {
+  const exList = exercises.filter(e => e.series && e.series.length);
+  if (!exList.length) { showToast('No hay ejercicios cargados'); return; }
+  wmExIndex = 0;
+  document.getElementById('workout-mode-overlay').classList.add('open');
+  renderWorkoutMode();
+};
+window.closeWorkoutMode = () => { document.getElementById('workout-mode-overlay').classList.remove('open'); renderExercises(); };
+window.wmNavigate = (dir) => {
+  const exList = exercises.filter(e => e.series && e.series.length);
+  wmExIndex = Math.max(0, Math.min(exList.length-1, wmExIndex+dir));
+  renderWorkoutMode();
+};
+
+function renderWorkoutMode() {
+  const exList = exercises.filter(e => e.series && e.series.length);
+  if (!exList.length) return;
+  const ex = exList[wmExIndex];
+  const total = exList.length;
+  const type = ex.type || 'normal';
+  const prs = getAllPRs(ex.name);
+  const lastStats = getLastSessionStats(ex.name);
+
+  document.getElementById('wm-ex-name').textContent = ex.name;
+  document.getElementById('wm-ex-muscle').textContent = ex.muscle;
+  document.getElementById('wm-progress-text').textContent = `Ejercicio ${wmExIndex+1} de ${total}`;
+  document.getElementById('wm-progress-fill').style.width = `${((wmExIndex+1)/total)*100}%`;
+
+  // Last session & PR
+  let lastText = '—', prText = '—';
+  if (lastStats) {
+    if (type==='time') lastText = `${lastStats.secs}s`;
+    else if (type==='bw_lastre') lastText = `${lastStats.reps}r${lastStats.kg>0?' +'+lastStats.kg+'kg':''}`;
+    else lastText = `${lastStats.kg}kg × ${lastStats.reps}r`;
+  }
+  if (type==='time' && prs.secs>0) prText = `${prs.secs}s`;
+  else if (type==='bw_lastre') prText = prs.reps>0 ? `${prs.reps}r${prs.kg>0?' +'+prs.kg+'kg':''}` : '—';
+  else if (prs.kg>0) prText = `${prs.kg}kg × ${prs.bestKgReps}r`;
+
+  document.getElementById('wm-last').textContent = lastText;
+  document.getElementById('wm-pr').textContent = prText;
+
+  // Series
+  const seriesHtml = ex.series.map((s,i) => {
+    let detail = '';
+    if (type==='time') detail = `${s.secs||30}s`;
+    else if (type==='bw_lastre') detail = `${s.reps||10} reps${parseFloat(s.kg)>0?' + '+s.kg+'kg lastre':''}`;
+    else detail = `${s.kg||0}kg × ${s.reps||10} reps`;
+    return `<div class="wm-serie-row ${s.done?'done':''}">
+      <div class="wm-serie-num">${i+1}</div>
+      <div class="wm-serie-detail">${detail}</div>
+      <button class="wm-serie-check ${s.done?'done':''}" onclick="wmToggleDone(${ex.id},${i})">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+  document.getElementById('wm-series-list').innerHTML = seriesHtml;
+
+  // Nav buttons
+  document.getElementById('wm-prev-btn').style.display = wmExIndex===0 ? 'none' : '';
+  document.getElementById('wm-next-btn').textContent = wmExIndex===total-1 ? '✅ Terminar' : 'Siguiente →';
+  if (wmExIndex===total-1) document.getElementById('wm-next-btn').onclick = closeWorkoutMode;
+  else document.getElementById('wm-next-btn').onclick = () => wmNavigate(1);
+}
+
+window.wmToggleDone = (exId, idx) => {
+  const ex = exercises.find(e => e.id === exId);
+  if (ex && ex.series[idx]) {
+    ex.series[idx].done = !ex.series[idx].done;
+    saveEx(ex); renderWorkoutMode();
+  }
+};
 
 /* ── ACCENT COLOR ── */
 const ACCENT_COLORS = {
@@ -1908,7 +2348,6 @@ function applyAccent(color) {
     .nav-btn.active { color: ${color} !important; }
     .nav-btn.active::after { background: ${color} !important; }
     .filter-pill.active { background: ${palette.light} !important; border-color: ${color} !important; color: ${palette.dark} !important; }
-    .prog-pill { background: ${palette.light} !important; color: ${palette.dark} !important; }
     .check-btn.done { background: ${palette.light} !important; border-color: ${color} !important; }
     .check-btn.done svg { stroke: ${color} !important; }
     .mood-chip.selected { background: ${palette.light} !important; border-color: ${color} !important; color: ${palette.dark} !important; }
@@ -1942,8 +2381,7 @@ window.selectObjetivo = (obj, el) => {
 
 window.saveProfile = async () => {
   profile.nickname = document.getElementById('profile-nickname').value.trim();
-  profile.objetivoCustom = document.getElementById('profile-objetivo-custom').value.trim();
-  // accentColor already saved by selectAccent
+  profile.frase = document.getElementById('profile-frase').value.trim();
   showSync(true); await saveProfileDB(); showSync(false);
   renderProfile(); showToast('Perfil guardado ✓');
 };
