@@ -2357,11 +2357,8 @@ window.setLevelMode = async (mode) => {
 window.showLogroDetail = (id) => {
   const logro = LOGROS_DEF.find(l=>l.id===id); if(!logro) return;
   const level = getCurrentLevel(logro);
-  const lines = logro.levels.map((l,i)=>`${i<=level?'✅':'🔒'} ${getLevelName(i)}: ${l.desc}`).join('
-');
-  alert(`${logro.icon} ${logro.base}
-
-${lines}`);
+  const lines = logro.levels.map((l,i)=>`${i<=level?'\u2705':'\uD83D\uDD12'} ${getLevelName(i)}: ${l.desc}`).join('\n');
+  alert(logro.icon+' '+logro.base+'\n\n'+lines);
 };
 
 function calcStreakFromHistory(h) {
