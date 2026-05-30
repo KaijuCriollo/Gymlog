@@ -48,7 +48,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
 /* ── APP ── */
 #app{display:none;flex-direction:column;height:100vh;height:100dvh;max-width:480px;margin:0 auto;background:var(--bg);position:relative}
-#app::before{content:"";position:fixed;top:0;left:50%;transform:translateX(-50%);width:480px;height:100vh;height:100dvh;background:linear-gradient(135deg,transparent 38%,rgba(232,53,53,0.08) 38%,rgba(232,53,53,0.08) 50%,transparent 50%);pointer-events:none;z-index:9998}
+#app::before{display:none}
 .header{padding:env(safe-area-inset-top,0) 0 0;background:#E83535;border-bottom:none;position:relative;overflow:hidden}
 .header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;position:relative;z-index:1}
 .app-title{font-size:20px;font-weight:700;letter-spacing:-0.5px;color:#fff}
@@ -274,32 +274,35 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 /* WEEKLY BARS */
 .weekly-wrap{margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);padding:13px;height:160px;position:relative}
 
-/* PLAYER CARD */
-.player-card{margin:10px 12px 0;background:linear-gradient(145deg,#1a1a1a,#0d0d0d);border:1px solid #2e2e2e;border-radius:20px;padding:20px 16px;position:relative;overflow:hidden}
-.player-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent 38%,rgba(232,53,53,0.07) 38%,rgba(232,53,53,0.07) 50%,transparent 50%);pointer-events:none}
-.player-card-top{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-.player-card-avatar{width:72px;height:72px;border-radius:50%;border:3px solid var(--accent,#E83535);overflow:hidden;background:#222;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
-.player-card-avatar img{width:100%;height:100%;object-fit:cover}
-.player-card-name{font-size:22px;font-weight:700;color:#fff;letter-spacing:-0.5px}
-.player-card-objetivo{font-size:12px;color:var(--accent,#E83535);font-weight:600;margin-top:2px}
-.player-card-frase{font-size:11px;color:#666;margin-top:4px;font-style:italic;line-height:1.4}
+/* PLAYER CARD - FIFA STYLE */
+.player-card{margin:10px 12px 0;border-radius:20px;overflow:hidden;position:relative;border:1px solid #2e2e2e}
+.player-card-photo{position:relative;width:100%;height:240px;background:#111;overflow:hidden}
+.player-card-photo-img{width:100%;height:100%;object-fit:cover;object-position:center top}
+.player-card-photo-emoji{font-size:80px;display:flex;align-items:center;justify-content:center;height:100%;background:linear-gradient(180deg,#1a1a1a,#0d0d0d)}
+.player-card-photo-gradient{position:absolute;bottom:0;left:0;right:0;height:140px;background:linear-gradient(to top,#0d0d0d 0%,#0d0d0d 30%,rgba(13,13,13,0.8) 60%,transparent 100%)}
+.player-card-photo-info{position:absolute;bottom:0;left:0;right:0;padding:14px 16px}
+.player-card-name{font-size:26px;font-weight:700;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 8px rgba(0,0,0,0.8)}
+.player-card-objetivo{font-size:12px;color:var(--accent,#E83535);font-weight:700;margin-top:2px;text-transform:uppercase;letter-spacing:0.5px}
+.player-card-frase{font-size:11px;color:rgba(255,255,255,0.6);margin-top:3px;font-style:italic}
+.player-card-body{background:#111;padding:14px 14px 16px}
 .player-card-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
-.player-stat{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;padding:9px 6px;text-align:center}
+.player-stat{background:#1a1a1a;border:1px solid #252525;border-radius:10px;padding:9px 6px;text-align:center}
 .player-stat-val{font-size:18px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;line-height:1}
 .player-stat-unit{font-size:10px;color:#555;font-weight:600}
-.player-stat-label{font-size:10px;color:#666;margin-top:3px;font-weight:600}
+.player-stat-label{font-size:10px;color:#555;margin-top:3px;font-weight:600}
 .player-records{background:#161616;border-radius:12px;padding:10px 12px;margin-bottom:12px}
-.player-records-title{font-size:10px;color:#555;font-weight:700;letter-spacing:0.5px;margin-bottom:8px}
+.player-records-title{font-size:10px;color:#444;font-weight:700;letter-spacing:0.5px;margin-bottom:8px}
 .player-record-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .player-record-row:last-child{margin-bottom:0}
-.player-record-name{font-size:12px;color:#aaa;font-weight:600}
+.player-record-name{font-size:12px;color:#888;font-weight:600}
 .player-record-val{font-size:13px;color:var(--accent,#E83535);font-weight:700;font-family:'DM Mono',monospace}
 .player-body-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.player-body-stat{background:#1e1e1e;border:1px solid #2a2a2a;border-radius:10px;padding:8px 6px;text-align:center}
+.player-body-stat{background:#1a1a1a;border:1px solid #252525;border-radius:10px;padding:8px 6px;text-align:center}
 .player-body-val{font-size:16px;font-weight:700;color:#fff;font-family:'DM Mono',monospace}
 .player-body-label{font-size:10px;color:#555;margin-top:2px;font-weight:600}
 .player-body-input{width:100%;background:none;border:none;outline:none;font-size:16px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none}
 .player-body-input::placeholder{color:#333;font-size:13px}
+.player-card-edit-photo{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.2);border-radius:20px;padding:5px 10px;font-size:11px;color:#fff;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600}
 
 /* LOGROS */
 .logros-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 12px 0}
@@ -573,41 +576,53 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <!-- PERFIL -->
     <div id="tab-perfil" class="tab">
 
-      <!-- PLAYER CARD -->
+      <!-- PLAYER CARD FIFA STYLE -->
       <div class="player-card" id="player-card">
-        <div class="player-card-top">
-          <div class="player-card-avatar" id="pc-avatar" onclick="pickAvatar()">🏋️</div>
-          <div>
+        <div class="player-card-photo" id="pc-photo-wrap">
+          <div class="player-card-photo-emoji" id="pc-photo-emoji">🏋️</div>
+          <div class="player-card-photo-gradient"></div>
+          <div class="player-card-photo-info">
             <div class="player-card-name" id="pc-name">Atleta</div>
             <div class="player-card-objetivo" id="pc-objetivo"></div>
             <div class="player-card-frase" id="pc-frase"></div>
           </div>
+          <button class="player-card-edit-photo" onclick="pickAvatar()">📷 Editar foto</button>
         </div>
-        <div class="player-card-stats" id="pc-stats"></div>
-        <div class="player-records">
-          <div class="player-records-title">🏆 RÉCORDS PERSONALES</div>
-          <div id="pc-records"></div>
+        <div class="player-card-body">
+          <div class="player-card-stats" id="pc-stats"></div>
+          <div class="player-records">
+            <div class="player-records-title">🏆 RÉCORDS PERSONALES</div>
+            <div id="pc-records"></div>
+          </div>
+          <div style="font-size:10px;color:#444;font-weight:700;letter-spacing:0.5px;margin-bottom:8px">📊 MEDIDAS CORPORALES</div>
+          <div class="player-body-stats">
+            <div class="player-body-stat">
+              <div class="player-body-val" id="pc-peso-val">—</div>
+              <div class="player-body-label">Peso kg</div>
+            </div>
+            <div class="player-body-stat">
+              <input class="player-body-input" type="number" id="pc-grasa" placeholder="—" inputmode="decimal" step="0.1" onchange="saveBodyStat('grasa',this.value)"/>
+              <div class="player-body-label">% Grasa</div>
+            </div>
+            <div class="player-body-stat">
+              <input class="player-body-input" type="number" id="pc-musculo" placeholder="—" inputmode="decimal" step="0.1" onchange="saveBodyStat('musculo',this.value)"/>
+              <div class="player-body-label">% Músculo</div>
+            </div>
+          </div>
         </div>
-        <div style="font-size:10px;color:#444;font-weight:700;letter-spacing:0.5px;margin-bottom:8px">📊 MEDIDAS CORPORALES</div>
-        <div class="player-body-stats">
-          <div class="player-body-stat">
-            <div class="player-body-val" id="pc-peso-val">—</div>
-            <div class="player-body-label">Peso kg</div>
-          </div>
-          <div class="player-body-stat">
-            <input class="player-body-input" type="number" id="pc-grasa" placeholder="—" inputmode="decimal" step="0.1" onchange="saveBodyStat('grasa',this.value)"/>
-            <div class="player-body-label">% Grasa</div>
-          </div>
-          <div class="player-body-stat">
-            <input class="player-body-input" type="number" id="pc-musculo" placeholder="—" inputmode="decimal" step="0.1" onchange="saveBodyStat('musculo',this.value)"/>
-            <div class="player-body-label">% Músculo</div>
-          </div>
-        </div>
-        <div style="font-size:10px;color:#333;margin-top:8px;text-align:center">Tocá % Grasa o % Músculo para cargar medición</div>
       </div>
 
       <!-- LOGROS -->
-      <div style="margin:14px 12px 6px;font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px">🎖 LOGROS</div>
+      <div style="margin:14px 12px 4px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px">🎖 LOGROS</div>
+        <div style="font-size:10px;color:#444" id="logros-summary"></div>
+      </div>
+      <div style="display:flex;gap:6px;overflow-x:auto;padding:0 12px 6px;scrollbar-width:none">
+        <button onclick="setLevelMode('classic')" id="lm-classic" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Clásico</button>
+        <button onclick="setLevelMode('naruto')" id="lm-naruto" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🍃 Naruto</button>
+        <button onclick="setLevelMode('gamer')" id="lm-gamer" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎮 Gamer</button>
+        <button onclick="setLevelMode('medieval')" id="lm-medieval" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">⚔️ Medieval</button>
+      </div>
       <div class="logros-grid" id="logros-grid"></div>
 
       <!-- CONFIG -->
@@ -1040,8 +1055,15 @@ function normalizeExName(name) {
 }
 function getAliases(exName) {
   const bancaGroup = ['press de banca','press banca','press de banca','press banca plano'];
-  if (bancaGroup.includes(normalizeExName(exName))) return bancaGroup;
-  return [normalizeExName(exName)];
+  const sentadillaGroup = ['sentadillas','sentadilla','squat'];
+  const dominadasGroup = ['dominadas','dominada','pull up','pull-up','pullup'];
+  const planchaGroup = ['plancha','plank'];
+  const n = normalizeExName(exName);
+  if (bancaGroup.includes(n)) return bancaGroup;
+  if (sentadillaGroup.includes(n)) return sentadillaGroup;
+  if (dominadasGroup.includes(n)) return dominadasGroup;
+  if (planchaGroup.includes(n)) return planchaGroup;
+  return [n];
 }
 
 // Returns { kg, reps, secs, bestKgReps, bestRepsKg } PRs for an exercise
@@ -1333,6 +1355,7 @@ function buildExCard(ex) {
     <div class="card-body" id="body-${ex.id}">
       ${bodyContent}
       <button class="add-series-btn" onclick="addSeries(${ex.id})">+ Agregar serie</button>
+      ${ex.series.length > 1 ? `<button class="add-series-btn" style="border-color:#E83535;color:#E83535;margin-top:4px" onclick="removeSerie(${ex.id})">− Quitar última serie</button>` : ''}
       <div class="ex-note-wrap">
         <div style="font-size:11px;color:var(--subtle);margin-bottom:4px">✏️ Nota</div>
         <textarea class="note-textarea" placeholder="Opcional…" onchange="updateExNote(${ex.id},this.value)">${ex.note||''}</textarea>
@@ -1362,6 +1385,13 @@ window.toggleDone = (exId, idx) => {
     const body = document.getElementById('body-'+exId);
     if (body) { body.classList.add('open'); document.getElementById('chev-'+exId).classList.add('open'); }
   }
+};
+
+window.removeSerie = (id) => {
+  const ex = exercises.find(e => e.id === id); if (!ex || ex.series.length <= 1) return;
+  ex.series.pop(); saveEx(ex); renderExercises();
+  const body = document.getElementById('body-'+id);
+  if (body) { body.classList.add('open'); document.getElementById('chev-'+id).classList.add('open'); }
 };
 
 window.addSeries = (id) => {
@@ -2024,23 +2054,315 @@ function renderProfile() {
   document.querySelectorAll('.color-swatch').forEach(s => {
     s.classList.toggle('selected', s.dataset.color === accent);
   });
+  // Init level mode buttons
+  const savedMode = profile.levelMode || 'classic';
+  currentLevelMode = savedMode;
+  ['classic','naruto','gamer','medieval'].forEach(m => {
+    const btn = document.getElementById('lm-'+m);
+    if (!btn) return;
+    if (m === savedMode) {
+      btn.style.cssText = 'flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+    } else {
+      btn.style.cssText = 'flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+    }
+  });
   renderPlayerCard();
   renderLogros();
 }
 
 /* ── LOGROS DEFINITIONS ── */
+// Level name modes: classic, naruto, gamer, medieval
+const LEVEL_MODES = {
+  classic:  ['Aprendiz','Veterano','Élite','Leyenda'],
+  naruto:   ['Genin','Chunin','Jonin','Anbu'],
+  gamer:    ['Bronce','Plata','Oro','Diamante'],
+  medieval: ['Escudero','Caballero','Cruzado','Rey'],
+};
+let currentLevelMode = 'classic';
+
+function getLevelName(level) {
+  return LEVEL_MODES[currentLevelMode]?.[level] || LEVEL_MODES.classic[level];
+}
+
+// Each logro group has up to 4 levels (0-3)
 const LOGROS_DEF = [
-  { id:'first_workout', icon:'🎯', name:'Primer paso', desc:'Completá tu primer entrenamiento', check: (h,p) => h.filter(x=>!x.pesoOnly).length >= 1 },
-  { id:'week_streak', icon:'🔥', name:'Sin excusas', desc:'3 días seguidos entrenando', check: (h,p) => calcStreakFromHistory(h) >= 3 },
-  { id:'six_days', icon:'⚡', name:'Máquina', desc:'6 días en una semana', check: (h,p) => maxDaysInWeek(h) >= 6 },
-  { id:'fifty_workouts', icon:'🏆', name:'Élite', desc:'50 entrenamientos completados', check: (h,p) => h.filter(x=>!x.pesoOnly).length >= 50 },
-  { id:'hundred_series', icon:'💯', name:'Centenar', desc:'100 series históricas', check: (h,p) => totalSeries(h) >= 100 },
-  { id:'thousand_series', icon:'🌟', name:'Mil series', desc:'1000 series históricas', check: (h,p) => totalSeries(h) >= 1000 },
-  { id:'half_ton', icon:'🏋️', name:'Medio tonelada', desc:'500kg en una sola sesión', check: (h,p) => maxSessionVolume(h) >= 500 },
-  { id:'ten_thousand', icon:'🗻', name:'Everest', desc:'10.000kg de volumen histórico', check: (h,p) => totalVolume(h) >= 10000 },
-  { id:'pr_broken', icon:'🦾', name:'Superación', desc:'Rompiste tu primer récord', check: (h,p) => historyHasPR(h) },
-  { id:'body_measured', icon:'📊', name:'Medido', desc:'Cargaste % grasa o músculo', check: (h,p) => (p.grasa || p.musculo) },
+  // ── CONSISTENCIA ──
+  {
+    id:'streak', icon:'🔥', base:'Sin excusas',
+    levels:[
+      { lvl:0, desc:'3 días seguidos',  check:(h,p)=>calcStreakFromHistory(h)>=3  },
+      { lvl:1, desc:'7 días seguidos',  check:(h,p)=>calcStreakFromHistory(h)>=7  },
+      { lvl:2, desc:'14 días seguidos', check:(h,p)=>calcStreakFromHistory(h)>=14 },
+      { lvl:3, desc:'30 días seguidos', check:(h,p)=>calcStreakFromHistory(h)>=30 },
+    ]
+  },
+  {
+    id:'week_days', icon:'📅', base:'Semana completa',
+    levels:[
+      { lvl:0, desc:'4 entrenos en una semana', check:(h,p)=>maxDaysInWeek(h)>=4 },
+      { lvl:1, desc:'5 entrenos en una semana', check:(h,p)=>maxDaysInWeek(h)>=5 },
+      { lvl:2, desc:'6 días en una semana',     check:(h,p)=>maxDaysInWeek(h)>=6 },
+      { lvl:3, desc:'6 días por 4 semanas seguidas', check:(h,p)=>weeksWithDays(h,6,4) },
+    ]
+  },
+  {
+    id:'total_workouts', icon:'🏆', base:'Veteranía',
+    levels:[
+      { lvl:0, desc:'10 entrenamientos',  check:(h,p)=>h.filter(x=>!x.pesoOnly).length>=10  },
+      { lvl:1, desc:'50 entrenamientos',  check:(h,p)=>h.filter(x=>!x.pesoOnly).length>=50  },
+      { lvl:2, desc:'100 entrenamientos', check:(h,p)=>h.filter(x=>!x.pesoOnly).length>=100 },
+      { lvl:3, desc:'200 entrenamientos', check:(h,p)=>h.filter(x=>!x.pesoOnly).length>=200 },
+    ]
+  },
+  {
+    id:'month_active', icon:'🗓', base:'Mes activo',
+    levels:[
+      { lvl:0, desc:'8 entrenos en un mes',  check:(h,p)=>maxWorkoutsInMonth(h)>=8  },
+      { lvl:1, desc:'12 entrenos en un mes', check:(h,p)=>maxWorkoutsInMonth(h)>=12 },
+      { lvl:2, desc:'16 entrenos en un mes', check:(h,p)=>maxWorkoutsInMonth(h)>=16 },
+      { lvl:3, desc:'20 entrenos en un mes', check:(h,p)=>maxWorkoutsInMonth(h)>=20 },
+    ]
+  },
+  // ── VOLUMEN ──
+  {
+    id:'series', icon:'💯', base:'Centenar',
+    levels:[
+      { lvl:0, desc:'100 series históricas',  check:(h,p)=>totalSeries(h)>=100   },
+      { lvl:1, desc:'500 series históricas',  check:(h,p)=>totalSeries(h)>=500   },
+      { lvl:2, desc:'1000 series históricas', check:(h,p)=>totalSeries(h)>=1000  },
+      { lvl:3, desc:'5000 series históricas', check:(h,p)=>totalSeries(h)>=5000  },
+    ]
+  },
+  {
+    id:'volume_session', icon:'🏗️', base:'Constructor',
+    levels:[
+      { lvl:0, desc:'500kg en una sesión',  check:(h,p)=>maxSessionVolume(h)>=500  },
+      { lvl:1, desc:'1000kg en una sesión', check:(h,p)=>maxSessionVolume(h)>=1000 },
+      { lvl:2, desc:'2000kg en una sesión', check:(h,p)=>maxSessionVolume(h)>=2000 },
+      { lvl:3, desc:'3000kg en una sesión', check:(h,p)=>maxSessionVolume(h)>=3000 },
+    ]
+  },
+  {
+    id:'volume_total', icon:'🗻', base:'Everest',
+    levels:[
+      { lvl:0, desc:'10.000kg histórico',  check:(h,p)=>totalVolume(h)>=10000  },
+      { lvl:1, desc:'50.000kg histórico',  check:(h,p)=>totalVolume(h)>=50000  },
+      { lvl:2, desc:'100.000kg histórico', check:(h,p)=>totalVolume(h)>=100000 },
+      { lvl:3, desc:'500.000kg histórico', check:(h,p)=>totalVolume(h)>=500000 },
+    ]
+  },
+  {
+    id:'week_volume', icon:'🚂', base:'Locomotora',
+    levels:[
+      { lvl:0, desc:'3000kg en una semana',  check:(h,p)=>maxWeekVolume(h)>=3000  },
+      { lvl:1, desc:'5000kg en una semana',  check:(h,p)=>maxWeekVolume(h)>=5000  },
+      { lvl:2, desc:'10000kg en una semana', check:(h,p)=>maxWeekVolume(h)>=10000 },
+      { lvl:3, desc:'20000kg en una semana', check:(h,p)=>maxWeekVolume(h)>=20000 },
+    ]
+  },
+  // ── FUERZA ──
+  {
+    id:'pr_broken', icon:'🦾', base:'Superación',
+    levels:[
+      { lvl:0, desc:'Primer récord roto',       check:(h,p)=>historyHasPR(h)              },
+      { lvl:1, desc:'5 récords rotos en total',  check:(h,p)=>countPRs(h)>=5              },
+      { lvl:2, desc:'20 récords rotos en total', check:(h,p)=>countPRs(h)>=20             },
+      { lvl:3, desc:'50 récords rotos en total', check:(h,p)=>countPRs(h)>=50             },
+    ]
+  },
+  {
+    id:'press_banca', icon:'🚀', base:'Press centenario',
+    levels:[
+      { lvl:0, desc:'60kg en press de banca',  check:(h,p)=>getPR('Press de banca')>=60  },
+      { lvl:1, desc:'80kg en press de banca',  check:(h,p)=>getPR('Press de banca')>=80  },
+      { lvl:2, desc:'100kg en press de banca', check:(h,p)=>getPR('Press de banca')>=100 },
+      { lvl:3, desc:'120kg en press de banca', check:(h,p)=>getPR('Press de banca')>=120 },
+    ]
+  },
+  {
+    id:'sentadillas', icon:'🦵', base:'Toro',
+    levels:[
+      { lvl:0, desc:'60kg en sentadillas',  check:(h,p)=>getPR('Sentadillas')>=60  },
+      { lvl:1, desc:'80kg en sentadillas',  check:(h,p)=>getPR('Sentadillas')>=80  },
+      { lvl:2, desc:'100kg en sentadillas', check:(h,p)=>getPR('Sentadillas')>=100 },
+      { lvl:3, desc:'140kg en sentadillas', check:(h,p)=>getPR('Sentadillas')>=140 },
+    ]
+  },
+  {
+    id:'dominadas', icon:'🦅', base:'Cóndor',
+    levels:[
+      { lvl:0, desc:'10 dominadas seguidas', check:(h,p)=>getPRReps('Dominadas')>=10 },
+      { lvl:1, desc:'15 dominadas seguidas', check:(h,p)=>getPRReps('Dominadas')>=15 },
+      { lvl:2, desc:'20 dominadas seguidas', check:(h,p)=>getPRReps('Dominadas')>=20 },
+      { lvl:3, desc:'25 dominadas seguidas', check:(h,p)=>getPRReps('Dominadas')>=25 },
+    ]
+  },
+  {
+    id:'plancha', icon:'🗿', base:'Estatua',
+    levels:[
+      { lvl:0, desc:'60s de plancha',  check:(h,p)=>getPRTime('Plancha')>=60  },
+      { lvl:1, desc:'90s de plancha',  check:(h,p)=>getPRTime('Plancha')>=90  },
+      { lvl:2, desc:'120s de plancha', check:(h,p)=>getPRTime('Plancha')>=120 },
+      { lvl:3, desc:'180s de plancha', check:(h,p)=>getPRTime('Plancha')>=180 },
+    ]
+  },
+  {
+    id:'ten_series_ex', icon:'🔩', base:'Tornillo',
+    levels:[
+      { lvl:0, desc:'8 series de un ejercicio',  check:(h,p)=>maxSeriesOneEx(h)>=8  },
+      { lvl:1, desc:'10 series de un ejercicio', check:(h,p)=>maxSeriesOneEx(h)>=10 },
+      { lvl:2, desc:'12 series de un ejercicio', check:(h,p)=>maxSeriesOneEx(h)>=12 },
+      { lvl:3, desc:'15 series de un ejercicio', check:(h,p)=>maxSeriesOneEx(h)>=15 },
+    ]
+  },
+  // ── PERFIL/HORARIO ──
+  {
+    id:'early_bird', icon:'🌅', base:'Madrugador',
+    levels:[
+      { lvl:0, desc:'Entreno antes de las 8am',      check:(h,p)=>hasWorkoutBefore(h,8)  },
+      { lvl:1, desc:'5 entrenos antes de las 8am',   check:(h,p)=>countWorkoutsBefore(h,8)>=5  },
+      { lvl:2, desc:'10 entrenos antes de las 8am',  check:(h,p)=>countWorkoutsBefore(h,8)>=10 },
+      { lvl:3, desc:'20 entrenos antes de las 8am',  check:(h,p)=>countWorkoutsBefore(h,8)>=20 },
+    ]
+  },
+  {
+    id:'night_owl', icon:'🌙', base:'Nocturno',
+    levels:[
+      { lvl:0, desc:'Entreno después de las 21hs',     check:(h,p)=>hasWorkoutAfter(h,21)       },
+      { lvl:1, desc:'5 entrenos después de las 21hs',  check:(h,p)=>countWorkoutsAfter(h,21)>=5  },
+      { lvl:2, desc:'10 entrenos después de las 21hs', check:(h,p)=>countWorkoutsAfter(h,21)>=10 },
+      { lvl:3, desc:'20 entrenos después de las 21hs', check:(h,p)=>countWorkoutsAfter(h,21)>=20 },
+    ]
+  },
+  {
+    id:'profile_complete', icon:'⭐', base:'Identidad',
+    levels:[
+      { lvl:0, desc:'Cargaste tu apodo',            check:(h,p)=>!!p.nickname    },
+      { lvl:1, desc:'Cargaste foto de perfil',      check:(h,p)=>!!p.avatarUrl   },
+      { lvl:2, desc:'Cargaste tu frase motivacional', check:(h,p)=>!!p.frase    },
+      { lvl:3, desc:'Cargaste % grasa y músculo',   check:(h,p)=>!!(p.grasa && p.musculo) },
+    ]
+  },
 ];
+
+// ── LOGROS HELPERS ──
+function maxWorkoutsInMonth(h) {
+  const months = {};
+  h.filter(x=>!x.pesoOnly).forEach(x => {
+    const d = new Date(x.date);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    months[key] = (months[key]||0) + 1;
+  });
+  return Math.max(0,...Object.values(months));
+}
+function weeksWithDays(h, minDays, consecutiveWeeks) {
+  // Check if there are consecutiveWeeks consecutive weeks with >= minDays workouts
+  const weekMap = {};
+  h.filter(x=>!x.pesoOnly).forEach(x => {
+    const d = new Date(x.date);
+    const week = Math.floor((d - new Date(d.getFullYear(),0,1))/604800000) + d.getFullYear()*100;
+    if (!weekMap[week]) weekMap[week] = new Set();
+    weekMap[week].add(d.toDateString());
+  });
+  const qualWeeks = Object.entries(weekMap).filter(([k,v])=>v.size>=minDays).map(([k])=>parseInt(k)).sort((a,b)=>a-b);
+  let streak = 1;
+  for (let i=1;i<qualWeeks.length;i++) { if(qualWeeks[i]-qualWeeks[i-1]===1)streak++; else streak=1; if(streak>=consecutiveWeeks)return true; }
+  return false;
+}
+function maxWeekVolume(h) {
+  const weeks = {};
+  h.filter(x=>!x.pesoOnly).forEach(x => {
+    const d = new Date(x.date);
+    const week = `${d.getFullYear()}-W${Math.floor((d-new Date(d.getFullYear(),0,1))/604800000)}`;
+    weeks[week] = (weeks[week]||0) + (x.exercises||[]).reduce((a,e)=>a+(e.series||[]).reduce((b,s)=>b+((s.reps||0)*(s.kg||0)),0),0);
+  });
+  return Math.max(0,...Object.values(weeks));
+}
+function maxSeriesOneEx(h) {
+  let max = 0;
+  h.forEach(x=>(x.exercises||[]).forEach(e=>{ if((e.series||[]).length>max)max=e.series.length; }));
+  return max;
+}
+function countPRs(h) {
+  let count = 0;
+  const exNames = [...new Set(h.flatMap(x=>(x.exercises||[]).map(e=>e.name)))];
+  exNames.forEach(name => {
+    const sessions = h.filter(x=>x.exercises&&x.exercises.some(e=>e.name===name))
+      .sort((a,b)=>new Date(a.date)-new Date(b.date))
+      .map(x=>Math.max(...(x.exercises.find(e=>e.name===name).series||[]).map(s=>parseFloat(s.kg)||0),0));
+    let best = 0;
+    sessions.forEach(v=>{ if(v>best){count++;best=v;} });
+  });
+  return count;
+}
+function hasWorkoutBefore(h, hour) { return h.some(x=>!x.pesoOnly && new Date(x.date).getHours()<hour); }
+function countWorkoutsBefore(h, hour) { return h.filter(x=>!x.pesoOnly && new Date(x.date).getHours()<hour).length; }
+function hasWorkoutAfter(h, hour) { return h.some(x=>!x.pesoOnly && new Date(x.date).getHours()>=hour); }
+function countWorkoutsAfter(h, hour) { return h.filter(x=>!x.pesoOnly && new Date(x.date).getHours()>=hour).length; }
+
+function getCurrentLevel(logro) {
+  let level = -1;
+  for (let i = logro.levels.length-1; i >= 0; i--) {
+    if (logro.levels[i].check(history, profile)) { level = i; break; }
+  }
+  return level;
+}
+
+function renderLogros() {
+  const grid = document.getElementById('logros-grid');
+  if (!grid) return;
+  const mode = profile.levelMode || 'classic';
+  currentLevelMode = mode;
+
+  grid.innerHTML = LOGROS_DEF.map(logro => {
+    const level = getCurrentLevel(logro);
+    const unlocked = level >= 0;
+    const nextLevel = logro.levels[level+1];
+    const levelName = unlocked ? getLevelName(level) : '';
+    const levelIcons = ['I','II','III','IV'];
+    const stars = unlocked ? '★'.repeat(level+1) : '☆';
+
+    return `<div class="logro ${unlocked?'unlocked':'locked'}" onclick="showLogroDetail('${logro.id}')">
+      ${unlocked?`<div class="logro-badge">${levelIcons[level]}</div>`:''}
+      <div class="logro-icon">${logro.icon}</div>
+      <div class="logro-name">${logro.base}</div>
+      <div style="font-size:9px;color:${unlocked?'var(--accent,#E83535)':'#444'};font-weight:700;margin:2px 0">${unlocked?levelName:'???'}</div>
+      <div class="logro-desc">${unlocked?logro.levels[level].desc:(nextLevel?nextLevel.desc:'???')}</div>
+      ${unlocked && level < 3 ? `<div style="font-size:9px;color:#444;margin-top:2px">→ ${logro.levels[level+1]?.desc||''}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  // Summary line
+  const unlockedCount = LOGROS_DEF.filter(l=>getCurrentLevel(l)>=0).length;
+  const el = document.getElementById('logros-summary');
+  if (el) el.textContent = `${unlockedCount}/${LOGROS_DEF.length} logros desbloqueados`;
+}
+
+window.setLevelMode = async (mode) => {
+  currentLevelMode = mode;
+  profile.levelMode = mode;
+  await saveProfileDB();
+  ['classic','naruto','gamer','medieval'].forEach(m => {
+    const btn = document.getElementById('lm-'+m);
+    if (!btn) return;
+    if (m === mode) {
+      btn.style.cssText = 'flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+    } else {
+      btn.style.cssText = 'flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+    }
+  });
+  renderLogros();
+};
+
+window.showLogroDetail = (id) => {
+  const logro = LOGROS_DEF.find(l=>l.id===id); if(!logro) return;
+  const level = getCurrentLevel(logro);
+  const lines = logro.levels.map((l,i)=>`${i<=level?'✅':'🔒'} ${getLevelName(i)}: ${l.desc}`).join('
+');
+  alert(`${logro.icon} ${logro.base}
+
+${lines}`);
+};
 
 function calcStreakFromHistory(h) {
   if (!h.length) return 0;
@@ -2074,19 +2396,7 @@ function historyHasPR(h) {
   return false;
 }
 
-function renderLogros() {
-  const grid = document.getElementById('logros-grid');
-  if (!grid) return;
-  grid.innerHTML = LOGROS_DEF.map(l => {
-    const unlocked = l.check(history, profile);
-    return `<div class="logro ${unlocked?'unlocked':'locked'}">
-      ${unlocked?'<div class="logro-badge">✓</div>':''}
-      <div class="logro-icon">${l.icon}</div>
-      <div class="logro-name">${l.name}</div>
-      <div class="logro-desc">${l.desc}</div>
-    </div>`;
-  }).join('');
-}
+
 
 /* ── PLAYER CARD ── */
 function renderPlayerCard() {
@@ -2099,9 +2409,27 @@ function renderPlayerCard() {
   document.getElementById('pc-objetivo').textContent = objetivo;
   document.getElementById('pc-frase').textContent = frase ? `"${frase}"` : '';
 
-  // Avatar
-  const avEl = document.getElementById('pc-avatar');
-  if (profile.avatarUrl) avEl.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar"/>`;
+  // Photo - FIFA style big background
+  const photoWrap = document.getElementById('pc-photo-wrap');
+  const photoEmoji = document.getElementById('pc-photo-emoji');
+  if (profile.avatarUrl) {
+    // Remove old img if exists
+    const oldImg = photoWrap.querySelector('.player-card-photo-img');
+    if (oldImg) oldImg.remove();
+    // Remove emoji
+    if (photoEmoji) photoEmoji.style.display = 'none';
+    // Add/update bg img
+    let bgImg = photoWrap.querySelector('img.player-card-photo-img');
+    if (!bgImg) {
+      bgImg = document.createElement('img');
+      bgImg.className = 'player-card-photo-img';
+      bgImg.alt = 'avatar';
+      photoWrap.insertBefore(bgImg, photoWrap.firstChild);
+    }
+    bgImg.src = profile.avatarUrl;
+  } else {
+    if (photoEmoji) photoEmoji.style.display = '';
+  }
 
   // Stats
   const totalW = history.filter(h=>!h.pesoOnly).length;
@@ -2407,7 +2735,13 @@ function calcStreak() {
   for (let d of dates) { const cur=new Date(d); const diff=Math.round((prev-cur)/(1000*60*60*24)); if(diff<=1){streak++;prev=cur;}else break; }
   updateStreakBadge(streak); return streak;
 }
-function updateStreakBadge(n) { document.getElementById('streak-badge').textContent = `🔥 ${n} día${n===1?'':'s'}`; }
+function updateStreakBadge(n) {
+  const today = new Date();
+  const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
+  const weekStart = new Date(today); weekStart.setDate(today.getDate() - dayOfWeek); weekStart.setHours(0,0,0,0);
+  const weekCount = history.filter(h => !h.pesoOnly && new Date(h.date) >= weekStart).length;
+  document.getElementById('streak-badge').textContent = `🔥 ${weekCount} esta semana`;
+}
 
 /* ── MISC ── */
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
