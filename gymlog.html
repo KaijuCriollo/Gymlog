@@ -459,10 +459,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
     <!-- HOY -->
     <div id="tab-registro" class="tab active">
-      <div class="routine-selector">
-        <div class="routine-selector-label">CARGAR RUTINA</div>
-        <div class="routine-pills" id="routine-pills-selector"></div>
-      </div>
+
       <div class="filter-row" id="muscle-filters"></div>
       <div id="exercises-list"></div>
       <div class="add-ex-area" style="display:flex;gap:8px">
@@ -610,18 +607,25 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
       </div>
 
-      <!-- LOGROS -->
-      <div style="margin:14px 12px 4px;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px">🎖 LOGROS</div>
-        <div style="font-size:10px;color:#444" id="logros-summary"></div>
+      <!-- LOGROS COLAPSABLE -->
+      <div style="margin:12px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;overflow:hidden">
+        <div onclick="toggleLogros()" style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:15px;font-weight:700;color:#fff">🎖 Logros</span>
+            <span style="font-size:11px;color:#555" id="logros-summary"></span>
+          </div>
+          <svg id="logros-chevron" style="width:18px;height:18px;stroke:#555;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="logros-body" style="display:none;border-top:1px solid #2e2e2e;padding:12px">
+          <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px">
+            <button onclick="setLevelMode('classic')" id="lm-classic" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Clásico</button>
+            <button onclick="setLevelMode('ninja')" id="lm-ninja" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🥷 Ninja</button>
+            <button onclick="setLevelMode('gamer')" id="lm-gamer" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎮 Gamer</button>
+            <button onclick="setLevelMode('medieval')" id="lm-medieval" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">⚔️ Medieval</button>
+          </div>
+          <div class="logros-grid" id="logros-grid"></div>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;overflow-x:auto;padding:0 12px 6px;scrollbar-width:none">
-        <button onclick="setLevelMode('classic')" id="lm-classic" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Clásico</button>
-        <button onclick="setLevelMode('ninja')" id="lm-ninja" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🥷 Ninja</button>
-        <button onclick="setLevelMode('gamer')" id="lm-gamer" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎮 Gamer</button>
-        <button onclick="setLevelMode('medieval')" id="lm-medieval" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">⚔️ Medieval</button>
-      </div>
-      <div class="logros-grid" id="logros-grid"></div>
 
       <!-- CONFIG -->
       <div class="profile-section" style="margin-top:14px">
@@ -1018,7 +1022,7 @@ function updateQuickPesoLast() {
 
 /* ── RENDER ALL ── */
 function renderAll() {
-  renderFilters(); renderExercises(); renderMoods(); renderRoutinePillsSelector();
+  renderFilters(); renderExercises(); renderMoods();
   updatePesoLast(); updateQuickPesoLast(); calcStreak(); renderProfile(); updateDaysSince();
   setTimeout(checkCierreDeMes, 2000);
 }
@@ -1764,56 +1768,70 @@ function renderConsistencyGrid() {
   const el = document.getElementById('consistency-grid');
   if (!el) return;
   const today = new Date();
-  const days = 9 * 7; // ~2 months
   const trained = new Set(history.filter(h=>!h.pesoOnly).map(h=>new Date(h.date).toDateString()));
+  const DAY_LABELS = ['L','M','X','J','V','S','D'];
+  const accent = 'var(--accent,#E83535)';
 
-  // Build week columns
-  let html = '<div style="display:flex;gap:3px;align-items:flex-start">';
-  // Day labels
-  html += '<div style="display:flex;flex-direction:column;gap:3px;margin-right:4px;padding-top:18px">';
-  ['L','M','X','J','V','S','D'].forEach(d => {
-    html += `<div style="width:10px;height:10px;font-size:8px;color:#444;line-height:10px;text-align:center">${d}</div>`;
-  });
-  html += '</div>';
+  // Build grid for one month: rows=weeks, cols=days of week
+  function buildMonthGrid(year, month) {
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    const firstDow = (new Date(year, month, 1).getDay()+6)%7; // 0=Mon
+    const numWeeks = Math.ceil((firstDow + daysInMonth)/7);
+    const isCurrentMonth = month===today.getMonth() && year===today.getFullYear();
+    const monthName = new Date(year,month,1).toLocaleDateString('es-AR',{month:'long'});
+    const SEM_LABEL_W = '22px';
 
-  // Find start (Monday 26 weeks ago)
-  const start = new Date(today);
-  start.setDate(start.getDate() - days + (1 - start.getDay() + 7) % 7);
-
-  let monthLabels = [];
-  let cur = new Date(start);
-  let weekIdx = 0;
-
-  while (cur <= today) {
-    // Month label
-    const monthLabel = cur.toLocaleDateString('es-AR',{month:'short'});
-    html += `<div style="display:flex;flex-direction:column;gap:3px">`;
-    html += `<div style="font-size:8px;color:#555;height:14px;text-align:center;font-weight:600">${cur.getDate()<=7?monthLabel:''}</div>`;
-    for (let d = 0; d < 7; d++) {
-      const dayDate = new Date(cur);
-      dayDate.setDate(cur.getDate() + d);
-      if (dayDate > today) {
-        html += `<div style="width:10px;height:10px;border-radius:2px;background:transparent"></div>`;
-        continue;
+    let g = `<div>`;
+    // Month title
+    g += `<div style="font-size:11px;font-weight:700;color:${isCurrentMonth?accent:'#666'};margin-bottom:5px;text-transform:capitalize">${monthName}</div>`;
+    // Day labels row (with spacer for sem label)
+    g += `<div style="display:flex;gap:2px;margin-bottom:3px">`;
+    g += `<div style="width:${SEM_LABEL_W};flex-shrink:0"></div>`;
+    DAY_LABELS.forEach(d => {
+      g += `<div style="flex:1;font-size:8px;color:#444;font-weight:700;text-align:center">${d}</div>`;
+    });
+    g += '</div>';
+    // Weeks
+    for (let w=0; w<numWeeks; w++) {
+      g += `<div style="display:flex;gap:2px;margin-bottom:2px;align-items:center">`;
+      g += `<div style="width:${SEM_LABEL_W};flex-shrink:0;font-size:8px;color:#333;font-weight:700">S${w+1}</div>`;
+      for (let d=0; d<7; d++) {
+        const dayNum = w*7 + d - firstDow + 1;
+        if (dayNum<1 || dayNum>daysInMonth) {
+          g += `<div style="flex:1;aspect-ratio:1;border-radius:3px;"></div>`;
+          continue;
+        }
+        const dayDate = new Date(year, month, dayNum);
+        const isFuture = dayDate > today;
+        const isTrained = trained.has(dayDate.toDateString());
+        const isToday = dayDate.toDateString()===today.toDateString();
+        const bg = isFuture ? '#1a1a1a' : (isTrained ? accent : '#252525');
+        const border = isToday ? '2px solid #aaa' : 'none';
+        const op = isFuture ? '0.3' : '1';
+        g += `<div style="flex:1;aspect-ratio:1;border-radius:3px;background:${bg};border:${border};opacity:${op}" title="${dayNum}/${month+1}"></div>`;
       }
-      const isTrained = trained.has(dayDate.toDateString());
-      const isToday = dayDate.toDateString() === today.toDateString();
-      const bg = isTrained ? 'var(--accent,#E83535)' : '#2a2a2a';
-      const border = isToday ? '1px solid #888' : 'none';
-      html += `<div style="width:10px;height:10px;border-radius:2px;background:${bg};border:${border}" title="${dayDate.toLocaleDateString('es-AR')}"></div>`;
+      g += '</div>';
     }
-    html += '</div>';
-    cur.setDate(cur.getDate() + 7);
+    g += '</div>';
+    return g;
   }
-  html += '</div>';
 
-  const totalDays = trained.size;
-  const last30 = [...trained].filter(d => (today - new Date(d)) / 86400000 <= 30).length;
-  html += `<div style="margin-top:10px;display:flex;gap:16px;font-size:11px;color:#666;font-weight:600">
-    <span>📅 Total: <strong style="color:#eee">${totalDays} días</strong></span>
-    <span>🗓 Último mes: <strong style="color:var(--accent,#E83535)">${last30} días</strong></span>
-  </div>`;
-  el.innerHTML = html;
+  const prevMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
+  const curMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const curCount = [...trained].filter(d=>{ const dd=new Date(d); return dd.getMonth()===today.getMonth()&&dd.getFullYear()===today.getFullYear(); }).length;
+  const prevCount = [...trained].filter(d=>{ const dd=new Date(d); return dd.getMonth()===prevMonth.getMonth()&&dd.getFullYear()===prevMonth.getFullYear(); }).length;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      ${buildMonthGrid(prevMonth.getFullYear(), prevMonth.getMonth())}
+      ${buildMonthGrid(curMonth.getFullYear(), curMonth.getMonth())}
+    </div>
+    <div style="margin-top:10px;display:flex;gap:14px;font-size:11px;color:#666;font-weight:600;flex-wrap:wrap">
+      <span>Este mes: <strong style="color:${accent}">${curCount} días</strong></span>
+      <span>Mes anterior: <strong style="color:#aaa">${prevCount} días</strong></span>
+      <span>Total: <strong style="color:#eee">${trained.size} días</strong></span>
+    </div>`;
 }
 
 let muscleFilterPeriod = 'week';
@@ -2102,7 +2120,15 @@ function renderProfile() {
     }
   });
   renderPlayerCard();
-  renderLogros();
+  // Lazy: only show count, don't render grid until opened
+  const unlockedCount = LOGROS_DEF.filter(l=>getCurrentLevel(l)>=0).length;
+  const summaryEl = document.getElementById('logros-summary');
+  if (summaryEl) summaryEl.textContent = `${unlockedCount}/${LOGROS_DEF.length}`;
+  // Reset collapsed state
+  const logroBody = document.getElementById('logros-body');
+  const logroChev = document.getElementById('logros-chevron');
+  if (logroBody) logroBody.style.display = 'none';
+  if (logroChev) logroChev.style.transform = '';
 }
 
 /* ── LOGROS DEFINITIONS ── */
@@ -2372,6 +2398,15 @@ function renderLogros() {
   const el = document.getElementById('logros-summary');
   if (el) el.textContent = `${unlockedCount}/${LOGROS_DEF.length} logros desbloqueados`;
 }
+
+window.toggleLogros = () => {
+  const body = document.getElementById('logros-body');
+  const chev = document.getElementById('logros-chevron');
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  chev.style.transform = open ? 'rotate(180deg)' : '';
+  if (open) renderLogros(); // lazy load only when opened
+};
 
 window.setLevelMode = async (mode) => {
   currentLevelMode = mode;
