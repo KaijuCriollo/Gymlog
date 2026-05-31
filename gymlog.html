@@ -11,6 +11,7 @@
 <title>KaijuGymLog</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:#f0ede8;overflow:hidden;font-weight:500}
@@ -431,14 +432,13 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="12" y1="9" x2="12" y2="15"/></svg>
       Hoy
     </button>
-
+    <button class="nav-btn" data-tab="rutinas" onclick="switchTab('rutinas',this)">
+      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      Rutinas
+    </button>
     <button class="nav-btn" data-tab="historial" onclick="switchTab('historial',this)">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
       Historial
-    </button>
-    <button class="nav-btn" data-tab="cierres" onclick="switchTab('cierres',this)">
-      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-      Cierres
     </button>
     <button class="nav-btn" data-tab="progreso" onclick="switchTab('progreso',this)">
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -492,13 +492,11 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <div style="height:80px"></div>
     </div>
 
+    <!-- RUTINAS -->
+    <div id="tab-rutinas" class="tab">
+      <div id="routines-list"></div>
       <button class="new-routine-btn" onclick="openNewRoutineModal()">+ Nueva rutina</button>
       <div style="height:20px"></div>
-    </div>
-
-    <!-- CIERRES DE MES -->
-    <div id="tab-cierres" class="tab">
-      <div id="cierres-list" style="padding-bottom:20px"></div>
     </div>
 
     <!-- HISTORIAL -->
@@ -612,25 +610,18 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
       </div>
 
-      <!-- LOGROS COLAPSABLE -->
-      <div style="margin:12px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;overflow:hidden">
-        <div onclick="toggleLogros()" style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:15px;font-weight:700;color:#fff">🎖 Logros</span>
-            <span style="font-size:11px;color:#555" id="logros-summary"></span>
-          </div>
-          <svg id="logros-chevron" style="width:18px;height:18px;stroke:#555;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-        </div>
-        <div id="logros-body" style="display:none;border-top:1px solid #2e2e2e;padding:12px">
-          <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px">
-            <button onclick="setLevelMode('classic')" id="lm-classic" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Clásico</button>
-            <button onclick="setLevelMode('ninja')" id="lm-ninja" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🥷 Ninja</button>
-            <button onclick="setLevelMode('gamer')" id="lm-gamer" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎮 Gamer</button>
-            <button onclick="setLevelMode('medieval')" id="lm-medieval" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">⚔️ Medieval</button>
-          </div>
-          <div class="logros-grid" id="logros-grid"></div>
-        </div>
+      <!-- LOGROS -->
+      <div style="margin:14px 12px 4px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px">🎖 LOGROS</div>
+        <div style="font-size:10px;color:#444" id="logros-summary"></div>
       </div>
+      <div style="display:flex;gap:6px;overflow-x:auto;padding:0 12px 6px;scrollbar-width:none">
+        <button onclick="setLevelMode('classic')" id="lm-classic" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Clásico</button>
+        <button onclick="setLevelMode('ninja')" id="lm-ninja" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🥷 Ninja</button>
+        <button onclick="setLevelMode('gamer')" id="lm-gamer" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎮 Gamer</button>
+        <button onclick="setLevelMode('medieval')" id="lm-medieval" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">⚔️ Medieval</button>
+      </div>
+      <div class="logros-grid" id="logros-grid"></div>
 
       <!-- CONFIG -->
       <div class="profile-section" style="margin-top:14px">
@@ -889,30 +880,25 @@ window.doAuth = async () => {
 };
 function showAuthError(msg) { const el = document.getElementById('auth-error'); el.textContent = msg; el.classList.add('show'); }
 
-window.doLogout = async () => {
-  try { localStorage.removeItem(CACHE_KEY + '_' + uid()); } catch(e) {}
-  await signOut(auth);
-};
+window.doLogout = async () => { await signOut(auth); };
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
+    document.getElementById('save-bar').style.display = '';
     document.getElementById('auth-btn').disabled = false;
     document.getElementById('auth-loading').classList.remove('show');
     setDate(); initDatePicker(); setNutriDateToday();
-    // Show loading skeleton
-    document.getElementById('exercises-list').innerHTML = '<div style="padding:20px;text-align:center;color:#444;font-size:13px">⏳ Cargando...</div>';
-    // Start on registro tab
+    await loadUserData();
+    // Always start on registro tab with save bar visible
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('tab-registro').classList.add('active');
     const regBtn = document.querySelector('[data-tab=registro]');
     if (regBtn) regBtn.classList.add('active');
     document.getElementById('save-bar').style.display = '';
-    // Load data
-    await loadUserData();
     renderAll();
   } else {
     currentUser = null;
@@ -925,65 +911,22 @@ onAuthStateChanged(auth, async (user) => {
 
 function uid() { return currentUser.uid; }
 
-// ── LOCAL CACHE ──
-const CACHE_KEY = 'gymlog_cache_v1';
-function saveLocalCache() {
-  try {
-    localStorage.setItem(CACHE_KEY + '_' + uid(), JSON.stringify({
-      exercises, history: history.slice(0,60), nutricion: nutricion.slice(0,30),
-      profile, ts: Date.now()
-    }));
-  } catch(e) {}
-}
-function loadLocalCache() {
-  try {
-    const raw = localStorage.getItem(CACHE_KEY + '_' + (currentUser?.uid||''));
-    if (!raw) return false;
-    const data = JSON.parse(raw);
-    if (Date.now() - data.ts > 24*60*60*1000) return false; // stale after 24h
-    exercises = data.exercises || [];
-    history = data.history || [];
-    nutricion = data.nutricion || [];
-    profile = data.profile || {};
-    return true;
-  } catch(e) { return false; }
-}
-
 async function loadUserData() {
   showSync(true);
   try {
-    // Try cache first for instant render
-    const hasCached = loadLocalCache();
-    if (hasCached && exercises.length > 0) {
-      renderAll();
-    }
-
-    // Load profile + exercises from Firebase
-    const [exSnap, profSnap] = await Promise.all([
+    const [exSnap, hSnap, nSnap, rSnap, profSnap] = await Promise.all([
       getDocs(collection(db,'users',uid(),'exercises')),
+      getDocs(query(collection(db,'users',uid(),'history'), orderBy('date','desc'))),
+      getDocs(query(collection(db,'users',uid(),'nutricion'), orderBy('date','desc'))),
+      getDocs(collection(db,'users',uid(),'routines')),
       getDocs(collection(db,'users',uid(),'profile'))
     ]);
     exercises = exSnap.docs.map(d => ({fid:d.id,...d.data()}));
+    history = hSnap.docs.map(d => { const data = d.data(); if (data.peso != null) data.peso = parseFloat((Math.round(parseFloat(data.peso)*10)/10).toFixed(1)); return {fid:d.id,...data}; });
+    nutricion = nSnap.docs.map(d => ({fid:d.id,...d.data()}));
+    routines = rSnap.docs.map(d => ({fid:d.id,...d.data()}));
     if (profSnap.docs.length) profile = profSnap.docs[0].data();
     if (exercises.length === 0) await initDefaults();
-    renderAll();
-
-    // Load history (last 60) + nutricion in background
-    const [hSnap, nSnap] = await Promise.all([
-      getDocs(query(collection(db,'users',uid(),'history'), orderBy('date','desc'))),
-      getDocs(query(collection(db,'users',uid(),'nutricion'), orderBy('date','desc')))
-    ]);
-    history = hSnap.docs.map(d => {
-      const data = d.data();
-      if (data.peso != null) data.peso = parseFloat((Math.round(parseFloat(data.peso)*10)/10).toFixed(1));
-      return {fid:d.id,...data};
-    });
-    nutricion = nSnap.docs.map(d => ({fid:d.id,...d.data()}));
-
-    // Save to cache
-    saveLocalCache();
-    renderAll();
-    setTimeout(checkCierreDeMes, 500);
   } catch(e) { console.error(e); }
   showSync(false);
 }
@@ -1050,21 +993,21 @@ function showSync(on) { document.getElementById('sync-dot').classList.toggle('sh
 window.saveQuickPeso = async () => {
   const val = Math.round(parseFloat(document.getElementById('quick-peso-input').value)*10)/10;
   if (!val || val < 30 || val > 250) { showToast('Ingresá un peso válido'); return; }
-  const today = new Date().toDateString();
-  // Dedup: remove existing pesoOnly for today
-  const existing = history.find(h => h.pesoOnly && new Date(h.date).toDateString() === today);
-  if (existing && existing.fid) {
-    try { await deleteDoc(doc(db,'users',uid(),'history',existing.fid)); } catch(e){}
-    history = history.filter(h => h !== existing);
-  }
-  const entry = { date: new Date().toISOString(), mood:null, note:null, peso:val, exercises:[], pesoOnly:true };
+  // Save as a lightweight history entry (no exercises)
+  const entry = {
+    date: new Date().toISOString(),
+    mood: null, note: null,
+    peso: val,
+    exercises: [],
+    pesoOnly: true
+  };
   showSync(true);
   await addHistEntry(entry);
   history.unshift(entry);
   showSync(false);
   document.getElementById('quick-peso-input').value = '';
-  updatePesoLast(); updateQuickPesoLast();
-  saveLocalCache();
+  updatePesoLast();
+  updateQuickPesoLast();
   showToast(`⚖️ ${val}kg guardado ✓`);
 };
 function updateQuickPesoLast() {
@@ -1077,7 +1020,7 @@ function updateQuickPesoLast() {
 function renderAll() {
   renderFilters(); renderExercises(); renderMoods(); renderRoutinePillsSelector();
   updatePesoLast(); updateQuickPesoLast(); calcStreak(); renderProfile(); updateDaysSince();
-
+  setTimeout(checkCierreDeMes, 2000);
 }
 
 /* ── TABS ── */
@@ -1088,15 +1031,7 @@ window.switchTab = (tab, btn) => {
   if (btn) btn.classList.add('active');
   document.getElementById('save-bar').style.display = tab === 'registro' ? '' : 'none';
   if (tab === 'historial') renderHistory();
-  if (tab === 'cierres') renderCierres();
-  if (tab === 'progreso') {
-    if (typeof Chart === 'undefined') {
-      const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
-      s.onload = () => renderProgress();
-      document.head.appendChild(s);
-    } else { renderProgress(); }
-  }
+  if (tab === 'progreso') renderProgress();
   if (tab === 'rutinas') renderRoutines();
   if (tab === 'nutricion') renderNutriHistory();
 };
@@ -1435,37 +1370,19 @@ window.toggleCard = (id) => {
   open ? chev.classList.add('open') : chev.classList.remove('open');
 };
 
-// Debounce map per exercise
-const _debounceMap = {};
 window.updateSeries = (exId, idx, field, val) => {
   const ex = exercises.find(e => e.id === exId);
-  if (ex && ex.series[idx]) {
-    ex.series[idx][field] = val;
-    // Debounce Firebase write by 800ms
-    const key = 'ex_'+exId;
-    clearTimeout(_debounceMap[key]);
-    _debounceMap[key] = setTimeout(() => saveEx(ex), 800);
-  }
+  if (ex && ex.series[idx]) { ex.series[idx][field] = val; saveEx(ex); }
 };
 
 window.toggleDone = (exId, idx) => {
   const ex = exercises.find(e => e.id === exId);
-  if (!ex || !ex.series[idx]) return;
-  ex.series[idx].done = !ex.series[idx].done;
-  saveEx(ex);
-  // Partial DOM update — only update this button and the pill
-  const btn = document.querySelector(`#body-${exId} .series-row:nth-child(${idx+2}) .check-btn`);
-  if (btn) { btn.classList.toggle('done', ex.series[idx].done); }
-  const done = ex.series.filter(s=>s.done).length;
-  const total = ex.series.length;
-  const pill = document.querySelector(`#card-${exId} .prog-pill`);
-  if (pill) {
-    pill.textContent = `${done}/${total}`;
-    pill.classList.toggle('done-all', done===total && total>0);
+  if (ex && ex.series[idx]) {
+    ex.series[idx].done = !ex.series[idx].done;
+    saveEx(ex); renderExercises();
+    const body = document.getElementById('body-'+exId);
+    if (body) { body.classList.add('open'); document.getElementById('chev-'+exId).classList.add('open'); }
   }
-  // Keep body open
-  const body = document.getElementById('body-'+exId);
-  if (body) { body.classList.add('open'); document.getElementById('chev-'+exId)?.classList.add('open'); }
 };
 
 window.removeSerie = (id) => {
@@ -1561,7 +1478,6 @@ window.saveWorkout = async () => {
 
   // Build summary
   buildSummary(entry);
-  saveLocalCache();
 
   for (const ex of exercises) { ex.series.forEach(s => s.done = false); ex.note = ''; await saveEx(ex); }
   currentMood = null;
@@ -1697,13 +1613,10 @@ window.deleteRoutine = async (fid) => {
 };
 
 /* ── HISTORIAL ── */
-let historyPage = 10;
-function renderHistory(reset=true) {
-  if (reset) historyPage = 10;
+function renderHistory() {
   const list = document.getElementById('history-list');
-  const allWorkouts = history.filter(h => !h.pesoOnly);
-  if (!allWorkouts.length) { list.innerHTML = `<div class="empty-state" style="padding-top:40px"><div class="empty-icon">📋</div><div class="empty-text">Sin entrenamientos aún.</div></div>`; return; }
-  const displayHistory = allWorkouts.slice(0, historyPage);
+  if (!history.length) { list.innerHTML = `<div class="empty-state" style="padding-top:40px"><div class="empty-icon">📋</div><div class="empty-text">Sin entrenamientos aún.</div></div>`; return; }
+  const displayHistory = history.filter(h => !h.pesoOnly);
   list.innerHTML = displayHistory.map((entry, idx) => {
     const d = new Date(entry.date);
     const dateStr = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
@@ -1850,7 +1763,7 @@ function renderConsistencyGrid() {
   const el = document.getElementById('consistency-grid');
   if (!el) return;
   const today = new Date();
-  // Current month only
+  const days = 13 * 7; // ~3 months
   const trained = new Set(history.filter(h=>!h.pesoOnly).map(h=>new Date(h.date).toDateString()));
 
   // Build week columns
@@ -1862,65 +1775,42 @@ function renderConsistencyGrid() {
   });
   html += '</div>';
 
-  // Current month: day 1 to today
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-  const monthName = today.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
+  // Find start (Monday 26 weeks ago)
+  const start = new Date(today);
+  start.setDate(start.getDate() - days + (1 - start.getDay() + 7) % 7);
 
-  // Day of week labels
-  const dayLabels = ['L','M','X','J','V','S','D'];
+  let monthLabels = [];
+  let cur = new Date(start);
+  let weekIdx = 0;
 
-  // Build grid: columns = weeks, rows = days
-  // Find first Monday <= monthStart
-  const firstDay = new Date(monthStart);
-  const dow = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1; // 0=Mon
-  firstDay.setDate(firstDay.getDate() - dow);
-
-  html += '<div style="display:flex;gap:3px;align-items:flex-start">';
-  // Day labels column
-  html += '<div style="display:flex;flex-direction:column;gap:3px;margin-right:4px;padding-top:18px">';
-  dayLabels.forEach(d => {
-    html += `<div style="width:12px;height:12px;font-size:9px;color:#444;line-height:12px;text-align:center;font-weight:700">${d}</div>`;
-  });
-  html += '</div>';
-
-  let cur = new Date(firstDay);
-  while (cur <= today || cur.getMonth() === today.getMonth()) {
-    html += '<div style="display:flex;flex-direction:column;gap:3px">';
-    // Week label (day number of first day of this week that's in current month)
-    const weekLabelDay = new Date(cur);
-    let labelText = '';
-    for (let d=0;d<7;d++) { const dd=new Date(cur); dd.setDate(cur.getDate()+d); if(dd.getMonth()===today.getMonth()){labelText=dd.getDate();break;} }
-    html += `<div style="font-size:8px;color:#555;height:14px;text-align:center;font-weight:600">${labelText}</div>`;
+  while (cur <= today) {
+    // Month label
+    const monthLabel = cur.toLocaleDateString('es-AR',{month:'short'});
+    html += `<div style="display:flex;flex-direction:column;gap:3px">`;
+    html += `<div style="font-size:8px;color:#555;height:14px;text-align:center;font-weight:600">${cur.getDate()<=7?monthLabel:''}</div>`;
     for (let d = 0; d < 7; d++) {
       const dayDate = new Date(cur);
       dayDate.setDate(cur.getDate() + d);
-      const inMonth = dayDate.getMonth() === today.getMonth();
-      const future = dayDate > today;
-      if (!inMonth) {
-        html += `<div style="width:12px;height:12px;border-radius:3px;background:transparent"></div>`;
-        continue;
-      }
-      if (future) {
-        html += `<div style="width:12px;height:12px;border-radius:3px;background:#1a1a1a;opacity:0.3"></div>`;
+      if (dayDate > today) {
+        html += `<div style="width:10px;height:10px;border-radius:2px;background:transparent"></div>`;
         continue;
       }
       const isTrained = trained.has(dayDate.toDateString());
       const isToday = dayDate.toDateString() === today.toDateString();
-      const bg = isTrained ? 'var(--accent,#E83535)' : '#252525';
-      const border = isToday ? '2px solid #888' : 'none';
-      html += `<div style="width:12px;height:12px;border-radius:3px;background:${bg};border:${border}" title="${dayDate.getDate()}"></div>`;
+      const bg = isTrained ? 'var(--accent,#E83535)' : '#2a2a2a';
+      const border = isToday ? '1px solid #888' : 'none';
+      html += `<div style="width:10px;height:10px;border-radius:2px;background:${bg};border:${border}" title="${dayDate.toLocaleDateString('es-AR')}"></div>`;
     }
     html += '</div>';
     cur.setDate(cur.getDate() + 7);
-    if (cur.getMonth() > today.getMonth() || cur.getFullYear() > today.getFullYear()) break;
   }
   html += '</div>';
 
-  const monthCount = [...trained].filter(d => new Date(d).getMonth() === today.getMonth()).length;
+  const totalDays = trained.size;
+  const last30 = [...trained].filter(d => (today - new Date(d)) / 86400000 <= 30).length;
   html += `<div style="margin-top:10px;display:flex;gap:16px;font-size:11px;color:#666;font-weight:600">
-    <span>📅 Este mes: <strong style="color:var(--accent,#E83535)">${monthCount} días</strong></span>
-    <span>📊 Total histórico: <strong style="color:#eee">${trained.size} días</strong></span>
+    <span>📅 Total: <strong style="color:#eee">${totalDays} días</strong></span>
+    <span>🗓 Último mes: <strong style="color:var(--accent,#E83535)">${last30} días</strong></span>
   </div>`;
   el.innerHTML = html;
 }
@@ -2131,41 +2021,6 @@ window.copyNutri = () => {
 };
 window.loadNutriEntry = (date) => { document.getElementById('nutri-date-inp').value=date; const e=nutricion.find(n=>n.date===date); document.getElementById('nutri-desayuno').value=e?e.desayuno:''; document.getElementById('nutri-almuerzo').value=e?e.almuerzo:''; document.getElementById('nutri-merienda').value=e?e.merienda:''; document.getElementById('nutri-cena').value=e?e.cena:''; };
 window.deleteNutri = async (fid,date) => { await deleteNutriDB(fid); nutricion=nutricion.filter(n=>n.date!==date); renderNutriHistory(); showToast('Eliminado'); };
-function renderCierres() {
-  const el = document.getElementById('cierres-list');
-  if (!el) return;
-  const cierres = profile.cierresHistory || [];
-  if (!cierres.length) {
-    el.innerHTML = `<div class="empty-state" style="padding-top:60px">
-      <div class="empty-icon">📅</div>
-      <div class="empty-text">Todavía no hay cierres de mes.<br>Al final de cada mes aparecerá<br>tu balance aquí.</div>
-    </div>`;
-    return;
-  }
-  el.innerHTML = cierres.map(cierre => `
-    <div style="margin:12px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;overflow:hidden">
-      <div style="background:#252525;padding:12px 14px;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:14px;font-weight:700;color:#fff;text-transform:capitalize">${cierre.month}</div>
-        <div style="font-size:11px;color:#555">${cierre.sessions} sesiones</div>
-      </div>
-      <div style="padding:14px">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-          <div style="font-size:32px">${cierre.emoji}</div>
-          <div>
-            <div style="font-size:14px;font-weight:700;color:#fff">${cierre.title}</div>
-            <div style="font-size:12px;color:#888;margin-top:3px;line-height:1.4">${cierre.text}</div>
-          </div>
-        </div>
-        ${cierre.pesoDiff !== null && cierre.pesoDiff !== undefined ? `<div style="font-size:12px;color:#666;margin-bottom:8px">⚖️ Peso: ${cierre.pesoDiff>0?'+':''}${cierre.pesoDiff}kg este mes</div>` : ''}
-        ${cierre.records && cierre.records.length ? `
-          <div style="background:#161616;border-radius:10px;padding:8px 10px">
-            <div style="font-size:10px;color:#444;font-weight:700;margin-bottom:6px">🏆 RÉCORDS ROTOS</div>
-            ${cierre.records.map(r=>`<div style="font-size:12px;color:#E83535;font-weight:600;margin-bottom:3px">• ${r}</div>`).join('')}
-          </div>` : ''}
-      </div>
-    </div>`).join('');
-}
-
 function renderNutriHistory() {
   const wrap = document.getElementById('nutri-history-wrap');
   if (!nutricion.length) { wrap.style.display='none'; return; }
@@ -2211,10 +2066,7 @@ function renderProfile() {
     }
   });
   renderPlayerCard();
-  // Only update summary count, don't render grid until opened
-  const unlockedCount = LOGROS_DEF.filter(l=>getCurrentLevel(l)>=0).length;
-  const summaryEl = document.getElementById('logros-summary');
-  if (summaryEl) summaryEl.textContent = `${unlockedCount}/${LOGROS_DEF.length}`;
+  renderLogros();
 }
 
 /* ── LOGROS DEFINITIONS ── */
@@ -2485,17 +2337,6 @@ function renderLogros() {
   if (el) el.textContent = `${unlockedCount}/${LOGROS_DEF.length} logros desbloqueados`;
 }
 
-window.toggleLogros = () => {
-  const body = document.getElementById('logros-body');
-  const chev = document.getElementById('logros-chevron');
-  const open = body.style.display === 'none';
-  body.style.display = open ? 'block' : 'none';
-  chev.style.transform = open ? 'rotate(180deg)' : '';
-  if (open && !document.querySelector('#logros-grid .logro')) {
-    renderLogros(); // lazy load
-  }
-};
-
 window.setLevelMode = async (mode) => {
   currentLevelMode = mode;
   profile.levelMode = mode;
@@ -2601,7 +2442,7 @@ function renderPlayerCard() {
   const vol = Math.round(totalVolume(history));
   document.getElementById('pc-stats').innerHTML = `
     <div class="player-stat"><div class="player-stat-val">${totalW}</div><div class="player-stat-label">Total entrenos</div></div>
-    <div class="player-stat"><div class="player-stat-val">🔥 ${weekCount}</div><div class="player-stat-label">Esta semana</div></div>
+    <div class="player-stat"><div class="player-stat-val">${weekCount}<span style="font-size:11px;color:#555"> sem</span> / ${monthCount}<span style="font-size:11px;color:#555"> mes</span></div><div class="player-stat-label">Esta semana/mes</div></div>
     <div class="player-stat"><div class="player-stat-val">${vol>999?Math.round(vol/1000)+'k':vol}</div><div class="player-stat-unit">${vol>999?'ton':'kg'}</div><div class="player-stat-label">Volumen</div></div>
   `;
 
@@ -2752,24 +2593,6 @@ function showCierreDeMes(monthHistory, month) {
   ` : '<div style="font-size:12px;color:#555;text-align:center">Sin récords rotos este mes — el próximo es tuyo</div>';
 
   document.getElementById('mes-overlay').classList.add('open');
-
-  // Store cierre for history tab
-  if (!profile.cierresHistory) profile.cierresHistory = [];
-  const cierreEntry = {
-    month: month.toLocaleDateString('es-AR',{month:'long',year:'numeric'}),
-    sessions: monthHistory.length,
-    emoji, title, text,
-    records: [...new Set(prsBroken)].slice(0,5),
-    pesoDiff,
-    date: new Date().toISOString()
-  };
-  // Only add if not already stored for this month
-  const monthKey = `${month.getFullYear()}-${month.getMonth()}`;
-  if (!profile.cierresHistory.find(c => c.monthKey === monthKey)) {
-    cierreEntry.monthKey = monthKey;
-    profile.cierresHistory.unshift(cierreEntry);
-    if (profile.cierresHistory.length > 24) profile.cierresHistory.pop(); // keep 2 years
-  }
 }
 
 /* ── WORKOUT MODE ── */
@@ -2981,22 +2804,10 @@ window.handleAvatarChange = (input) => {
   const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = async (e) => {
-    // Compress image before saving
-    const img = new Image();
-    img.onload = async () => {
-      const canvas = document.createElement('canvas');
-      const MAX = 600;
-      let w = img.width, h = img.height;
-      if (w > h) { if (w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
-      else { if (h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
-      canvas.width = w; canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      profile.avatarUrl = canvas.toDataURL('image/jpeg', 0.75);
-      renderProfile();
-      showSync(true); await saveProfileDB(); showSync(false);
-      showToast('Foto actualizada ✓');
-    };
-    img.src = e.target.result;
+    profile.avatarUrl = e.target.result;
+    renderProfile();
+    showSync(true); await saveProfileDB(); showSync(false);
+    showToast('Foto actualizada ✓');
   };
   reader.readAsDataURL(file);
 };
