@@ -2630,14 +2630,56 @@ function showCierreDeMes(monthHistory, month) {
   document.getElementById('mes-sub').textContent = `${monthHistory.length} sesiones este mes`;
 
   // Analyze PRs broken this month
+  // Compare against PRs from BEFORE this month only
+  const monthStart = month;
+  function getPRBefore(exName, beforeDate) {
+    const aliases = getAliases(exName);
+    let prKg = 0, prReps = 0, prSecs = 0;
+    history.forEach(h => {
+      if (new Date(h.date) >= beforeDate) return; // skip this month
+      if (!h.exercises) return;
+      h.exercises.forEach(e => {
+        if (!aliases.includes(normalizeExName(e.name))) return;
+        (e.series||[]).forEach(s => {
+          const kg = parseFloat(s.kg)||0;
+          const reps = parseInt(s.reps)||0;
+          const secs = parseInt(s.secs)||0;
+          if (kg > prKg) prKg = kg;
+          if (reps > prReps) prReps = reps;
+          if (secs > prSecs) prSecs = secs;
+        });
+      });
+    });
+    return { kg: prKg, reps: prReps, secs: prSecs };
+  }
+
   const prsBroken = [];
+  const seenExercises = new Set();
   monthHistory.forEach(h => {
     (h.exercises||[]).forEach(ex => {
-      const prs = getAllPRs(ex.name);
-      const sessionMax = Math.max(...(ex.series||[]).map(s=>parseFloat(s.kg)||0),0);
-      const sessionReps = Math.max(...(ex.series||[]).map(s=>parseInt(s.reps)||0),0);
-      if (sessionMax > 0 && sessionMax >= prs.kg) prsBroken.push(`${ex.name}: ${sessionMax}kg`);
-      else if (sessionReps > prs.reps && prs.kg === 0) prsBroken.push(`${ex.name}: ${sessionReps} reps`);
+      const key = normalizeExName(ex.name);
+      if (seenExercises.has(key)) return; // check each exercise once
+      const prevPR = getPRBefore(ex.name, monthStart);
+      const sessionMaxKg = Math.max(...monthHistory
+        .filter(mh => mh.exercises && mh.exercises.some(e => getAliases(ex.name).includes(normalizeExName(e.name))))
+        .flatMap(mh => (mh.exercises.find(e => getAliases(ex.name).includes(normalizeExName(e.name)))?.series||[]).map(s=>parseFloat(s.kg)||0)), 0);
+      const sessionMaxReps = Math.max(...monthHistory
+        .filter(mh => mh.exercises && mh.exercises.some(e => getAliases(ex.name).includes(normalizeExName(e.name))))
+        .flatMap(mh => (mh.exercises.find(e => getAliases(ex.name).includes(normalizeExName(e.name)))?.series||[]).map(s=>parseInt(s.reps)||0)), 0);
+      const sessionMaxSecs = Math.max(...monthHistory
+        .filter(mh => mh.exercises && mh.exercises.some(e => getAliases(ex.name).includes(normalizeExName(e.name))))
+        .flatMap(mh => (mh.exercises.find(e => getAliases(ex.name).includes(normalizeExName(e.name)))?.series||[]).map(s=>parseInt(s.secs)||0)), 0);
+
+      // Use canonical name for display
+      const displayName = ex.name;
+      if (sessionMaxKg > 0 && sessionMaxKg > prevPR.kg) {
+        prsBroken.push(`${displayName}: ${sessionMaxKg}kg`);
+      } else if (sessionMaxReps > 0 && sessionMaxReps > prevPR.reps && sessionMaxKg === 0) {
+        prsBroken.push(`${displayName}: ${sessionMaxReps} reps`);
+      } else if (sessionMaxSecs > 0 && sessionMaxSecs > prevPR.secs) {
+        prsBroken.push(`${displayName}: ${sessionMaxSecs}s`);
+      }
+      seenExercises.add(key);
     });
   });
 
