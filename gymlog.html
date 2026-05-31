@@ -506,6 +506,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <div id="tab-progreso" class="tab">
       <div class="stats-grid" id="global-stats"></div>
       <div id="objetivo-banner"></div>
+      <div style="margin:8px 12px 0;display:flex;justify-content:flex-end">
+        <button onclick="cerrarMesManual()" style="padding:6px 14px;background:none;border:1px solid #333;border-radius:20px;color:#666;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📅 Cerrar mes ahora</button>
+      </div>
       <div class="chart-title">CONSISTENCIA — ÚLTIMOS 6 MESES</div>
       <div id="consistency-grid" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px;overflow-x:auto"></div>
       <div class="chart-title">VOLUMEN SEMANAL</div>
@@ -1965,7 +1968,7 @@ function renderWeeklyChart() {
     type:'bar',
     data:{ labels: weeks.map(w=>w.label), datasets:[{ data: weeks.map(w=>w.vol), backgroundColor:'rgba(226,75,74,0.7)', borderRadius:6, borderSkipped:false }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{ x:{ticks:{font:{size:10},color:'#7a7870'},grid:{display:false}}, y:{ticks:{font:{size:10},color:'#7a7870',callback:v=>(Math.round(v*10)/10).toFixed(1)+'kg'},grid:{color:'rgba(0,0,0,0.04)'}} } }
+      scales:{ x:{ticks:{font:{size:10},color:'#7a7870'},grid:{display:false}}, y:{ticks:{font:{size:10},color:'#7a7870',callback:v=>Math.round(v).toLocaleString()+'kg'},grid:{color:'rgba(0,0,0,0.04)'}} } }
   });
 }
 
@@ -1997,7 +2000,7 @@ window.renderProgressChart = () => {
     data:{ labels:sessions.map(s=>s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
       datasets:[{data:sessions.map(s=>s.kg),borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.08)',pointBackgroundColor:'#E24B4A',pointRadius:4,tension:0.35,fill:true}]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',callback:v=>(Math.round(v*10)/10).toFixed(1)+'kg'},grid:{color:'rgba(255,255,255,0.06)'}} } }
+      scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',callback:v=>Math.round(v).toLocaleString()+'kg'},grid:{color:'rgba(255,255,255,0.06)'}} } }
   });
 };
 
@@ -2558,6 +2561,23 @@ window.saveBodyStat = async (field, val) => {
 };
 
 /* ── CIERRE DE MES ── */
+window.cerrarMesManual = () => {
+  if (!confirm('¿Querés cerrar el mes de ' + new Date().toLocaleDateString('es-AR',{month:'long',year:'numeric'}) + '?')) return;
+  if (!confirm('Segunda confirmación: ¿seguro? Se va a generar el balance del mes con tus datos actuales.')) return;
+  const today = new Date();
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const monthHistory = history.filter(h => {
+    if (h.pesoOnly) return false;
+    const d = new Date(h.date);
+    return d >= monthStart && d <= today;
+  });
+  if (!monthHistory.length) { showToast('No hay entrenamientos este mes'); return; }
+  // Force clear lastMesClose so it shows
+  const monthKey = `${today.getFullYear()}-${today.getMonth()}-end`;
+  profile.lastMesClose = null;
+  showCierreDeMes(monthHistory, monthStart);
+};
+
 function checkCierreDeMes() {
   if (!history.length) return;
   const lastShown = profile.lastMesClose || null;
