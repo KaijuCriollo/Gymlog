@@ -2070,9 +2070,14 @@ function renderCierres() {
         </div>
         ${cierre.pesoDiff != null ? `<div style="font-size:12px;color:#666;margin-bottom:8px">⚖️ Peso: ${cierre.pesoDiff>0?'+':''}${cierre.pesoDiff}kg este mes</div>` : ''}
         ${cierre.records && cierre.records.length ? `
-          <div style="background:#161616;border-radius:10px;padding:8px 10px">
+          <div style="background:#161616;border-radius:10px;padding:8px 10px;margin-bottom:8px">
             <div style="font-size:10px;color:#444;font-weight:700;margin-bottom:6px">🏆 RÉCORDS ROTOS</div>
             ${cierre.records.map(r=>`<div style="font-size:12px;color:#E83535;font-weight:600;margin-bottom:3px">• ${r}</div>`).join('')}
+          </div>` : ''}
+        ${cierre.big3 && cierre.big3.length ? `
+          <div style="background:#161616;border-radius:10px;padding:8px 10px">
+            <div style="font-size:10px;color:#444;font-weight:700;margin-bottom:6px">📊 LOS 3 GRANDES</div>
+            ${cierre.big3.map(r=>`<div style="font-size:12px;color:#aaa;font-weight:600;margin-bottom:3px">• ${r}</div>`).join('')}
           </div>` : ''}
       </div>
     </div>`).join('');
@@ -2653,7 +2658,44 @@ function showCierreDeMes(monthHistory, month) {
     return { kg: prKg, reps: prReps, secs: prSecs };
   }
 
-  // Collect all unique exercise names from this month (using canonical alias)
+  // Helper: get max value for an exercise across all sessions in a history set
+  function getMonthMax(exName, field, hist) {
+    const aliases = getAliases(exName);
+    let max = 0;
+    (hist||monthHistory).forEach(h => {
+      (h.exercises||[]).forEach(e => {
+        if (!aliases.includes(normalizeExName(e.name))) return;
+        (e.series||[]).forEach(s => {
+          let v = 0;
+          if (field==='secs') v = parseInt(s.secs)||0;
+          else if (field==='reps') v = parseInt(s.reps)||0;
+          else v = parseFloat(s.kg)||0;
+          if (v > max) max = v;
+        });
+      });
+    });
+    return max;
+  }
+
+  // Detect exercise type from stored 'type' field or from data
+  function getExType(exName) {
+    // Check in current exercises list first
+    const found = exercises.find(e => getAliases(exName).includes(normalizeExName(e.name)));
+    if (found) return found.type || 'normal';
+    // Check in history
+    for (const h of monthHistory) {
+      const e = h.exercises && h.exercises.find(ex => getAliases(exName).includes(normalizeExName(ex.name)));
+      if (e && e.type) return e.type;
+    }
+    // Fallback: if has secs > 0 and no kg → time
+    const maxSecs = getMonthMax(exName, 'secs');
+    const maxKg = getMonthMax(exName, 'kg');
+    if (maxSecs > 0) return 'time';
+    if (maxKg === 0) return 'bw_lastre';
+    return 'normal';
+  }
+
+  // Collect unique exercises from this month
   const seenKeys = new Set();
   const exNamesToCheck = [];
   monthHistory.forEach(h => {
@@ -2663,41 +2705,44 @@ function showCierreDeMes(monthHistory, month) {
     });
   });
 
-  // Helper: get max value for an exercise across all sessions in monthHistory
-  function getMonthMax(exName, field) {
-    const aliases = getAliases(exName);
-    let max = 0;
-    monthHistory.forEach(h => {
-      (h.exercises||[]).forEach(e => {
-        if (!aliases.includes(normalizeExName(e.name))) return;
-        (e.series||[]).forEach(s => {
-          const v = field==='secs' ? parseInt(s.secs)||0 : field==='reps' ? parseInt(s.reps)||0 : parseFloat(s.kg)||0;
-          if (v > max) max = v;
-        });
-      });
-    });
-    return max;
-  }
-
   const prsBroken = [];
   exNamesToCheck.forEach(exName => {
     const prevPR = getPRBefore(exName, monthStart);
+    const exType = getExType(exName);
     const monthMaxKg   = getMonthMax(exName, 'kg');
     const monthMaxReps = getMonthMax(exName, 'reps');
     const monthMaxSecs = getMonthMax(exName, 'secs');
 
-    // Determine exercise type from this month's data
-    const isTimed = monthMaxSecs > 0 && monthMaxKg === 0 && monthMaxReps === 0;
-    const isBW    = monthMaxKg === 0 && !isTimed; // dominadas, fondos etc
-
-    if (isTimed) {
+    if (exType === 'time') {
       if (monthMaxSecs > prevPR.secs) prsBroken.push(`${exName}: ${monthMaxSecs}s`);
-    } else if (isBW) {
-      if (monthMaxReps > prevPR.reps) prsBroken.push(`${exName}: ${monthMaxReps} reps`);
+    } else if (exType === 'bw_lastre' || exType === 'bw') {
+      // BW: compare reps, also show lastre if any
+      if (monthMaxReps > prevPR.reps) {
+        const lastreStr = monthMaxKg > 0 ? ` +${monthMaxKg}kg lastre` : '';
+        prsBroken.push(`${exName}: ${monthMaxReps} reps${lastreStr}`);
+      }
     } else {
-      // Weighted: check kg PR AND reps PR separately
+      // Weighted: kg is primary PR
       if (monthMaxKg > prevPR.kg) prsBroken.push(`${exName}: ${monthMaxKg}kg`);
-      else if (monthMaxReps > prevPR.reps) prsBroken.push(`${exName}: ${monthMaxKg}kg x ${monthMaxReps} reps (récord de reps)`);
+      else if (monthMaxReps > prevPR.reps) prsBroken.push(`${exName}: ${monthMaxKg}kg × ${monthMaxReps} reps`);
+    }
+  });
+
+  // ── ALWAYS include Los 3 Grandes best of the month ──
+  const BIG3 = [
+    { name:'Press de banca', type:'normal' },
+    { name:'Dominadas',      type:'bw_lastre' },
+    { name:'Sentadillas',    type:'normal' },
+  ];
+  const big3Lines = [];
+  BIG3.forEach(ex => {
+    const monthMaxKg   = getMonthMax(ex.name, 'kg');
+    const monthMaxReps = getMonthMax(ex.name, 'reps');
+    const monthMaxSecs = getMonthMax(ex.name, 'secs');
+    if (ex.type === 'bw_lastre') {
+      if (monthMaxReps > 0) big3Lines.push(`${ex.name}: ${monthMaxReps} reps`);
+    } else {
+      if (monthMaxKg > 0) big3Lines.push(`${ex.name}: ${monthMaxKg}kg`);
     }
   });
 
@@ -2737,11 +2782,17 @@ function showCierreDeMes(monthHistory, month) {
     ${pesoDiff!==null?`<div style="margin-top:10px;font-size:12px;color:#666">Peso: ${pesoDiff>0?'+':''}${pesoDiff}kg este mes</div>`:''}
   `;
 
-  const recs = [...new Set(prsBroken)].slice(0,5);
-  document.getElementById('mes-records').innerHTML = recs.length ? `
-    <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px;margin-bottom:8px">🏆 RÉCORDS ROTOS ESTE MES</div>
-    ${recs.map(r=>`<div class="mes-record-item"><span style="font-size:18px">🔥</span><span style="font-size:13px;color:#eee;font-weight:600">${r}</span></div>`).join('')}
-  ` : '<div style="font-size:12px;color:#555;text-align:center">Sin récords rotos este mes — el próximo es tuyo</div>';
+  const recs = [...new Set(prsBroken)].slice(0,8);
+  document.getElementById('mes-records').innerHTML = `
+    ${recs.length ? `
+      <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px;margin-bottom:8px">🏆 RÉCORDS ROTOS ESTE MES</div>
+      ${recs.map(r=>`<div class="mes-record-item"><span style="font-size:18px">🔥</span><span style="font-size:13px;color:#eee;font-weight:600">${r}</span></div>`).join('')}
+    ` : '<div style="font-size:12px;color:#555;text-align:center;margin-bottom:12px">Sin récords nuevos este mes — el próximo es tuyo 💪</div>'}
+    ${big3Lines.length ? `
+      <div style="font-size:11px;font-weight:700;color:#555;letter-spacing:0.5px;margin:12px 0 8px">📊 LOS 3 GRANDES — MEJOR DEL MES</div>
+      ${big3Lines.map(r=>`<div class="mes-record-item"><span style="font-size:18px">💪</span><span style="font-size:13px;color:#aaa;font-weight:600">${r}</span></div>`).join('')}
+    ` : ''}
+  `;
 
   document.getElementById('mes-overlay').classList.add('open');
 
@@ -2752,7 +2803,8 @@ function showCierreDeMes(monthHistory, month) {
     profile.cierresHistory.unshift({
       monthKey, month: month.toLocaleDateString('es-AR',{month:'long',year:'numeric'}),
       sessions: monthHistory.length, emoji, title, text,
-      records: [...new Set(prsBroken)].slice(0,5),
+      records: [...new Set(prsBroken)].slice(0,8),
+    big3: big3Lines,
       pesoDiff, date: new Date().toISOString()
     });
     if (profile.cierresHistory.length > 24) profile.cierresHistory.pop();
