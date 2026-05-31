@@ -432,13 +432,14 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="12" y1="9" x2="12" y2="15"/></svg>
       Hoy
     </button>
-    <button class="nav-btn" data-tab="rutinas" onclick="switchTab('rutinas',this)">
-      <svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-      Rutinas
-    </button>
+
     <button class="nav-btn" data-tab="historial" onclick="switchTab('historial',this)">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/></svg>
       Historial
+    </button>
+    <button class="nav-btn" data-tab="cierres" onclick="switchTab('cierres',this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Cierres
     </button>
     <button class="nav-btn" data-tab="progreso" onclick="switchTab('progreso',this)">
       <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
@@ -492,11 +493,10 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <div style="height:80px"></div>
     </div>
 
-    <!-- RUTINAS -->
-    <div id="tab-rutinas" class="tab">
-      <div id="routines-list"></div>
-      <button class="new-routine-btn" onclick="openNewRoutineModal()">+ Nueva rutina</button>
-      <div style="height:20px"></div>
+
+    <!-- CIERRES DE MES -->
+    <div id="tab-cierres" class="tab">
+      <div id="cierres-list" style="padding-bottom:20px"></div>
     </div>
 
     <!-- HISTORIAL -->
@@ -1031,6 +1031,7 @@ window.switchTab = (tab, btn) => {
   if (btn) btn.classList.add('active');
   document.getElementById('save-bar').style.display = tab === 'registro' ? '' : 'none';
   if (tab === 'historial') renderHistory();
+  if (tab === 'cierres') renderCierres();
   if (tab === 'progreso') renderProgress();
   if (tab === 'rutinas') renderRoutines();
   if (tab === 'nutricion') renderNutriHistory();
@@ -1526,7 +1527,7 @@ function renderRoutinePillsSelector() {
   const wrap = document.getElementById('routine-pills-selector');
   wrap.innerHTML = routines.map(r =>
     `<div class="routine-pill" onclick="loadRoutine('${r.fid}')">${r.name}</div>`
-  ).join('') + `<div class="routine-pill manage" onclick="switchTab('rutinas',document.querySelector('[data-tab=rutinas]'))">⚙️ Gestionar</div>`;
+  ).join('') + '';
 }
 
 window.loadRoutine = (fid) => {
@@ -1763,7 +1764,7 @@ function renderConsistencyGrid() {
   const el = document.getElementById('consistency-grid');
   if (!el) return;
   const today = new Date();
-  const days = 13 * 7; // ~3 months
+  const days = 9 * 7; // ~2 months
   const trained = new Set(history.filter(h=>!h.pesoOnly).map(h=>new Date(h.date).toDateString()));
 
   // Build week columns
@@ -2021,6 +2022,41 @@ window.copyNutri = () => {
 };
 window.loadNutriEntry = (date) => { document.getElementById('nutri-date-inp').value=date; const e=nutricion.find(n=>n.date===date); document.getElementById('nutri-desayuno').value=e?e.desayuno:''; document.getElementById('nutri-almuerzo').value=e?e.almuerzo:''; document.getElementById('nutri-merienda').value=e?e.merienda:''; document.getElementById('nutri-cena').value=e?e.cena:''; };
 window.deleteNutri = async (fid,date) => { await deleteNutriDB(fid); nutricion=nutricion.filter(n=>n.date!==date); renderNutriHistory(); showToast('Eliminado'); };
+function renderCierres() {
+  const el = document.getElementById('cierres-list');
+  if (!el) return;
+  const cierres = profile.cierresHistory || [];
+  if (!cierres.length) {
+    el.innerHTML = `<div class="empty-state" style="padding-top:60px">
+      <div class="empty-icon">📅</div>
+      <div class="empty-text">Todavía no hay cierres de mes.<br>Al final de cada mes aparecerá<br>tu balance aquí.</div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = cierres.map(cierre => `
+    <div style="margin:12px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;overflow:hidden">
+      <div style="background:#252525;padding:12px 14px;display:flex;align-items:center;justify-content:space-between">
+        <div style="font-size:14px;font-weight:700;color:#fff;text-transform:capitalize">${cierre.month}</div>
+        <div style="font-size:11px;color:#555">${cierre.sessions} sesiones</div>
+      </div>
+      <div style="padding:14px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          <div style="font-size:32px">${cierre.emoji}</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#fff">${cierre.title}</div>
+            <div style="font-size:12px;color:#888;margin-top:3px;line-height:1.4">${cierre.text}</div>
+          </div>
+        </div>
+        ${cierre.pesoDiff != null ? `<div style="font-size:12px;color:#666;margin-bottom:8px">⚖️ Peso: ${cierre.pesoDiff>0?'+':''}${cierre.pesoDiff}kg este mes</div>` : ''}
+        ${cierre.records && cierre.records.length ? `
+          <div style="background:#161616;border-radius:10px;padding:8px 10px">
+            <div style="font-size:10px;color:#444;font-weight:700;margin-bottom:6px">🏆 RÉCORDS ROTOS</div>
+            ${cierre.records.map(r=>`<div style="font-size:12px;color:#E83535;font-weight:600;margin-bottom:3px">• ${r}</div>`).join('')}
+          </div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
 function renderNutriHistory() {
   const wrap = document.getElementById('nutri-history-wrap');
   if (!nutricion.length) { wrap.style.display='none'; return; }
@@ -2442,7 +2478,7 @@ function renderPlayerCard() {
   const vol = Math.round(totalVolume(history));
   document.getElementById('pc-stats').innerHTML = `
     <div class="player-stat"><div class="player-stat-val">${totalW}</div><div class="player-stat-label">Total entrenos</div></div>
-    <div class="player-stat"><div class="player-stat-val">${weekCount}<span style="font-size:11px;color:#555"> sem</span> / ${monthCount}<span style="font-size:11px;color:#555"> mes</span></div><div class="player-stat-label">Esta semana/mes</div></div>
+    <div class="player-stat"><div class="player-stat-val">🔥 ${weekCount}</div><div class="player-stat-label">Esta semana</div></div>
     <div class="player-stat"><div class="player-stat-val">${vol>999?Math.round(vol/1000)+'k':vol}</div><div class="player-stat-unit">${vol>999?'ton':'kg'}</div><div class="player-stat-label">Volumen</div></div>
   `;
 
@@ -2593,6 +2629,20 @@ function showCierreDeMes(monthHistory, month) {
   ` : '<div style="font-size:12px;color:#555;text-align:center">Sin récords rotos este mes — el próximo es tuyo</div>';
 
   document.getElementById('mes-overlay').classList.add('open');
+
+  // Store for Cierres tab
+  if (!profile.cierresHistory) profile.cierresHistory = [];
+  const monthKey = `${month.getFullYear()}-${month.getMonth()}`;
+  if (!profile.cierresHistory.find(x => x.monthKey === monthKey)) {
+    profile.cierresHistory.unshift({
+      monthKey, month: month.toLocaleDateString('es-AR',{month:'long',year:'numeric'}),
+      sessions: monthHistory.length, emoji, title, text,
+      records: [...new Set(prsBroken)].slice(0,5),
+      pesoDiff, date: new Date().toISOString()
+    });
+    if (profile.cierresHistory.length > 24) profile.cierresHistory.pop();
+    saveProfileDB();
+  }
 }
 
 /* ── WORKOUT MODE ── */
