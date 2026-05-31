@@ -2653,34 +2653,52 @@ function showCierreDeMes(monthHistory, month) {
     return { kg: prKg, reps: prReps, secs: prSecs };
   }
 
-  const prsBroken = [];
-  const seenExercises = new Set();
+  // Collect all unique exercise names from this month (using canonical alias)
+  const seenKeys = new Set();
+  const exNamesToCheck = [];
   monthHistory.forEach(h => {
     (h.exercises||[]).forEach(ex => {
       const key = normalizeExName(ex.name);
-      if (seenExercises.has(key)) return; // check each exercise once
-      const prevPR = getPRBefore(ex.name, monthStart);
-      const sessionMaxKg = Math.max(...monthHistory
-        .filter(mh => mh.exercises && mh.exercises.some(e => getAliases(ex.name).includes(normalizeExName(e.name))))
-        .flatMap(mh => (mh.exercises.find(e => getAliases(ex.name).includes(normalizeExName(e.name)))?.series||[]).map(s=>parseFloat(s.kg)||0)), 0);
-      const sessionMaxReps = Math.max(...monthHistory
-        .filter(mh => mh.exercises && mh.exercises.some(e => getAliases(ex.name).includes(normalizeExName(e.name))))
-        .flatMap(mh => (mh.exercises.find(e => getAliases(ex.name).includes(normalizeExName(e.name)))?.series||[]).map(s=>parseInt(s.reps)||0)), 0);
-      const sessionMaxSecs = Math.max(...monthHistory
-        .filter(mh => mh.exercises && mh.exercises.some(e => getAliases(ex.name).includes(normalizeExName(e.name))))
-        .flatMap(mh => (mh.exercises.find(e => getAliases(ex.name).includes(normalizeExName(e.name)))?.series||[]).map(s=>parseInt(s.secs)||0)), 0);
-
-      // Use canonical name for display
-      const displayName = ex.name;
-      if (sessionMaxKg > 0 && sessionMaxKg > prevPR.kg) {
-        prsBroken.push(`${displayName}: ${sessionMaxKg}kg`);
-      } else if (sessionMaxReps > 0 && sessionMaxReps > prevPR.reps && sessionMaxKg === 0) {
-        prsBroken.push(`${displayName}: ${sessionMaxReps} reps`);
-      } else if (sessionMaxSecs > 0 && sessionMaxSecs > prevPR.secs) {
-        prsBroken.push(`${displayName}: ${sessionMaxSecs}s`);
-      }
-      seenExercises.add(key);
+      if (!seenKeys.has(key)) { seenKeys.add(key); exNamesToCheck.push(ex.name); }
     });
+  });
+
+  // Helper: get max value for an exercise across all sessions in monthHistory
+  function getMonthMax(exName, field) {
+    const aliases = getAliases(exName);
+    let max = 0;
+    monthHistory.forEach(h => {
+      (h.exercises||[]).forEach(e => {
+        if (!aliases.includes(normalizeExName(e.name))) return;
+        (e.series||[]).forEach(s => {
+          const v = field==='secs' ? parseInt(s.secs)||0 : field==='reps' ? parseInt(s.reps)||0 : parseFloat(s.kg)||0;
+          if (v > max) max = v;
+        });
+      });
+    });
+    return max;
+  }
+
+  const prsBroken = [];
+  exNamesToCheck.forEach(exName => {
+    const prevPR = getPRBefore(exName, monthStart);
+    const monthMaxKg   = getMonthMax(exName, 'kg');
+    const monthMaxReps = getMonthMax(exName, 'reps');
+    const monthMaxSecs = getMonthMax(exName, 'secs');
+
+    // Determine exercise type from this month's data
+    const isTimed = monthMaxSecs > 0 && monthMaxKg === 0 && monthMaxReps === 0;
+    const isBW    = monthMaxKg === 0 && !isTimed; // dominadas, fondos etc
+
+    if (isTimed) {
+      if (monthMaxSecs > prevPR.secs) prsBroken.push(`${exName}: ${monthMaxSecs}s`);
+    } else if (isBW) {
+      if (monthMaxReps > prevPR.reps) prsBroken.push(`${exName}: ${monthMaxReps} reps`);
+    } else {
+      // Weighted: check kg PR AND reps PR separately
+      if (monthMaxKg > prevPR.kg) prsBroken.push(`${exName}: ${monthMaxKg}kg`);
+      else if (monthMaxReps > prevPR.reps) prsBroken.push(`${exName}: ${monthMaxKg}kg x ${monthMaxReps} reps (récord de reps)`);
+    }
   });
 
   // Peso trend
