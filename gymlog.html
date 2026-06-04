@@ -905,12 +905,11 @@ window.doLogout = async () => {
 // Load cached profile preview on login screen
 function loadAuthPreview() {
   try {
-    // Try to find any cached profile in localStorage
-    const keys = Object.keys(localStorage).filter(k => k.startsWith('gymlog_cache_'));
-    if (!keys.length) return;
-    const cached = JSON.parse(localStorage.getItem(keys[0]));
-    if (!cached || !cached.profile) return;
-    const prof = cached.profile;
+    // Use generic last-profile key (no UID needed)
+    const raw = localStorage.getItem('gymlog_last_profile');
+    if (!raw) return;
+    const prof = JSON.parse(raw);
+    if (!prof) return;
     const accent = prof.accentColor || '#E83535';
 
     // Show profile preview
@@ -992,7 +991,18 @@ async function loadUserData() {
     history = hSnap.docs.map(d => { const data = d.data(); if (data.peso != null) data.peso = parseFloat((Math.round(parseFloat(data.peso)*10)/10).toFixed(1)); return {fid:d.id,...data}; });
     nutricion = nSnap.docs.map(d => ({fid:d.id,...d.data()}));
     routines = rSnap.docs.map(d => ({fid:d.id,...d.data()}));
-    if (profSnap.docs.length) profile = profSnap.docs[0].data();
+    if (profSnap.docs.length) {
+      profile = profSnap.docs[0].data();
+      // Save generic cache for login screen
+      try {
+        localStorage.setItem('gymlog_last_profile', JSON.stringify({
+          nickname: profile.nickname || '',
+          frase: profile.frase || '',
+          avatarUrl: profile.avatarUrl || '',
+          accentColor: profile.accentColor || '#E83535',
+        }));
+      } catch(e) {}
+    }
     if (exercises.length === 0) await initDefaults();
   } catch(e) { console.error(e); }
   showSync(false);
@@ -1108,8 +1118,8 @@ async function saveRoutineDB(r) {
 async function deleteRoutineDB(r) { if (r.fid) await deleteDoc(doc(db,'users',uid(),'routines',r.fid)); }
 async function saveProfileDB() {
   await setDoc(doc(db,'users',uid(),'profile','main'), profile);
-  // Update local cache with new profile
   try {
+    // Update uid-specific cache
     const cacheKey = 'gymlog_cache_' + uid();
     const raw = localStorage.getItem(cacheKey);
     if (raw) {
@@ -1117,6 +1127,13 @@ async function saveProfileDB() {
       cached.profile = profile;
       localStorage.setItem(cacheKey, JSON.stringify(cached));
     }
+    // Also save a generic "last profile" for login screen
+    localStorage.setItem('gymlog_last_profile', JSON.stringify({
+      nickname: profile.nickname || '',
+      frase: profile.frase || '',
+      avatarUrl: profile.avatarUrl || '',
+      accentColor: profile.accentColor || '#E83535',
+    }));
   } catch(e) {}
 }
 async function saveNutriEntry(entry) {
@@ -1157,8 +1174,17 @@ function updateQuickPesoLast() {
 
 /* ── RENDER ALL ── */
 function renderAll() {
+  // Apply accent color and profile settings immediately on load
+  if (profile.accentColor) applyAccent(profile.accentColor);
   renderFilters(); renderExercises(); renderMoods();
-  updatePesoLast(); updateQuickPesoLast(); calcStreak(); renderProfile(); updateDaysSince();
+  updatePesoLast(); updateQuickPesoLast(); calcStreak(); updateDaysSince();
+  // Apply header avatar without full profile render (faster)
+  if (profile.avatarUrl) {
+    const hdrBtn = document.getElementById('avatar-btn');
+    if (hdrBtn && !hdrBtn.querySelector('img')) {
+      hdrBtn.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar" style="width:100%;height:100%;object-fit:cover"/>`;
+    }
+  }
   setTimeout(checkCierreDeMes, 2000);
 }
 
