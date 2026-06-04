@@ -540,6 +540,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button id="muscle-filter-month" onclick="setMuscleFilter('month')" style="padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Último mes</button>
       </div>
       <div id="muscle-stats" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
+      <div class="chart-title" style="margin-top:14px">TENDENCIA POR MÚSCULO</div>
+      <div style="margin:4px 12px 0;font-size:11px;color:#444;font-weight:600">Este mes vs mes anterior · volumen total</div>
+      <div id="muscle-trend" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
       <div class="chart-title" style="margin-top:14px">OTRO EJERCICIO</div>
       <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()"></select>
       <div id="pr-banner"></div>
@@ -1817,7 +1820,7 @@ function renderProgress() {
   sel.innerHTML = exNames.length ? exNames.map(n=>`<option>${n}</option>`) : '<option>Sin datos</option>';
   if (prev && exNames.includes(prev)) sel.value = prev;
 
-  const totalW = history.length;
+  const totalW = new Set(history.filter(h=>!h.pesoOnly).map(h=>new Date(h.date).toDateString())).size;
   const totalS = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.length,0),0);
   const totalKg = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.reduce((c,s)=>c+(s.reps*s.kg),0),0),0);
   const streak = calcStreak();
@@ -1841,6 +1844,7 @@ function renderProgress() {
   renderPesoChart(pesoEntries);
   renderBig3Charts();
   renderMuscleStats();
+  renderMuscleTrend();
   renderProgressChart();
 }
 
@@ -1925,6 +1929,76 @@ window.setMuscleFilter = (period) => {
     : 'padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
   renderMuscleStats();
 };
+
+function renderMuscleTrend() {
+  const el = document.getElementById('muscle-trend');
+  if (!el) return;
+  const today = new Date();
+  const curMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const prevMonthStart = new Date(today.getFullYear(), today.getMonth()-1, 1);
+  const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+
+  // Get volume per muscle for each month
+  function getVolByMuscle(from, to) {
+    const vol = {};
+    history.filter(h => !h.pesoOnly && new Date(h.date) >= from && new Date(h.date) <= to).forEach(h => {
+      (h.exercises||[]).forEach(e => {
+        const m = e.muscle || 'Otro';
+        const v = (e.series||[]).reduce((a,s) => a + ((parseInt(s.reps)||0)*(parseFloat(s.kg)||0) + (parseInt(s.secs)||0)), 0);
+        vol[m] = (vol[m]||0) + v;
+      });
+    });
+    return vol;
+  }
+
+  const curVol = getVolByMuscle(curMonthStart, today);
+  const prevVol = getVolByMuscle(prevMonthStart, prevMonthEnd);
+  const allMuscles = [...new Set([...Object.keys(curVol), ...Object.keys(prevVol)])].sort((a,b) => (curVol[b]||0)-(curVol[a]||0));
+
+  if (!allMuscles.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center">Sin datos suficientes</div>';
+    return;
+  }
+
+  const accent = 'var(--accent,#E83535)';
+  el.innerHTML = allMuscles.map(muscle => {
+    const cur = Math.round(curVol[muscle]||0);
+    const prev = Math.round(prevVol[muscle]||0);
+    const diff = cur - prev;
+    const pct = prev > 0 ? Math.round((diff/prev)*100) : (cur > 0 ? 100 : 0);
+    const trend = diff > 0 ? '📈' : diff < 0 ? '📉' : '➡️';
+    const trendColor = diff > 0 ? '#22c97a' : diff < 0 ? '#E83535' : '#666';
+    const maxVal = Math.max(cur, prev, 1);
+    const curPct = Math.round((cur/maxVal)*100);
+    const prevPct = Math.round((prev/maxVal)*100);
+    const pctStr = diff === 0 ? 'Sin cambio' : `${diff > 0 ? '+' : ''}${pct}%`;
+
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:700;color:#eee">${muscle}</span>
+        <span style="font-size:11px;font-weight:700;color:${trendColor}">${trend} ${pctStr}</span>
+      </div>
+      <div style="margin-bottom:3px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:9px;color:#555;width:28px;text-align:right;font-weight:600">MES</div>
+          <div style="flex:1;height:10px;background:#252525;border-radius:4px;overflow:hidden">
+            <div style="width:${curPct}%;height:100%;background:${accent};border-radius:4px;transition:width 0.4s"></div>
+          </div>
+          <div style="font-size:9px;color:#aaa;width:40px;font-family:'DM Mono',monospace">${cur>999?Math.round(cur/1000)+'k':cur}</div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:9px;color:#444;width:28px;text-align:right;font-weight:600">ANT</div>
+          <div style="flex:1;height:10px;background:#252525;border-radius:4px;overflow:hidden">
+            <div style="width:${prevPct}%;height:100%;background:#333;border-radius:4px"></div>
+          </div>
+          <div style="font-size:9px;color:#555;width:40px;font-family:'DM Mono',monospace">${prev>999?Math.round(prev/1000)+'k':prev}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 function renderMuscleStats() {
   const el = document.getElementById('muscle-stats');
@@ -2585,7 +2659,7 @@ function renderPlayerCard() {
   }
 
   // Stats
-  const totalW = history.filter(h=>!h.pesoOnly).length;
+  const totalW = new Set(history.filter(h=>!h.pesoOnly).map(h=>new Date(h.date).toDateString())).size;
   const streak = calcStreakFromHistory(history);
   // Weekly count
   const todayW = new Date();
