@@ -887,7 +887,8 @@ window.doAuth = async () => {
 };
 function showAuthError(msg) { const el = document.getElementById('auth-error'); el.textContent = msg; el.classList.add('show'); }
 
-window.doLogout = async () => { await signOut(auth); };
+window.doLogout = async () => {
+  clearDraft(); await signOut(auth); };
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -907,6 +908,9 @@ onAuthStateChanged(auth, async (user) => {
     if (regBtn) regBtn.classList.add('active');
     document.getElementById('save-bar').style.display = '';
     renderAll();
+    // Check for unsaved draft from previous session
+    const draft = loadDraft();
+    if (draft) setTimeout(() => offerRestoreDraft(draft), 800);
   } else {
     currentUser = null;
     exercises = []; history = []; nutricion = []; routines = [];
@@ -936,6 +940,66 @@ async function loadUserData() {
     if (exercises.length === 0) await initDefaults();
   } catch(e) { console.error(e); }
   showSync(false);
+}
+
+// ── DRAFT: auto-save exercise state to localStorage ──
+const DRAFT_KEY = () => 'gymlog_draft_' + (currentUser?.uid||'anon');
+
+function saveDraft() {
+  try {
+    localStorage.setItem(DRAFT_KEY(), JSON.stringify({
+      exercises: exercises,
+      workoutNote: document.getElementById('workout-note')?.value || '',
+      workoutDate: document.getElementById('workout-date-input')?.value || '',
+      pesoInput: document.getElementById('quick-peso-input')?.value || '',
+      mood: currentMood,
+      ts: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY());
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    // Only restore if draft is less than 12 hours old
+    if (Date.now() - data.ts > 12 * 60 * 60 * 1000) {
+      localStorage.removeItem(DRAFT_KEY());
+      return false;
+    }
+    // Check if there's anything meaningful (at least one done series)
+    const hasDone = (data.exercises||[]).some(e => e.series && e.series.some(s => s.done));
+    if (!hasDone) return false;
+    return data;
+  } catch(e) { return false; }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY()); } catch(e) {}
+}
+
+function offerRestoreDraft(draft) {
+  const doneCount = draft.exercises.reduce((a,e) => a + (e.series||[]).filter(s=>s.done).length, 0);
+  const timeAgo = Math.round((Date.now() - draft.ts) / 60000);
+  const timeStr = timeAgo < 60 ? `${timeAgo} min atrás` : `${Math.round(timeAgo/60)}h atrás`;
+  if (confirm(`📋 Hay un entreno sin guardar de ${timeStr} con ${doneCount} series completadas. ¿Restaurarlo?`)) {
+    exercises = draft.exercises;
+    currentMood = draft.mood;
+    if (draft.workoutNote && document.getElementById('workout-note')) {
+      document.getElementById('workout-note').value = draft.workoutNote;
+    }
+    if (draft.workoutDate && document.getElementById('workout-date-input')) {
+      document.getElementById('workout-date-input').value = draft.workoutDate;
+    }
+    renderExercises();
+    renderMoods();
+    showToast('✅ Entreno restaurado');
+    // Save exercises back to Firebase in background
+    exercises.forEach(ex => saveEx(ex));
+  } else {
+    clearDraft();
+  }
 }
 
 async function initDefaults() {
@@ -1380,14 +1444,20 @@ window.toggleCard = (id) => {
 
 window.updateSeries = (exId, idx, field, val) => {
   const ex = exercises.find(e => e.id === exId);
-  if (ex && ex.series[idx]) { ex.series[idx][field] = val; saveEx(ex); }
+  if (ex && ex.series[idx]) {
+    ex.series[idx][field] = val;
+    saveDraft(); // immediate local save
+    saveEx(ex);  // Firebase (background)
+  }
 };
 
 window.toggleDone = (exId, idx) => {
   const ex = exercises.find(e => e.id === exId);
   if (ex && ex.series[idx]) {
     ex.series[idx].done = !ex.series[idx].done;
-    saveEx(ex); renderExercises();
+    saveDraft(); // immediate local save — works offline
+    saveEx(ex);  // Firebase in background
+    renderExercises();
     const body = document.getElementById('body-'+exId);
     if (body) { body.classList.add('open'); document.getElementById('chev-'+exId).classList.add('open'); }
   }
@@ -1411,7 +1481,7 @@ window.addSeries = (id) => {
   if (body) { body.classList.add('open'); document.getElementById('chev-'+id).classList.add('open'); }
 };
 
-window.updateExNote = (id, val) => { const ex = exercises.find(e => e.id === id); if (ex) { ex.note = val; saveEx(ex); } };
+window.updateExNote = (id, val) => { const ex = exercises.find(e => e.id === id); if (ex) { ex.note = val; saveDraft(); saveEx(ex); } };
 
 window.deleteEx = async (id) => {
   if (!confirm('¿Eliminar este ejercicio?')) return;
@@ -1443,7 +1513,12 @@ function renderMoods() {
     `<button class="mood-chip ${currentMood===m?'selected':''}" onclick="selectMood('${m}',this)">${m}</button>`
   ).join('');
 }
-window.selectMood = (m, el) => { currentMood = m; document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); };
+window.selectMood = (m, el) => {
+  currentMood = m;
+  document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  saveDraft();
+};
 
 window.setDateToday = () => { document.getElementById('workout-date-input').value = new Date().toISOString().slice(0,10); };
 function initDatePicker() { setDateToday(); }
@@ -1493,8 +1568,10 @@ window.saveWorkout = async () => {
   renderExercises(); renderMoods(); initDatePicker();
   document.getElementById('workout-note').value = '';
 
+  clearDraft(); // workout saved to Firebase, draft no longer needed
   updatePesoLast(); updateDaysSince(); calcStreak();
   document.getElementById('save-btn').disabled = false;
+  showToast('¡Entrenamiento guardado! 💪');
 };
 
 function buildSummary(entry) {
