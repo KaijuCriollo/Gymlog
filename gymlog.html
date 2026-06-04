@@ -26,7 +26,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 }
 
 /* ── AUTH ── */
-.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;height:100dvh;padding:24px;background:#0d0d0d;position:relative;overflow:hidden}
+.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100vh;height:100dvh;padding:24px;padding-bottom:40px;background:#0d0d0d;position:relative;overflow:hidden}
 .auth-screen::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,transparent 38%,rgba(232,53,53,0.18) 38%,rgba(232,53,53,0.18) 50%,transparent 50%);pointer-events:none;z-index:0}
 .auth-box{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);padding:28px 24px;width:100%;max-width:360px;position:relative;z-index:1;box-shadow:0 4px 32px rgba(0,0,0,0.5)}
 .auth-logo{font-size:26px;font-weight:700;letter-spacing:-0.5px;color:#fff;text-align:center;margin-bottom:4px}
@@ -362,33 +362,42 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
 <!-- AUTH -->
 <div class="auth-screen" id="auth-screen">
-  <svg xmlns="http://www.w3.org/2000/svg" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0" aria-hidden="true">
-    <defs><g id="db"><rect x="-38" y="-10" width="9" height="20" rx="3"/><rect x="-27" y="-7" width="6" height="14" rx="2"/><rect x="-21" y="-3" width="42" height="6" rx="3"/><rect x="21" y="-7" width="6" height="14" rx="2"/><rect x="29" y="-10" width="9" height="20" rx="3"/></g></defs>
-    <use href="#db" transform="translate(60,80) rotate(-30)" fill="rgba(232,53,53,0.15)"/>
-    <use href="#db" transform="translate(300,55) rotate(15)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(170,150) rotate(-10)" fill="rgba(232,53,53,0.12)"/>
-    <use href="#db" transform="translate(390,120) rotate(40)" fill="rgba(232,53,53,0.09)"/>
-    <use href="#db" transform="translate(40,270) rotate(20)" fill="rgba(232,53,53,0.11)"/>
-    <use href="#db" transform="translate(240,240) rotate(-25)" fill="rgba(232,53,53,0.13)"/>
-    <use href="#db" transform="translate(380,280) rotate(10)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(110,410) rotate(-15)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(310,390) rotate(35)" fill="rgba(232,53,53,0.12)"/>
-    <use href="#db" transform="translate(60,490) rotate(5)" fill="rgba(232,53,53,0.09)"/>
-    <use href="#db" transform="translate(400,450) rotate(-20)" fill="rgba(232,53,53,0.11)"/>
-    <use href="#db" transform="translate(190,540) rotate(25)" fill="rgba(232,53,53,0.13)"/>
-    <use href="#db" transform="translate(350,580) rotate(-10)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(70,630) rotate(40)" fill="rgba(232,53,53,0.11)"/>
-    <use href="#db" transform="translate(250,670) rotate(-30)" fill="rgba(232,53,53,0.12)"/>
-    <use href="#db" transform="translate(410,710) rotate(15)" fill="rgba(232,53,53,0.09)"/>
-    <use href="#db" transform="translate(90,750) rotate(-5)" fill="rgba(232,53,53,0.11)"/>
-    <use href="#db" transform="translate(180,810) rotate(20)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(360,840) rotate(-35)" fill="rgba(232,53,53,0.13)"/>
-    <use href="#db" transform="translate(130,330) rotate(12)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(290,470) rotate(-18)" fill="rgba(232,53,53,0.11)"/>
-  </svg>
-  <div class="auth-box">
-    <div class="auth-logo">Kaiju<span>GymLog</span></div>
-    <div class="auth-tagline">Registrá tu progreso en el gym</div>
+  <!-- Background: photo or dumbbell pattern -->
+  <div style="position:fixed;inset:0;z-index:0;background:#0d0d0d">
+    <div id="auth-bg-img-wrap" style="display:none;width:100%;height:100%">
+      <img id="auth-bg-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;filter:blur(20px) brightness(0.25);transform:scale(1.1)"/>
+    </div>
+    <svg id="auth-bg-svg" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" aria-hidden="true">
+      <defs><g id="db"><rect x="-38" y="-10" width="9" height="20" rx="3"/><rect x="-27" y="-7" width="6" height="14" rx="2"/><rect x="-21" y="-3" width="42" height="6" rx="3"/><rect x="21" y="-7" width="6" height="14" rx="2"/><rect x="29" y="-10" width="9" height="20" rx="3"/></g></defs>
+      <use href="#db" transform="translate(60,80) rotate(-30)" fill="rgba(232,53,53,0.1)"/>
+      <use href="#db" transform="translate(300,55) rotate(15)" fill="rgba(232,53,53,0.08)"/>
+      <use href="#db" transform="translate(170,150) rotate(-10)" fill="rgba(232,53,53,0.09)"/>
+      <use href="#db" transform="translate(40,270) rotate(20)" fill="rgba(232,53,53,0.08)"/>
+      <use href="#db" transform="translate(240,240) rotate(-25)" fill="rgba(232,53,53,0.1)"/>
+      <use href="#db" transform="translate(310,390) rotate(35)" fill="rgba(232,53,53,0.09)"/>
+      <use href="#db" transform="translate(190,540) rotate(25)" fill="rgba(232,53,53,0.1)"/>
+      <use href="#db" transform="translate(250,670) rotate(-30)" fill="rgba(232,53,53,0.09)"/>
+      <use href="#db" transform="translate(90,750) rotate(-5)" fill="rgba(232,53,53,0.08)"/>
+    </svg>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.2) 0%,rgba(0,0,0,0.7) 60%,rgba(0,0,0,0.92) 100%)"></div>
+  </div>
+
+  <!-- Profile preview (top, only if returning user) -->
+  <div id="auth-profile-preview" style="position:relative;z-index:1;text-align:center;flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+    <div id="auth-preview-avatar" style="width:90px;height:90px;border-radius:50%;border:3px solid rgba(255,255,255,0.25);margin:0 auto 14px;overflow:hidden;background:#222;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 32px rgba(0,0,0,0.5)"></div>
+    <div id="auth-preview-name" style="font-size:26px;font-weight:700;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 8px rgba(0,0,0,0.8)"></div>
+    <div id="auth-preview-frase" style="font-size:14px;color:#f0a04b;font-style:italic;margin-top:6px;font-weight:600;padding:0 24px;text-shadow:0 1px 4px rgba(0,0,0,0.8);line-height:1.4"></div>
+  </div>
+
+  <!-- Default logo (new user) -->
+  <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaiju<span style="color:#E83535">GymLog</span></div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
+  </div>
+
+  <div class="auth-box" style="position:relative;z-index:1;background:rgba(15,15,15,0.88);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.07);border-radius:20px 20px 0 0;margin:0 -24px -40px;padding:24px 24px calc(24px + env(safe-area-inset-bottom,0px));width:calc(100% + 48px);max-width:none">
+    <div class="auth-logo" id="auth-logo-text" style="display:none">Kaiju<span>GymLog</span></div>
+    <div class="auth-tagline" id="auth-tagline" style="display:none">Registrá tu progreso en el gym</div>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="setAuthMode('login',this)">Iniciar sesión</button>
       <button class="auth-tab" onclick="setAuthMode('register',this)">Registrarse</button>
@@ -893,6 +902,50 @@ function showAuthError(msg) { const el = document.getElementById('auth-error'); 
 window.doLogout = async () => {
   clearDraft(); await signOut(auth); };
 
+// Load cached profile preview on login screen
+function loadAuthPreview() {
+  try {
+    // Try to find any cached profile in localStorage
+    const keys = Object.keys(localStorage).filter(k => k.startsWith('gymlog_cache_'));
+    if (!keys.length) return;
+    const cached = JSON.parse(localStorage.getItem(keys[0]));
+    if (!cached || !cached.profile) return;
+    const prof = cached.profile;
+    const accent = prof.accentColor || '#E83535';
+
+    // Show profile preview
+    if (prof.nickname || prof.avatarUrl) {
+      document.getElementById('auth-profile-preview').style.display = 'block';
+      document.getElementById('auth-logo-text').style.display = 'none';
+      document.getElementById('auth-tagline').style.display = 'none';
+    }
+    if (prof.avatarUrl) {
+      // Show blurred bg photo
+      const bgWrap = document.getElementById('auth-bg-img-wrap');
+      const bgImg = document.getElementById('auth-bg-img');
+      const bgSvg = document.getElementById('auth-bg-svg');
+      bgImg.src = prof.avatarUrl;
+      bgWrap.style.display = 'block';
+      if (bgSvg) bgSvg.style.display = 'none';
+      // Avatar
+      document.getElementById('auth-preview-avatar').innerHTML = `<img src="${prof.avatarUrl}" style="width:100%;height:100%;object-fit:cover"/>`;
+    } else {
+      document.getElementById('auth-preview-avatar').textContent = '🏋️';
+    }
+    if (prof.nickname) {
+      document.getElementById('auth-preview-name').textContent = prof.nickname;
+    }
+    if (prof.frase) {
+      document.getElementById('auth-preview-frase').textContent = `"${prof.frase}"`;
+      document.getElementById('auth-preview-frase').style.color = accent === '#f5e642' ? '#f5e642' : '#f0a04b';
+    }
+    // Apply accent color to auth btn
+    const authBtn = document.getElementById('auth-btn');
+    if (authBtn) { authBtn.style.background = accent; }
+  } catch(e) {}
+}
+loadAuthPreview();
+
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentUser = user;
@@ -1053,7 +1106,19 @@ async function saveRoutineDB(r) {
   else { const ref = await addDoc(collection(db,'users',uid(),'routines'), data); r.fid = ref.id; }
 }
 async function deleteRoutineDB(r) { if (r.fid) await deleteDoc(doc(db,'users',uid(),'routines',r.fid)); }
-async function saveProfileDB() { await setDoc(doc(db,'users',uid(),'profile','main'), profile); }
+async function saveProfileDB() {
+  await setDoc(doc(db,'users',uid(),'profile','main'), profile);
+  // Update local cache with new profile
+  try {
+    const cacheKey = 'gymlog_cache_' + uid();
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) {
+      const cached = JSON.parse(raw);
+      cached.profile = profile;
+      localStorage.setItem(cacheKey, JSON.stringify(cached));
+    }
+  } catch(e) {}
+}
 async function saveNutriEntry(entry) {
   const existing = nutricion.find(n => n.date === entry.date);
   if (existing && existing.fid) { const {fid,...d} = entry; await setDoc(doc(db,'users',uid(),'nutricion',existing.fid), d); entry.fid = existing.fid; }
@@ -1820,9 +1885,10 @@ function renderProgress() {
   sel.innerHTML = exNames.length ? exNames.map(n=>`<option>${n}</option>`) : '<option>Sin datos</option>';
   if (prev && exNames.includes(prev)) sel.value = prev;
 
-  const totalW = new Set(history.filter(h=>!h.pesoOnly).map(h=>new Date(h.date).toDateString())).size;
-  const totalS = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.length,0),0);
-  const totalKg = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.reduce((c,s)=>c+(s.reps*s.kg),0),0),0);
+  const realHistory = history.filter(h=>!h.pesoOnly);
+  const totalW = new Set(realHistory.map(h=>new Date(h.date).toDateString())).size;
+  const totalS = realHistory.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.length,0),0);
+  const totalKg = realHistory.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.reduce((c,s)=>c+(s.reps*s.kg),0),0),0);
   const streak = calcStreak();
   const pesoEntries = history.filter(h=>h.peso).map(h=>({...h,peso:parseFloat((Math.round(parseFloat(h.peso)*10)/10).toFixed(1))})).sort((a,b)=>new Date(a.date)-new Date(b.date));
   const pesoActual = pesoEntries.length ? pesoEntries[pesoEntries.length-1].peso : null;
