@@ -26,7 +26,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 }
 
 /* ── AUTH ── */
-.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;height:100dvh;padding:24px;background:#0d0d0d;position:relative;overflow:hidden}
+.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100vh;height:100dvh;padding:24px;padding-bottom:40px;background:#0d0d0d;position:relative;overflow:hidden}
 .auth-screen::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,transparent 38%,rgba(232,53,53,0.18) 38%,rgba(232,53,53,0.18) 50%,transparent 50%);pointer-events:none;z-index:0}
 .auth-box{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);padding:28px 24px;width:100%;max-width:360px;position:relative;z-index:1;box-shadow:0 4px 32px rgba(0,0,0,0.5)}
 .auth-logo{font-size:26px;font-weight:700;letter-spacing:-0.5px;color:#fff;text-align:center;margin-bottom:4px}
@@ -362,33 +362,90 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
 <!-- AUTH -->
 <div class="auth-screen" id="auth-screen">
-  <svg xmlns="http://www.w3.org/2000/svg" style="position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0" aria-hidden="true">
-    <defs><g id="db"><rect x="-38" y="-10" width="9" height="20" rx="3"/><rect x="-27" y="-7" width="6" height="14" rx="2"/><rect x="-21" y="-3" width="42" height="6" rx="3"/><rect x="21" y="-7" width="6" height="14" rx="2"/><rect x="29" y="-10" width="9" height="20" rx="3"/></g></defs>
-    <use href="#db" transform="translate(60,80) rotate(-30)" fill="rgba(232,53,53,0.15)"/>
-    <use href="#db" transform="translate(300,55) rotate(15)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(170,150) rotate(-10)" fill="rgba(232,53,53,0.12)"/>
-    <use href="#db" transform="translate(390,120) rotate(40)" fill="rgba(232,53,53,0.09)"/>
-    <use href="#db" transform="translate(40,270) rotate(20)" fill="rgba(232,53,53,0.11)"/>
-    <use href="#db" transform="translate(240,240) rotate(-25)" fill="rgba(232,53,53,0.13)"/>
-    <use href="#db" transform="translate(380,280) rotate(10)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(110,410) rotate(-15)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(310,390) rotate(35)" fill="rgba(232,53,53,0.12)"/>
-    <use href="#db" transform="translate(60,490) rotate(5)" fill="rgba(232,53,53,0.09)"/>
-    <use href="#db" transform="translate(400,450) rotate(-20)" fill="rgba(232,53,53,0.11)"/>
-    <use href="#db" transform="translate(190,540) rotate(25)" fill="rgba(232,53,53,0.13)"/>
-    <use href="#db" transform="translate(350,580) rotate(-10)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(70,630) rotate(40)" fill="rgba(232,53,53,0.11)"/>
-    <use href="#db" transform="translate(250,670) rotate(-30)" fill="rgba(232,53,53,0.12)"/>
-    <use href="#db" transform="translate(410,710) rotate(15)" fill="rgba(232,53,53,0.09)"/>
-    <use href="#db" transform="translate(90,750) rotate(-5)" fill="rgba(232,53,53,0.11)"/>
-    <use href="#db" transform="translate(180,810) rotate(20)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(360,840) rotate(-35)" fill="rgba(232,53,53,0.13)"/>
-    <use href="#db" transform="translate(130,330) rotate(12)" fill="rgba(232,53,53,0.10)"/>
-    <use href="#db" transform="translate(290,470) rotate(-18)" fill="rgba(232,53,53,0.11)"/>
-  </svg>
-  <div class="auth-box">
-    <div class="auth-logo">Kaiju<span>GymLog</span></div>
-    <div class="auth-tagline">Registrá tu progreso en el gym</div>
+  <!-- Background: photo or dumbbell pattern -->
+  <div style="position:fixed;inset:0;z-index:0;background:#0d0d0d">
+    <div id="auth-bg-img-wrap" style="display:none;position:absolute;inset:0;width:100%;height:100%">
+      <img id="auth-bg-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;filter:blur(18px) brightness(0.35) saturate(0.8);transform:scale(1.1)" onerror="this.parentElement.style.display='none'"/>
+    </div>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.3) 0%,rgba(0,0,0,0.55) 50%,rgba(0,0,0,0.82) 100%);z-index:1;pointer-events:none"></div>
+    <svg id="auth-bg-svg" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2" aria-hidden="true">
+      <g fill="#22c97a" opacity="0.2" id="gym-elements-group">
+        <!-- Mancuerna TL grande -->
+        <g transform="translate(55,95) rotate(-30)"><rect x="-30" y="-8" width="7" height="16" rx="2.5"/><rect x="-21" y="-5.5" width="4.5" height="11" rx="1.5"/><rect x="-17" y="-2.5" width="34" height="5" rx="2.5"/><rect x="17" y="-5.5" width="4.5" height="11" rx="1.5"/><rect x="23" y="-8" width="7" height="16" rx="2.5"/></g>
+        <!-- Mancuerna TR pequeña -->
+        <g transform="translate(340,65) rotate(42)"><rect x="-14" y="-4" width="3.5" height="8" rx="1.5"/><rect x="-9" y="-3" width="2.5" height="6" rx="1"/><rect x="-7" y="-1.5" width="14" height="3" rx="1.5"/><rect x="7" y="-3" width="2.5" height="6" rx="1"/><rect x="10.5" y="-4" width="3.5" height="8" rx="1.5"/></g>
+        <!-- Kettlebell izq -->
+        <g transform="translate(38,230)"><path d="M-9,-16 Q-13,-25 0,-27 Q13,-25 9,-16" stroke="#22c97a" stroke-width="3.5" fill="none" stroke-linecap="round"/><ellipse cx="0" cy="-3" rx="12" ry="10"/><rect x="-9" y="5.5" width="18" height="3.5" rx="2"/></g>
+        <!-- Barra diagonal der -->
+        <g transform="translate(360,200) rotate(-75)"><rect x="-36" y="-10" width="6.5" height="20" rx="3"/><rect x="-27" y="-7" width="4.5" height="14" rx="2"/><rect x="-23" y="-2.5" width="46" height="5" rx="2.5"/><rect x="23" y="-7" width="4.5" height="14" rx="2"/><rect x="29" y="-10" width="6.5" height="20" rx="3"/></g>
+        <!-- Persona levantando - movida arriba -->
+        <g transform="translate(220,340)"><circle cx="0" cy="-36" r="6"/><path d="M0,-29 L-3,-12" stroke="#22c97a" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M-3,-12 L-11,4" stroke="#22c97a" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M-3,-12 L5,4" stroke="#22c97a" stroke-width="4.5" stroke-linecap="round" fill="none"/><path d="M-11,4 L-15,4" stroke="#22c97a" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M5,4 L9,4" stroke="#22c97a" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M0,-25 L-16,-16" stroke="#22c97a" stroke-width="3.5" stroke-linecap="round" fill="none"/><path d="M0,-25 L16,-16" stroke="#22c97a" stroke-width="3.5" stroke-linecap="round" fill="none"/><rect x="-22" y="-21" width="44" height="3.5" rx="2"/><rect x="-28" y="-28" width="7" height="16" rx="2"/><rect x="21" y="-28" width="7" height="16" rx="2"/></g>
+        <!-- Kettlebell bot left -->
+        <g transform="translate(55,520)"><path d="M-10,-17 Q-14,-26 0,-28 Q14,-26 10,-17" stroke="#22c97a" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="0" cy="-3.5" rx="13" ry="11"/><rect x="-10" y="5.5" width="20" height="4" rx="2"/></g>
+        <!-- Mancuerna bot right -->
+        <g transform="translate(370,550) rotate(-20)"><rect x="-22" y="-5.5" width="5" height="11" rx="2"/><rect x="-15" y="-3.5" width="3.5" height="7" rx="1"/><rect x="-12" y="-2" width="24" height="4" rx="2"/><rect x="12" y="-3.5" width="3.5" height="7" rx="1"/><rect x="16" y="-5.5" width="5" height="11" rx="2"/></g>
+        <!-- Disco flotante -->
+        <g transform="translate(100,450)"><circle cx="0" cy="0" r="18" fill="none" stroke="#22c97a" stroke-width="5"/><circle cx="0" cy="0" r="6"/></g>
+        <!-- Mancuerna mid left pequeña -->
+        <g transform="translate(30,370) rotate(8)"><rect x="-14" y="-4" width="3.5" height="8" rx="1.5"/><rect x="-9" y="-3" width="2.5" height="6" rx="1"/><rect x="-7" y="-1.5" width="14" height="3" rx="1.5"/><rect x="7" y="-3" width="2.5" height="6" rx="1"/><rect x="10.5" y="-4" width="3.5" height="8" rx="1.5"/></g>
+      </g>
+    </svg>
+    <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.2) 0%,rgba(0,0,0,0.7) 60%,rgba(0,0,0,0.92) 100%)"></div>
+  </div>
+
+  <!-- Profile preview (top, only if returning user) -->
+  <div id="auth-profile-preview" style="position:relative;z-index:1;text-align:center;flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+    <div id="auth-preview-avatar" style="width:90px;height:90px;border-radius:50%;border:3px solid rgba(255,255,255,0.25);margin:0 auto 14px;overflow:hidden;background:#222;display:flex;align-items:center;justify-content:center;font-size:36px;box-shadow:0 8px 32px rgba(0,0,0,0.5)"></div>
+    <div id="auth-preview-name" style="font-size:26px;font-weight:700;color:#fff;letter-spacing:-0.5px;text-shadow:0 2px 8px rgba(0,0,0,0.8)"></div>
+    <div id="auth-preview-frase" style="font-size:14px;color:#f0a04b;font-style:italic;margin-top:6px;font-weight:600;padding:0 24px;text-shadow:0 1px 4px rgba(0,0,0,0.8);line-height:1.4"></div>
+  </div>
+
+  <!-- Default logo (new user) -->
+  <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaiju<span style="color:#E83535">GymLog</span></div>
+    <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
+  </div>
+
+  <div class="auth-box" style="position:relative;z-index:1;background:rgba(15,15,15,0.88);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.07);border-radius:20px 20px 0 0;margin:0 -24px -40px;padding:24px 24px calc(24px + env(safe-area-inset-bottom,0px));width:calc(100% + 48px);max-width:none">
+    <div class="auth-logo" id="auth-logo-text" style="display:none">Kaiju<span>GymLog</span></div>
+    <div class="auth-tagline" id="auth-tagline" style="display:none">Registrá tu progreso en el gym</div>
+    <script>
+    // Immediate sync preview — runs before Firebase loads
+    (function(){
+      try {
+        const raw = localStorage.getItem('gymlog_last_profile');
+        if (!raw) return;
+        const prof = JSON.parse(raw);
+        const accent = prof.accentColor || '#E83535';
+        if (prof.nickname || prof.avatarUrl) {
+          document.getElementById('auth-profile-preview').style.display = 'flex';
+          document.getElementById('auth-logo-wrap').style.display = 'none';
+        }
+        if (prof.avatarUrl) {
+          if (prof.avatarUrl && prof.avatarUrl.length > 100) {
+            document.getElementById('auth-bg-img-wrap').style.display = 'block';
+            document.getElementById('auth-bg-img').src = prof.avatarUrl;
+          }
+          // Keep SVG gym elements visible on top of photo
+          document.getElementById('auth-preview-avatar').innerHTML = '<img src="'+prof.avatarUrl+'" style="width:100%;height:100%;object-fit:cover"/>';
+        } else {
+          document.getElementById('auth-preview-avatar').textContent = '🏋️';
+        }
+        if (prof.nickname) document.getElementById('auth-preview-name').textContent = prof.nickname;
+        if (prof.frase) {
+          const frEl = document.getElementById('auth-preview-frase');
+          frEl.textContent = '"'+prof.frase+'"';
+          frEl.style.color = accent === '#f5e642' ? '#f5e642' : '#f0a04b';
+        }
+        // Accent on button
+        const btn = document.getElementById('auth-btn');
+        if (btn) btn.style.background = accent;
+        // Accent on SVG elements
+        const grp = document.getElementById('gym-elements-group');
+        if (grp) grp.setAttribute('fill', accent);
+      } catch(e){}
+    })();
+    </script>
     <div class="auth-tabs">
       <button class="auth-tab active" onclick="setAuthMode('login',this)">Iniciar sesión</button>
       <button class="auth-tab" onclick="setAuthMode('register',this)">Registrarse</button>
@@ -506,6 +563,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <div id="tab-progreso" class="tab">
       <div class="stats-grid" id="global-stats"></div>
       <div id="objetivo-banner"></div>
+      <div style="margin:8px 12px 0;display:flex;justify-content:flex-end">
+        <button onclick="cerrarMesManual()" style="padding:6px 14px;background:none;border:1px solid #333;border-radius:20px;color:#666;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📅 Cerrar mes ahora</button>
+      </div>
       <div class="chart-title">CONSISTENCIA — ÚLTIMOS 6 MESES</div>
       <div id="consistency-grid" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px;overflow-x:auto"></div>
       <div class="chart-title">VOLUMEN SEMANAL</div>
@@ -537,6 +597,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button id="muscle-filter-month" onclick="setMuscleFilter('month')" style="padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Último mes</button>
       </div>
       <div id="muscle-stats" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
+      <div class="chart-title" style="margin-top:14px">TENDENCIA POR MÚSCULO</div>
+      <div style="margin:4px 12px 0;font-size:11px;color:#444;font-weight:600">Este mes vs mes anterior · volumen total</div>
+      <div id="muscle-trend" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
       <div class="chart-title" style="margin-top:14px">OTRO EJERCICIO</div>
       <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()"></select>
       <div id="pr-banner"></div>
@@ -607,18 +670,25 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
       </div>
 
-      <!-- LOGROS -->
-      <div style="margin:14px 12px 4px;display:flex;align-items:center;justify-content:space-between">
-        <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px">🎖 LOGROS</div>
-        <div style="font-size:10px;color:#444" id="logros-summary"></div>
+      <!-- LOGROS COLAPSABLE -->
+      <div style="margin:12px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;overflow:hidden">
+        <div onclick="toggleLogros()" style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:15px;font-weight:700;color:#fff">🎖 Logros</span>
+            <span style="font-size:11px;color:#555" id="logros-summary"></span>
+          </div>
+          <svg id="logros-chevron" style="width:18px;height:18px;stroke:#555;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <div id="logros-body" style="display:none;border-top:1px solid #2e2e2e;padding:12px">
+          <div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-bottom:10px">
+            <button onclick="setLevelMode('classic')" id="lm-classic" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Clásico</button>
+            <button onclick="setLevelMode('ninja')" id="lm-ninja" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🥷 Ninja</button>
+            <button onclick="setLevelMode('gamer')" id="lm-gamer" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎮 Gamer</button>
+            <button onclick="setLevelMode('medieval')" id="lm-medieval" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">⚔️ Medieval</button>
+          </div>
+          <div class="logros-grid" id="logros-grid"></div>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;overflow-x:auto;padding:0 12px 6px;scrollbar-width:none">
-        <button onclick="setLevelMode('classic')" id="lm-classic" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Clásico</button>
-        <button onclick="setLevelMode('ninja')" id="lm-ninja" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🥷 Ninja</button>
-        <button onclick="setLevelMode('gamer')" id="lm-gamer" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">🎮 Gamer</button>
-        <button onclick="setLevelMode('medieval')" id="lm-medieval" style="flex-shrink:0;padding:4px 10px;border-radius:20px;border:1px solid #333;background:none;color:#555;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">⚔️ Medieval</button>
-      </div>
-      <div class="logros-grid" id="logros-grid"></div>
 
       <!-- CONFIG -->
       <div class="profile-section" style="margin-top:14px">
@@ -877,7 +947,73 @@ window.doAuth = async () => {
 };
 function showAuthError(msg) { const el = document.getElementById('auth-error'); el.textContent = msg; el.classList.add('show'); }
 
-window.doLogout = async () => { await signOut(auth); };
+window.doLogout = async () => {
+  clearDraft(); await signOut(auth); };
+
+// Load cached profile preview on login screen
+function loadAuthPreview() {
+  try {
+    // Use generic last-profile key (no UID needed)
+    const raw = localStorage.getItem('gymlog_last_profile');
+    if (!raw) return;
+    const prof = JSON.parse(raw);
+    if (!prof) return;
+    const accent = prof.accentColor || '#E83535';
+
+    // Show profile preview
+    if (prof.nickname || prof.avatarUrl) {
+      document.getElementById('auth-profile-preview').style.display = 'flex';
+      document.getElementById('auth-logo-wrap').style.display = 'none';
+      document.getElementById('auth-logo-text').style.display = 'none';
+      document.getElementById('auth-tagline').style.display = 'none';
+    }
+    if (prof.avatarUrl) {
+      // Show blurred bg photo
+      const bgWrap = document.getElementById('auth-bg-img-wrap');
+      const bgImg = document.getElementById('auth-bg-img');
+      const bgSvg = document.getElementById('auth-bg-svg');
+      bgImg.src = prof.avatarUrl;
+      bgWrap.style.display = 'block';
+      if (bgSvg) bgSvg.style.display = 'none';
+      // Avatar
+      document.getElementById('auth-preview-avatar').innerHTML = `<img src="${prof.avatarUrl}" style="width:100%;height:100%;object-fit:cover"/>`;
+    } else {
+      document.getElementById('auth-preview-avatar').textContent = '🏋️';
+    }
+    if (prof.nickname) {
+      document.getElementById('auth-preview-name').textContent = prof.nickname;
+    }
+    if (prof.frase) {
+      document.getElementById('auth-preview-frase').textContent = `"${prof.frase}"`;
+      document.getElementById('auth-preview-frase').style.color = accent === '#f5e642' ? '#f5e642' : '#f0a04b';
+    }
+    // Apply accent color to auth btn
+    const authBtn = document.getElementById('auth-btn');
+    if (authBtn) { authBtn.style.background = accent; }
+  } catch(e) {}
+}
+
+function applyAuthAccent() {
+  try {
+    const raw = localStorage.getItem('gymlog_last_profile');
+    if (!raw) return;
+    const prof = JSON.parse(raw);
+    const accent = prof.accentColor || '#E83535';
+    // Update SVG elements color
+    const grp = document.getElementById('gym-elements-group');
+    if (grp) {
+      grp.setAttribute('fill', accent);
+      grp.querySelectorAll('[stroke]').forEach(el => {
+        if (el.getAttribute('stroke') !== 'none') el.setAttribute('stroke', accent);
+      });
+    }
+    // Update btn
+    const btn = document.getElementById('auth-btn');
+    if (btn) btn.style.background = accent;
+  } catch(e) {}
+}
+applyAuthAccent();
+loadAuthPreview();
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -897,6 +1033,9 @@ onAuthStateChanged(auth, async (user) => {
     if (regBtn) regBtn.classList.add('active');
     document.getElementById('save-bar').style.display = '';
     renderAll();
+    // Check for unsaved draft from previous session
+    const draft = loadDraft();
+    if (draft) setTimeout(() => offerRestoreDraft(draft), 800);
   } else {
     currentUser = null;
     exercises = []; history = []; nutricion = []; routines = [];
@@ -922,10 +1061,94 @@ async function loadUserData() {
     history = hSnap.docs.map(d => { const data = d.data(); if (data.peso != null) data.peso = parseFloat((Math.round(parseFloat(data.peso)*10)/10).toFixed(1)); return {fid:d.id,...data}; });
     nutricion = nSnap.docs.map(d => ({fid:d.id,...d.data()}));
     routines = rSnap.docs.map(d => ({fid:d.id,...d.data()}));
-    if (profSnap.docs.length) profile = profSnap.docs[0].data();
+    if (profSnap.docs.length) {
+      profile = profSnap.docs[0].data();
+      // Save generic cache for login screen
+      try {
+        // Compress avatar to tiny version for login screen (avoids localStorage quota issues)
+        let loginAvatar = '';
+        if (profile.avatarUrl) {
+          try {
+            const img = new Image();
+            img.src = profile.avatarUrl;
+            const cv = document.createElement('canvas');
+            cv.width = 300; cv.height = 300;
+            const ctx = cv.getContext('2d');
+            ctx.drawImage(img, 0, 0, 300, 300);
+            loginAvatar = cv.toDataURL('image/jpeg', 0.5);
+          } catch(e) { loginAvatar = ''; }
+        }
+        localStorage.setItem('gymlog_last_profile', JSON.stringify({
+          nickname: profile.nickname || '',
+          frase: profile.frase || '',
+          avatarUrl: loginAvatar,
+          accentColor: profile.accentColor || '#E83535',
+        }));
+      } catch(e) {}
+    }
     if (exercises.length === 0) await initDefaults();
   } catch(e) { console.error(e); }
   showSync(false);
+}
+
+// ── DRAFT: auto-save exercise state to localStorage ──
+const DRAFT_KEY = () => 'gymlog_draft_' + (currentUser?.uid||'anon');
+
+function saveDraft() {
+  try {
+    localStorage.setItem(DRAFT_KEY(), JSON.stringify({
+      exercises: exercises,
+      workoutNote: document.getElementById('workout-note')?.value || '',
+      workoutDate: document.getElementById('workout-date-input')?.value || '',
+      pesoInput: document.getElementById('quick-peso-input')?.value || '',
+      mood: currentMood,
+      ts: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY());
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    // Only restore if draft is less than 12 hours old
+    if (Date.now() - data.ts > 12 * 60 * 60 * 1000) {
+      localStorage.removeItem(DRAFT_KEY());
+      return false;
+    }
+    // Check if there's anything meaningful (at least one done series)
+    const hasDone = (data.exercises||[]).some(e => e.series && e.series.some(s => s.done));
+    if (!hasDone) return false;
+    return data;
+  } catch(e) { return false; }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY()); } catch(e) {}
+}
+
+function offerRestoreDraft(draft) {
+  const doneCount = draft.exercises.reduce((a,e) => a + (e.series||[]).filter(s=>s.done).length, 0);
+  const timeAgo = Math.round((Date.now() - draft.ts) / 60000);
+  const timeStr = timeAgo < 60 ? `${timeAgo} min atrás` : `${Math.round(timeAgo/60)}h atrás`;
+  if (confirm(`📋 Hay un entreno sin guardar de ${timeStr} con ${doneCount} series completadas. ¿Restaurarlo?`)) {
+    exercises = draft.exercises;
+    currentMood = draft.mood;
+    if (draft.workoutNote && document.getElementById('workout-note')) {
+      document.getElementById('workout-note').value = draft.workoutNote;
+    }
+    if (draft.workoutDate && document.getElementById('workout-date-input')) {
+      document.getElementById('workout-date-input').value = draft.workoutDate;
+    }
+    renderExercises();
+    renderMoods();
+    showToast('✅ Entreno restaurado');
+    // Save exercises back to Firebase in background
+    exercises.forEach(ex => saveEx(ex));
+  } else {
+    clearDraft();
+  }
 }
 
 async function initDefaults() {
@@ -976,7 +1199,26 @@ async function saveRoutineDB(r) {
   else { const ref = await addDoc(collection(db,'users',uid(),'routines'), data); r.fid = ref.id; }
 }
 async function deleteRoutineDB(r) { if (r.fid) await deleteDoc(doc(db,'users',uid(),'routines',r.fid)); }
-async function saveProfileDB() { await setDoc(doc(db,'users',uid(),'profile','main'), profile); }
+async function saveProfileDB() {
+  await setDoc(doc(db,'users',uid(),'profile','main'), profile);
+  try {
+    // Update uid-specific cache
+    const cacheKey = 'gymlog_cache_' + uid();
+    const raw = localStorage.getItem(cacheKey);
+    if (raw) {
+      const cached = JSON.parse(raw);
+      cached.profile = profile;
+      localStorage.setItem(cacheKey, JSON.stringify(cached));
+    }
+    // Also save a generic "last profile" for login screen
+    localStorage.setItem('gymlog_last_profile', JSON.stringify({
+      nickname: profile.nickname || '',
+      frase: profile.frase || '',
+      avatarUrl: profile.avatarUrl || '',
+      accentColor: profile.accentColor || '#E83535',
+    }));
+  } catch(e) {}
+}
 async function saveNutriEntry(entry) {
   const existing = nutricion.find(n => n.date === entry.date);
   if (existing && existing.fid) { const {fid,...d} = entry; await setDoc(doc(db,'users',uid(),'nutricion',existing.fid), d); entry.fid = existing.fid; }
@@ -1015,8 +1257,17 @@ function updateQuickPesoLast() {
 
 /* ── RENDER ALL ── */
 function renderAll() {
+  // Apply accent color and profile settings immediately on load
+  if (profile.accentColor) applyAccent(profile.accentColor);
   renderFilters(); renderExercises(); renderMoods();
-  updatePesoLast(); updateQuickPesoLast(); calcStreak(); renderProfile(); updateDaysSince();
+  updatePesoLast(); updateQuickPesoLast(); calcStreak(); updateDaysSince();
+  // Apply header avatar without full profile render (faster)
+  if (profile.avatarUrl) {
+    const hdrBtn = document.getElementById('avatar-btn');
+    if (hdrBtn && !hdrBtn.querySelector('img')) {
+      hdrBtn.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar" style="width:100%;height:100%;object-fit:cover"/>`;
+    }
+  }
   setTimeout(checkCierreDeMes, 2000);
 }
 
@@ -1030,7 +1281,6 @@ window.switchTab = (tab, btn) => {
   if (tab === 'historial') renderHistory();
   if (tab === 'cierres') renderCierres();
   if (tab === 'progreso') renderProgress();
-  if (tab === 'rutinas') renderRoutines();
   if (tab === 'nutricion') renderNutriHistory();
   if (tab === 'perfil') renderProfile();
 };
@@ -1371,14 +1621,20 @@ window.toggleCard = (id) => {
 
 window.updateSeries = (exId, idx, field, val) => {
   const ex = exercises.find(e => e.id === exId);
-  if (ex && ex.series[idx]) { ex.series[idx][field] = val; saveEx(ex); }
+  if (ex && ex.series[idx]) {
+    ex.series[idx][field] = val;
+    saveDraft(); // immediate local save
+    saveEx(ex);  // Firebase (background)
+  }
 };
 
 window.toggleDone = (exId, idx) => {
   const ex = exercises.find(e => e.id === exId);
   if (ex && ex.series[idx]) {
     ex.series[idx].done = !ex.series[idx].done;
-    saveEx(ex); renderExercises();
+    saveDraft(); // immediate local save — works offline
+    saveEx(ex);  // Firebase in background
+    renderExercises();
     const body = document.getElementById('body-'+exId);
     if (body) { body.classList.add('open'); document.getElementById('chev-'+exId).classList.add('open'); }
   }
@@ -1402,7 +1658,7 @@ window.addSeries = (id) => {
   if (body) { body.classList.add('open'); document.getElementById('chev-'+id).classList.add('open'); }
 };
 
-window.updateExNote = (id, val) => { const ex = exercises.find(e => e.id === id); if (ex) { ex.note = val; saveEx(ex); } };
+window.updateExNote = (id, val) => { const ex = exercises.find(e => e.id === id); if (ex) { ex.note = val; saveDraft(); saveEx(ex); } };
 
 window.deleteEx = async (id) => {
   if (!confirm('¿Eliminar este ejercicio?')) return;
@@ -1434,7 +1690,12 @@ function renderMoods() {
     `<button class="mood-chip ${currentMood===m?'selected':''}" onclick="selectMood('${m}',this)">${m}</button>`
   ).join('');
 }
-window.selectMood = (m, el) => { currentMood = m; document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected')); el.classList.add('selected'); };
+window.selectMood = (m, el) => {
+  currentMood = m;
+  document.querySelectorAll('.mood-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  saveDraft();
+};
 
 window.setDateToday = () => { document.getElementById('workout-date-input').value = new Date().toISOString().slice(0,10); };
 function initDatePicker() { setDateToday(); }
@@ -1484,8 +1745,10 @@ window.saveWorkout = async () => {
   renderExercises(); renderMoods(); initDatePicker();
   document.getElementById('workout-note').value = '';
 
+  clearDraft(); // workout saved to Firebase, draft no longer needed
   updatePesoLast(); updateDaysSince(); calcStreak();
   document.getElementById('save-btn').disabled = false;
+  showToast('¡Entrenamiento guardado! 💪');
 };
 
 function buildSummary(entry) {
@@ -1731,9 +1994,10 @@ function renderProgress() {
   sel.innerHTML = exNames.length ? exNames.map(n=>`<option>${n}</option>`) : '<option>Sin datos</option>';
   if (prev && exNames.includes(prev)) sel.value = prev;
 
-  const totalW = history.length;
-  const totalS = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.length,0),0);
-  const totalKg = history.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.reduce((c,s)=>c+(s.reps*s.kg),0),0),0);
+  const realHistory = history.filter(h=>!h.pesoOnly);
+  const totalW = new Set(realHistory.map(h=>new Date(h.date).toDateString())).size;
+  const totalS = realHistory.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.length,0),0);
+  const totalKg = realHistory.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.reduce((c,s)=>c+(s.reps*s.kg),0),0),0);
   const streak = calcStreak();
   const pesoEntries = history.filter(h=>h.peso).map(h=>({...h,peso:parseFloat((Math.round(parseFloat(h.peso)*10)/10).toFixed(1))})).sort((a,b)=>new Date(a.date)-new Date(b.date));
   const pesoActual = pesoEntries.length ? pesoEntries[pesoEntries.length-1].peso : null;
@@ -1755,6 +2019,7 @@ function renderProgress() {
   renderPesoChart(pesoEntries);
   renderBig3Charts();
   renderMuscleStats();
+  renderMuscleTrend();
   renderProgressChart();
 }
 
@@ -1762,56 +2027,70 @@ function renderConsistencyGrid() {
   const el = document.getElementById('consistency-grid');
   if (!el) return;
   const today = new Date();
-  const days = 13 * 7; // ~3 months
   const trained = new Set(history.filter(h=>!h.pesoOnly).map(h=>new Date(h.date).toDateString()));
+  const DAY_LABELS = ['L','M','X','J','V','S','D'];
+  const accent = 'var(--accent,#E83535)';
 
-  // Build week columns
-  let html = '<div style="display:flex;gap:3px;align-items:flex-start">';
-  // Day labels
-  html += '<div style="display:flex;flex-direction:column;gap:3px;margin-right:4px;padding-top:18px">';
-  ['L','M','X','J','V','S','D'].forEach(d => {
-    html += `<div style="width:10px;height:10px;font-size:8px;color:#444;line-height:10px;text-align:center">${d}</div>`;
-  });
-  html += '</div>';
+  // Build grid for one month: rows=weeks, cols=days of week
+  function buildMonthGrid(year, month) {
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    const firstDow = (new Date(year, month, 1).getDay()+6)%7; // 0=Mon
+    const numWeeks = Math.ceil((firstDow + daysInMonth)/7);
+    const isCurrentMonth = month===today.getMonth() && year===today.getFullYear();
+    const monthName = new Date(year,month,1).toLocaleDateString('es-AR',{month:'long'});
+    const SEM_LABEL_W = '22px';
 
-  // Find start (Monday 26 weeks ago)
-  const start = new Date(today);
-  start.setDate(start.getDate() - days + (1 - start.getDay() + 7) % 7);
-
-  let monthLabels = [];
-  let cur = new Date(start);
-  let weekIdx = 0;
-
-  while (cur <= today) {
-    // Month label
-    const monthLabel = cur.toLocaleDateString('es-AR',{month:'short'});
-    html += `<div style="display:flex;flex-direction:column;gap:3px">`;
-    html += `<div style="font-size:8px;color:#555;height:14px;text-align:center;font-weight:600">${cur.getDate()<=7?monthLabel:''}</div>`;
-    for (let d = 0; d < 7; d++) {
-      const dayDate = new Date(cur);
-      dayDate.setDate(cur.getDate() + d);
-      if (dayDate > today) {
-        html += `<div style="width:10px;height:10px;border-radius:2px;background:transparent"></div>`;
-        continue;
+    let g = `<div>`;
+    // Month title
+    g += `<div style="font-size:11px;font-weight:700;color:${isCurrentMonth?accent:'#666'};margin-bottom:5px;text-transform:capitalize">${monthName}</div>`;
+    // Day labels row (with spacer for sem label)
+    g += `<div style="display:flex;gap:2px;margin-bottom:3px">`;
+    g += `<div style="width:${SEM_LABEL_W};flex-shrink:0"></div>`;
+    DAY_LABELS.forEach(d => {
+      g += `<div style="flex:1;font-size:8px;color:#444;font-weight:700;text-align:center">${d}</div>`;
+    });
+    g += '</div>';
+    // Weeks
+    for (let w=0; w<numWeeks; w++) {
+      g += `<div style="display:flex;gap:2px;margin-bottom:2px;align-items:center">`;
+      g += `<div style="width:${SEM_LABEL_W};flex-shrink:0;font-size:8px;color:#333;font-weight:700">S${w+1}</div>`;
+      for (let d=0; d<7; d++) {
+        const dayNum = w*7 + d - firstDow + 1;
+        if (dayNum<1 || dayNum>daysInMonth) {
+          g += `<div style="flex:1;aspect-ratio:1;border-radius:3px;"></div>`;
+          continue;
+        }
+        const dayDate = new Date(year, month, dayNum);
+        const isFuture = dayDate > today;
+        const isTrained = trained.has(dayDate.toDateString());
+        const isToday = dayDate.toDateString()===today.toDateString();
+        const bg = isFuture ? '#1a1a1a' : (isTrained ? accent : '#252525');
+        const border = isToday ? '2px solid #aaa' : 'none';
+        const op = isFuture ? '0.3' : '1';
+        g += `<div style="flex:1;aspect-ratio:1;border-radius:3px;background:${bg};border:${border};opacity:${op}" title="${dayNum}/${month+1}"></div>`;
       }
-      const isTrained = trained.has(dayDate.toDateString());
-      const isToday = dayDate.toDateString() === today.toDateString();
-      const bg = isTrained ? 'var(--accent,#E83535)' : '#2a2a2a';
-      const border = isToday ? '1px solid #888' : 'none';
-      html += `<div style="width:10px;height:10px;border-radius:2px;background:${bg};border:${border}" title="${dayDate.toLocaleDateString('es-AR')}"></div>`;
+      g += '</div>';
     }
-    html += '</div>';
-    cur.setDate(cur.getDate() + 7);
+    g += '</div>';
+    return g;
   }
-  html += '</div>';
 
-  const totalDays = trained.size;
-  const last30 = [...trained].filter(d => (today - new Date(d)) / 86400000 <= 30).length;
-  html += `<div style="margin-top:10px;display:flex;gap:16px;font-size:11px;color:#666;font-weight:600">
-    <span>📅 Total: <strong style="color:#eee">${totalDays} días</strong></span>
-    <span>🗓 Último mes: <strong style="color:var(--accent,#E83535)">${last30} días</strong></span>
-  </div>`;
-  el.innerHTML = html;
+  const prevMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
+  const curMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+  const curCount = [...trained].filter(d=>{ const dd=new Date(d); return dd.getMonth()===today.getMonth()&&dd.getFullYear()===today.getFullYear(); }).length;
+  const prevCount = [...trained].filter(d=>{ const dd=new Date(d); return dd.getMonth()===prevMonth.getMonth()&&dd.getFullYear()===prevMonth.getFullYear(); }).length;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+      ${buildMonthGrid(prevMonth.getFullYear(), prevMonth.getMonth())}
+      ${buildMonthGrid(curMonth.getFullYear(), curMonth.getMonth())}
+    </div>
+    <div style="margin-top:10px;display:flex;gap:14px;font-size:11px;color:#666;font-weight:600;flex-wrap:wrap">
+      <span>Este mes: <strong style="color:${accent}">${curCount} días</strong></span>
+      <span>Mes anterior: <strong style="color:#aaa">${prevCount} días</strong></span>
+      <span>Total: <strong style="color:#eee">${trained.size} días</strong></span>
+    </div>`;
 }
 
 let muscleFilterPeriod = 'week';
@@ -1825,6 +2104,76 @@ window.setMuscleFilter = (period) => {
     : 'padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
   renderMuscleStats();
 };
+
+function renderMuscleTrend() {
+  const el = document.getElementById('muscle-trend');
+  if (!el) return;
+  const today = new Date();
+  const curMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const prevMonthStart = new Date(today.getFullYear(), today.getMonth()-1, 1);
+  const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
+
+  // Get volume per muscle for each month
+  function getVolByMuscle(from, to) {
+    const vol = {};
+    history.filter(h => !h.pesoOnly && new Date(h.date) >= from && new Date(h.date) <= to).forEach(h => {
+      (h.exercises||[]).forEach(e => {
+        const m = e.muscle || 'Otro';
+        const v = (e.series||[]).reduce((a,s) => a + ((parseInt(s.reps)||0)*(parseFloat(s.kg)||0) + (parseInt(s.secs)||0)), 0);
+        vol[m] = (vol[m]||0) + v;
+      });
+    });
+    return vol;
+  }
+
+  const curVol = getVolByMuscle(curMonthStart, today);
+  const prevVol = getVolByMuscle(prevMonthStart, prevMonthEnd);
+  const allMuscles = [...new Set([...Object.keys(curVol), ...Object.keys(prevVol)])].sort((a,b) => (curVol[b]||0)-(curVol[a]||0));
+
+  if (!allMuscles.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center">Sin datos suficientes</div>';
+    return;
+  }
+
+  const accent = 'var(--accent,#E83535)';
+  el.innerHTML = allMuscles.map(muscle => {
+    const cur = Math.round(curVol[muscle]||0);
+    const prev = Math.round(prevVol[muscle]||0);
+    const diff = cur - prev;
+    const pct = prev > 0 ? Math.round((diff/prev)*100) : (cur > 0 ? 100 : 0);
+    const trend = diff > 0 ? '📈' : diff < 0 ? '📉' : '➡️';
+    const trendColor = diff > 0 ? '#22c97a' : diff < 0 ? '#E83535' : '#666';
+    const maxVal = Math.max(cur, prev, 1);
+    const curPct = Math.round((cur/maxVal)*100);
+    const prevPct = Math.round((prev/maxVal)*100);
+    const pctStr = diff === 0 ? 'Sin cambio' : `${diff > 0 ? '+' : ''}${pct}%`;
+
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+        <span style="font-size:13px;font-weight:700;color:#eee">${muscle}</span>
+        <span style="font-size:11px;font-weight:700;color:${trendColor}">${trend} ${pctStr}</span>
+      </div>
+      <div style="margin-bottom:3px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:9px;color:#555;width:28px;text-align:right;font-weight:600">MES</div>
+          <div style="flex:1;height:10px;background:#252525;border-radius:4px;overflow:hidden">
+            <div style="width:${curPct}%;height:100%;background:${accent};border-radius:4px;transition:width 0.4s"></div>
+          </div>
+          <div style="font-size:9px;color:#aaa;width:40px;font-family:'DM Mono',monospace">${cur>999?Math.round(cur/1000)+'k':cur}</div>
+        </div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:9px;color:#444;width:28px;text-align:right;font-weight:600">ANT</div>
+          <div style="flex:1;height:10px;background:#252525;border-radius:4px;overflow:hidden">
+            <div style="width:${prevPct}%;height:100%;background:#333;border-radius:4px"></div>
+          </div>
+          <div style="font-size:9px;color:#555;width:40px;font-family:'DM Mono',monospace">${prev>999?Math.round(prev/1000)+'k':prev}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
 function renderMuscleStats() {
   const el = document.getElementById('muscle-stats');
@@ -1945,7 +2294,7 @@ function renderWeeklyChart() {
     type:'bar',
     data:{ labels: weeks.map(w=>w.label), datasets:[{ data: weeks.map(w=>w.vol), backgroundColor:'rgba(226,75,74,0.7)', borderRadius:6, borderSkipped:false }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{ x:{ticks:{font:{size:10},color:'#7a7870'},grid:{display:false}}, y:{ticks:{font:{size:10},color:'#7a7870',callback:v=>(Math.round(v*10)/10).toFixed(1)+'kg'},grid:{color:'rgba(0,0,0,0.04)'}} } }
+      scales:{ x:{ticks:{font:{size:10},color:'#7a7870'},grid:{display:false}}, y:{ticks:{font:{size:10},color:'#7a7870',callback:v=>Math.round(v).toLocaleString()+'kg'},grid:{color:'rgba(0,0,0,0.04)'}} } }
   });
 }
 
@@ -1977,7 +2326,7 @@ window.renderProgressChart = () => {
     data:{ labels:sessions.map(s=>s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
       datasets:[{data:sessions.map(s=>s.kg),borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.08)',pointBackgroundColor:'#E24B4A',pointRadius:4,tension:0.35,fill:true}]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',callback:v=>(Math.round(v*10)/10).toFixed(1)+'kg'},grid:{color:'rgba(255,255,255,0.06)'}} } }
+      scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',callback:v=>Math.round(v).toLocaleString()+'kg'},grid:{color:'rgba(255,255,255,0.06)'}} } }
   });
 };
 
@@ -2025,7 +2374,10 @@ function renderCierres() {
   if (!el) return;
   const cierres = profile.cierresHistory || [];
   if (!cierres.length) {
-    el.innerHTML = `<div class="empty-state" style="padding-top:60px"><div class="empty-icon">📅</div><div class="empty-text">Todavía no hay cierres de mes.<br>Al final de cada mes aparecerá<br>tu balance aquí.</div></div>`;
+    el.innerHTML = `<div class="empty-state" style="padding-top:60px">
+      <div class="empty-icon">📅</div>
+      <div class="empty-text">Todavía no hay cierres de mes.<br>Al final de cada mes aparecerá<br>tu balance aquí.</div>
+    </div>`;
     return;
   }
   el.innerHTML = cierres.map(cierre => `
@@ -2043,8 +2395,16 @@ function renderCierres() {
           </div>
         </div>
         ${cierre.pesoDiff != null ? `<div style="font-size:12px;color:#666;margin-bottom:8px">⚖️ Peso: ${cierre.pesoDiff>0?'+':''}${cierre.pesoDiff}kg este mes</div>` : ''}
-        ${cierre.records && cierre.records.length ? `<div style="background:#161616;border-radius:10px;padding:8px 10px"><div style="font-size:10px;color:#444;font-weight:700;margin-bottom:6px">🏆 RÉCORDS ROTOS</div>${cierre.records.map(r=>`<div style="font-size:12px;color:#E83535;font-weight:600;margin-bottom:3px">• ${r}</div>`).join('')}</div>` : ''}
-        ${cierre.big3 && cierre.big3.length ? `<div style="background:#161616;border-radius:10px;padding:8px 10px;margin-top:8px"><div style="font-size:10px;color:#444;font-weight:700;margin-bottom:6px">📊 LOS 3 GRANDES</div>${cierre.big3.map(r=>`<div style="font-size:12px;color:#aaa;font-weight:600;margin-bottom:3px">• ${r}</div>`).join('')}</div>` : ''}
+        ${cierre.records && cierre.records.length ? `
+          <div style="background:#161616;border-radius:10px;padding:8px 10px;margin-bottom:8px">
+            <div style="font-size:10px;color:#444;font-weight:700;margin-bottom:6px">🏆 RÉCORDS ROTOS</div>
+            ${cierre.records.map(r=>`<div style="font-size:12px;color:#E83535;font-weight:600;margin-bottom:3px">• ${r}</div>`).join('')}
+          </div>` : ''}
+        ${cierre.big3 && cierre.big3.length ? `
+          <div style="background:#161616;border-radius:10px;padding:8px 10px">
+            <div style="font-size:10px;color:#444;font-weight:700;margin-bottom:6px">📊 LOS 3 GRANDES</div>
+            ${cierre.big3.map(r=>`<div style="font-size:12px;color:#aaa;font-weight:600;margin-bottom:3px">• ${r}</div>`).join('')}
+          </div>` : ''}
       </div>
     </div>`).join('');
 }
@@ -2094,7 +2454,15 @@ function renderProfile() {
     }
   });
   renderPlayerCard();
-  renderLogros();
+  // Lazy: only show count, don't render grid until opened
+  const unlockedCount = LOGROS_DEF.filter(l=>getCurrentLevel(l)>=0).length;
+  const summaryEl = document.getElementById('logros-summary');
+  if (summaryEl) summaryEl.textContent = `${unlockedCount}/${LOGROS_DEF.length}`;
+  // Reset collapsed state
+  const logroBody = document.getElementById('logros-body');
+  const logroChev = document.getElementById('logros-chevron');
+  if (logroBody) logroBody.style.display = 'none';
+  if (logroChev) logroChev.style.transform = '';
 }
 
 /* ── LOGROS DEFINITIONS ── */
@@ -2365,6 +2733,15 @@ function renderLogros() {
   if (el) el.textContent = `${unlockedCount}/${LOGROS_DEF.length} logros desbloqueados`;
 }
 
+window.toggleLogros = () => {
+  const body = document.getElementById('logros-body');
+  const chev = document.getElementById('logros-chevron');
+  const open = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  chev.style.transform = open ? 'rotate(180deg)' : '';
+  if (open) renderLogros(); // lazy load only when opened
+};
+
 window.setLevelMode = async (mode) => {
   currentLevelMode = mode;
   profile.levelMode = mode;
@@ -2470,7 +2847,7 @@ function renderPlayerCard() {
   const vol = Math.round(totalVolume(history));
   document.getElementById('pc-stats').innerHTML = `
     <div class="player-stat"><div class="player-stat-val">${totalW}</div><div class="player-stat-label">Total entrenos</div></div>
-    <div class="player-stat"><div class="player-stat-val">${weekCount}<span style="font-size:11px;color:#555"> sem</span> / ${monthCount}<span style="font-size:11px;color:#555"> mes</span></div><div class="player-stat-label">Esta semana/mes</div></div>
+    <div class="player-stat"><div class="player-stat-val">🔥 ${weekCount}</div><div class="player-stat-label">Esta semana</div></div>
     <div class="player-stat"><div class="player-stat-val">${vol>999?Math.round(vol/1000)+'k':vol}</div><div class="player-stat-unit">${vol>999?'ton':'kg'}</div><div class="player-stat-label">Volumen</div></div>
   `;
 
@@ -2515,6 +2892,23 @@ window.saveBodyStat = async (field, val) => {
 };
 
 /* ── CIERRE DE MES ── */
+window.cerrarMesManual = () => {
+  if (!confirm('¿Querés cerrar el mes de ' + new Date().toLocaleDateString('es-AR',{month:'long',year:'numeric'}) + '?')) return;
+  if (!confirm('Segunda confirmación: ¿seguro? Se va a generar el balance del mes con tus datos actuales.')) return;
+  const today = new Date();
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const monthHistory = history.filter(h => {
+    if (h.pesoOnly) return false;
+    const d = new Date(h.date);
+    return d >= monthStart && d <= today;
+  });
+  if (!monthHistory.length) { showToast('No hay entrenamientos este mes'); return; }
+  // Force clear lastMesClose so it shows
+  const monthKey = `${today.getFullYear()}-${today.getMonth()}-end`;
+  profile.lastMesClose = null;
+  showCierreDeMes(monthHistory, monthStart);
+};
+
 function checkCierreDeMes() {
   if (!history.length) return;
   const lastShown = profile.lastMesClose || null;
@@ -2567,15 +2961,115 @@ function showCierreDeMes(monthHistory, month) {
   document.getElementById('mes-sub').textContent = `${monthHistory.length} sesiones este mes`;
 
   // Analyze PRs broken this month
-  const prsBroken = [];
+  // Compare against PRs from BEFORE this month only
+  const monthStart = month;
+  function getPRBefore(exName, beforeDate) {
+    const aliases = getAliases(exName);
+    let prKg = 0, prReps = 0, prSecs = 0;
+    history.forEach(h => {
+      if (new Date(h.date) >= beforeDate) return; // skip this month
+      if (!h.exercises) return;
+      h.exercises.forEach(e => {
+        if (!aliases.includes(normalizeExName(e.name))) return;
+        (e.series||[]).forEach(s => {
+          const kg = parseFloat(s.kg)||0;
+          const reps = parseInt(s.reps)||0;
+          const secs = parseInt(s.secs)||0;
+          if (kg > prKg) prKg = kg;
+          if (reps > prReps) prReps = reps;
+          if (secs > prSecs) prSecs = secs;
+        });
+      });
+    });
+    return { kg: prKg, reps: prReps, secs: prSecs };
+  }
+
+  // Helper: get max value for an exercise across all sessions in a history set
+  function getMonthMax(exName, field, hist) {
+    const aliases = getAliases(exName);
+    let max = 0;
+    (hist||monthHistory).forEach(h => {
+      (h.exercises||[]).forEach(e => {
+        if (!aliases.includes(normalizeExName(e.name))) return;
+        (e.series||[]).forEach(s => {
+          let v = 0;
+          if (field==='secs') v = parseInt(s.secs)||0;
+          else if (field==='reps') v = parseInt(s.reps)||0;
+          else v = parseFloat(s.kg)||0;
+          if (v > max) max = v;
+        });
+      });
+    });
+    return max;
+  }
+
+  // Detect exercise type from stored 'type' field or from data
+  function getExType(exName) {
+    // Check in current exercises list first
+    const found = exercises.find(e => getAliases(exName).includes(normalizeExName(e.name)));
+    if (found) return found.type || 'normal';
+    // Check in history
+    for (const h of monthHistory) {
+      const e = h.exercises && h.exercises.find(ex => getAliases(exName).includes(normalizeExName(ex.name)));
+      if (e && e.type) return e.type;
+    }
+    // Fallback: if has secs > 0 and no kg → time
+    const maxSecs = getMonthMax(exName, 'secs');
+    const maxKg = getMonthMax(exName, 'kg');
+    if (maxSecs > 0) return 'time';
+    if (maxKg === 0) return 'bw_lastre';
+    return 'normal';
+  }
+
+  // Collect unique exercises from this month
+  const seenKeys = new Set();
+  const exNamesToCheck = [];
   monthHistory.forEach(h => {
     (h.exercises||[]).forEach(ex => {
-      const prs = getAllPRs(ex.name);
-      const sessionMax = Math.max(...(ex.series||[]).map(s=>parseFloat(s.kg)||0),0);
-      const sessionReps = Math.max(...(ex.series||[]).map(s=>parseInt(s.reps)||0),0);
-      if (sessionMax > 0 && sessionMax >= prs.kg) prsBroken.push(`${ex.name}: ${sessionMax}kg`);
-      else if (sessionReps > prs.reps && prs.kg === 0) prsBroken.push(`${ex.name}: ${sessionReps} reps`);
+      const key = normalizeExName(ex.name);
+      if (!seenKeys.has(key)) { seenKeys.add(key); exNamesToCheck.push(ex.name); }
     });
+  });
+
+  const prsBroken = [];
+  exNamesToCheck.forEach(exName => {
+    const prevPR = getPRBefore(exName, monthStart);
+    const exType = getExType(exName);
+    const monthMaxKg   = getMonthMax(exName, 'kg');
+    const monthMaxReps = getMonthMax(exName, 'reps');
+    const monthMaxSecs = getMonthMax(exName, 'secs');
+
+    if (exType === 'time') {
+      if (monthMaxSecs > prevPR.secs) prsBroken.push(`${exName}: ${monthMaxSecs}s`);
+    } else if (exType === 'bw_lastre' || exType === 'bw') {
+      // BW: compare reps, also show lastre if any
+      if (monthMaxReps > prevPR.reps) {
+        const lastreStr = monthMaxKg > 0 ? ` +${monthMaxKg}kg lastre` : '';
+        prsBroken.push(`${exName}: ${monthMaxReps} reps${lastreStr}`);
+      }
+    } else {
+      // Weighted: kg is primary PR
+      if (monthMaxKg > prevPR.kg) prsBroken.push(`${exName}: ${monthMaxKg}kg`);
+      else if (monthMaxReps > prevPR.reps) prsBroken.push(`${exName}: ${monthMaxKg}kg × ${monthMaxReps} reps`);
+    }
+  });
+
+  // ── ALWAYS include Los 3 Grandes best of the month ──
+  const BIG3 = [
+    { name:'Press de banca', type:'normal' },
+    { name:'Dominadas',      type:'bw_lastre' },
+    { name:'Sentadillas',    type:'normal' },
+  ];
+  const big3Lines = [];
+  BIG3.forEach(ex => {
+    const monthMaxKg   = getMonthMax(ex.name, 'kg');
+    const monthMaxReps = getMonthMax(ex.name, 'reps');
+    const monthMaxSecs = getMonthMax(ex.name, 'secs');
+    if (ex.type === 'bw_lastre') {
+      if (monthMaxReps > 0) big3Lines.push(`${ex.name}: ${monthMaxReps} reps`);
+    } else {
+      if (monthMaxKg > 0) big3Lines.push(`${ex.name}: ${monthMaxKg}kg`);
+    }
   });
 
   // Peso trend
@@ -2614,13 +3108,34 @@ function showCierreDeMes(monthHistory, month) {
     ${pesoDiff!==null?`<div style="margin-top:10px;font-size:12px;color:#666">Peso: ${pesoDiff>0?'+':''}${pesoDiff}kg este mes</div>`:''}
   `;
 
-  const recs = [...new Set(prsBroken)].slice(0,5);
-  document.getElementById('mes-records').innerHTML = recs.length ? `
-    <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px;margin-bottom:8px">🏆 RÉCORDS ROTOS ESTE MES</div>
-    ${recs.map(r=>`<div class="mes-record-item"><span style="font-size:18px">🔥</span><span style="font-size:13px;color:#eee;font-weight:600">${r}</span></div>`).join('')}
-  ` : '<div style="font-size:12px;color:#555;text-align:center">Sin récords rotos este mes — el próximo es tuyo</div>';
+  const recs = [...new Set(prsBroken)].slice(0,8);
+  document.getElementById('mes-records').innerHTML = `
+    ${recs.length ? `
+      <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px;margin-bottom:8px">🏆 RÉCORDS ROTOS ESTE MES</div>
+      ${recs.map(r=>`<div class="mes-record-item"><span style="font-size:18px">🔥</span><span style="font-size:13px;color:#eee;font-weight:600">${r}</span></div>`).join('')}
+    ` : '<div style="font-size:12px;color:#555;text-align:center;margin-bottom:12px">Sin récords nuevos este mes — el próximo es tuyo 💪</div>'}
+    ${big3Lines.length ? `
+      <div style="font-size:11px;font-weight:700;color:#555;letter-spacing:0.5px;margin:12px 0 8px">📊 LOS 3 GRANDES — MEJOR DEL MES</div>
+      ${big3Lines.map(r=>`<div class="mes-record-item"><span style="font-size:18px">💪</span><span style="font-size:13px;color:#aaa;font-weight:600">${r}</span></div>`).join('')}
+    ` : ''}
+  `;
 
   document.getElementById('mes-overlay').classList.add('open');
+
+  // Store for Cierres tab
+  if (!profile.cierresHistory) profile.cierresHistory = [];
+  const monthKey = `${month.getFullYear()}-${month.getMonth()}`;
+  if (!profile.cierresHistory.find(x => x.monthKey === monthKey)) {
+    profile.cierresHistory.unshift({
+      monthKey, month: month.toLocaleDateString('es-AR',{month:'long',year:'numeric'}),
+      sessions: monthHistory.length, emoji, title, text,
+      records: [...new Set(prsBroken)].slice(0,8),
+    big3: big3Lines,
+      pesoDiff, date: new Date().toISOString()
+    });
+    if (profile.cierresHistory.length > 24) profile.cierresHistory.pop();
+    saveProfileDB();
+  }
 }
 
 /* ── WORKOUT MODE ── */
