@@ -409,43 +409,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   <!-- Form sheet -->
   <div class="auth-box" style="position:relative;z-index:1;background:rgba(13,13,13,0.92);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.07);border-radius:20px 20px 0 0;margin:0 -24px -40px;padding:24px 24px calc(32px + env(safe-area-inset-bottom,0px));width:calc(100% + 48px);max-width:none">
 
-    <script>
-    (function(){
-      try {
-        const raw = localStorage.getItem('gymlog_last_profile');
-        if (!raw) return;
-        const prof = JSON.parse(raw);
-        const accent = prof.accentColor || '#E83535';
-        // Photo background
-        if (prof.avatarUrl && prof.avatarUrl.length > 100) {
-          document.getElementById('auth-bg-img-wrap').style.display = 'block';
-          document.getElementById('auth-bg-img').src = prof.avatarUrl;
-          // Avatar circle with photo
-          document.getElementById('auth-avatar').innerHTML = '<img src="'+prof.avatarUrl+'" style="width:100%;height:100%;object-fit:cover"/>';
-        }
-        // Name
-        if (prof.nickname) {
-          const el = document.getElementById('auth-name');
-          el.textContent = prof.nickname; el.style.display = 'block';
-          document.getElementById('auth-logo-wrap').style.display = 'none';
-        }
-        // Frase
-        if (prof.frase) {
-          const el = document.getElementById('auth-frase');
-          el.textContent = '"'+prof.frase+'"'; el.style.display = 'block';
-        }
-        // Accent
-        const btn = document.getElementById('auth-btn');
-        if (btn) btn.style.background = accent;
-        const logoAccent = document.getElementById('auth-logo-accent');
-        if (logoAccent) logoAccent.style.color = accent;
-        const aurora = document.getElementById('auth-aurora');
-        if (aurora) aurora.style.background = 'radial-gradient(ellipse,'+accent.replace('#','rgba(')+'44) 0%,transparent 68%)'.replace('rgba(','rgba(').replace('44)','0.22)');
-        const grp = document.getElementById('gym-elements-group');
-        if (grp) { grp.setAttribute('fill', accent); }
-      } catch(e){}
-    })();
-    </script></div>
+</div>
 
 <!-- APP -->
 <div id="app">
@@ -860,6 +824,19 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   </div>
 </div>
 
+<script>
+// Auth preview — runs immediately, no module needed
+(function(){
+  try {
+    const raw = localStorage.getItem('gymlog_last_profile');
+    if (!raw) return;
+    const prof = JSON.parse(raw);
+    const accent = prof.accentColor || '#E83535';
+    window._authProf = prof; // store for module to use
+    window._authAccent = accent;
+  } catch(e){}
+})();
+</script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
@@ -884,6 +861,44 @@ const BW_MUSCLES = ['Abdominales','Core'];
 const BW_LASTRE = ['Espalda']; // dominadas default
 
 let currentUser = null;
+
+// Apply auth preview from pre-module script
+function loadAuthPreview() {
+  try {
+    const prof = window._authProf;
+    if (!prof) return;
+    const accent = window._authAccent || '#E83535';
+    if (prof.avatarUrl && prof.avatarUrl.length > 100) {
+      const wrap = document.getElementById('auth-bg-img-wrap');
+      const img = document.getElementById('auth-bg-img');
+      if (wrap) wrap.style.display = 'block';
+      if (img) img.src = prof.avatarUrl;
+      const av = document.getElementById('auth-avatar');
+      if (av) av.innerHTML = '<img src="'+prof.avatarUrl+'" style="width:100%;height:100%;object-fit:cover"/>';
+    }
+    if (prof.nickname) {
+      const el = document.getElementById('auth-name');
+      if (el) { el.textContent = prof.nickname; el.style.display = 'block'; }
+      const lw = document.getElementById('auth-logo-wrap');
+      if (lw) lw.style.display = 'none';
+    }
+    if (prof.frase) {
+      const el = document.getElementById('auth-frase');
+      if (el) { el.textContent = '"'+prof.frase+'"'; el.style.display = 'block'; }
+    }
+    const btn = document.getElementById('auth-btn');
+    if (btn) btn.style.background = accent;
+    const grp = document.getElementById('gym-elements-group');
+    if (grp) grp.setAttribute('fill', accent);
+    const aurora = document.getElementById('auth-aurora');
+    if (aurora) {
+      const hex = accent.replace('#','');
+      const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+      aurora.style.background = `radial-gradient(ellipse,rgba(${r},${g},${b},0.22) 0%,transparent 68%)`;
+    }
+  } catch(e) { console.warn('loadAuthPreview error:', e); }
+}
+loadAuthPreview();
 let exercises = [], history = [], nutricion = [], routines = [];
 let profile = { nickname:'', objetivo:'', avatarUrl:'' };
 let currentFilter = 'Ahora', currentMood = null, authMode = 'login';
@@ -930,47 +945,6 @@ window.doLogout = async () => {
   clearDraft(); await signOut(auth); };
 
 // Load cached profile preview on login screen
-function loadAuthPreview() {
-  try {
-    // Use generic last-profile key (no UID needed)
-    const raw = localStorage.getItem('gymlog_last_profile');
-    if (!raw) return;
-    const prof = JSON.parse(raw);
-    if (!prof) return;
-    const accent = prof.accentColor || '#E83535';
-
-    // Show profile preview
-    if (prof.nickname || prof.avatarUrl) {
-      document.getElementById('auth-profile-preview').style.display = 'flex';
-      document.getElementById('auth-logo-wrap').style.display = 'none';
-      document.getElementById('auth-logo-text').style.display = 'none';
-      document.getElementById('auth-tagline').style.display = 'none';
-    }
-    if (prof.avatarUrl) {
-      // Show blurred bg photo
-      const bgWrap = document.getElementById('auth-bg-img-wrap');
-      const bgImg = document.getElementById('auth-bg-img');
-      const bgSvg = document.getElementById('auth-bg-svg');
-      bgImg.src = prof.avatarUrl;
-      bgWrap.style.display = 'block';
-      if (bgSvg) bgSvg.style.display = 'none';
-      // Avatar
-      document.getElementById('auth-preview-avatar').innerHTML = `<img src="${prof.avatarUrl}" style="width:100%;height:100%;object-fit:cover"/>`;
-    } else {
-      document.getElementById('auth-preview-avatar').textContent = '🏋️';
-    }
-    if (prof.nickname) {
-      document.getElementById('auth-preview-name').textContent = prof.nickname;
-    }
-    if (prof.frase) {
-      document.getElementById('auth-preview-frase').textContent = `"${prof.frase}"`;
-      document.getElementById('auth-preview-frase').style.color = accent === '#f5e642' ? '#f5e642' : '#f0a04b';
-    }
-    // Apply accent color to auth btn
-    const authBtn = document.getElementById('auth-btn');
-    if (authBtn) { authBtn.style.background = accent; }
-  } catch(e) {}
-}
 
 // Auth preview handled by inline script
 loadAuthPreview();
