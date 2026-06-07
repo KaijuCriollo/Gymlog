@@ -1351,29 +1351,18 @@ function getLastSessionStats(exName) {
   const ex = last.exercises.find(e => aliases.includes(normalizeExName(e.name)));
   if (!ex || !ex.series || !ex.series.length) return null;
 
-  // For time exercises: max secs
+  // For time: max secs of that session
   const maxSecs = Math.max(...ex.series.map(s => parseInt(s.secs)||0), 0);
   if (maxSecs > 0) return { kg: 0, reps: 0, secs: maxSecs, totalReps: 0 };
 
-  // For weighted: find the BEST SERIE (highest kg, then highest reps as tiebreak)
-  // This avoids showing kg from one serie and reps from another
-  const bestSerie = ex.series.reduce((best, s) => {
-    const kg = parseFloat(s.kg)||0;
-    const reps = parseInt(s.reps)||0;
-    if (!best) return s;
-    const bestKg = parseFloat(best.kg)||0;
-    const bestReps = parseInt(best.reps)||0;
-    if (kg > bestKg) return s;
-    if (kg === bestKg && reps > bestReps) return s;
-    return best;
-  }, null);
-
-  const bestKg = parseFloat(bestSerie?.kg)||0;
-  const bestReps = parseInt(bestSerie?.reps)||0;
-  const maxReps = Math.max(...ex.series.map(s => parseInt(s.reps)||0), 0);
+  // For weighted: show the LAST serie (as recorded), not the best
+  // This gives a real picture of how the session ended
+  const lastSerie = ex.series[ex.series.length - 1];
+  const kg = parseFloat(lastSerie?.kg)||0;
+  const reps = parseInt(lastSerie?.reps)||0;
   const totalReps = ex.series.reduce((a,s) => a+(parseInt(s.reps)||0), 0);
 
-  return { kg: bestKg, reps: bestReps, secs: 0, totalReps, maxReps };
+  return { kg, reps, secs: 0, totalReps };
 }
 
 // Feature 7: suggest next session weight/reps based on history
@@ -1491,10 +1480,6 @@ function buildExCard(ex) {
   if (isTime) {
     if (prs.secs > 0) {
       prLine = `⏱ Récord: ${prs.secs}s`;
-      if (lastStats && lastStats.secs > 0) {
-        const trend = lastStats.secs >= prs.secs ? '🔥' : lastStats.secs > prs.secs * 0.9 ? '📈' : '📉';
-        prLine += ` · Última: ${lastStats.secs}s ${trend}`;
-      }
     }
   } else if (isBWL) {
     // BW + lastre: show reps PR + kg PR separately
@@ -1503,27 +1488,11 @@ function buildExCard(ex) {
     if (prs.kg > 0) parts.push(`${prs.kg}kg lastre`);
     if (parts.length) {
       prLine = `🏆 Récord: ${parts.join(' · ')}`;
-      if (lastStats) {
-        const lastParts = [];
-        if (lastStats.reps > 0) lastParts.push(`${lastStats.reps} reps`);
-        if (lastStats.kg > 0) lastParts.push(`${lastStats.kg}kg`);
-        if (lastParts.length && history.length > 1) {
-          // Trend: better if more reps or more kg
-          const betterReps = lastStats.reps >= prs.reps;
-          const betterKg = lastStats.kg >= prs.kg;
-          const trend = (betterReps || betterKg) ? '🔥' : '📉';
-          prLine += ` · Última: ${lastParts.join(' · ')} ${trend}`;
-        }
-      }
     }
   } else {
     // Normal: show best serie as "Xkg x Y reps"
     if (prs.kg > 0) {
       prLine = `🏆 Récord: ${prs.kg}kg x ${prs.bestKgReps} reps`;
-      if (lastStats && history.length > 1) {
-        const trend = (lastStats.kg >= prs.kg || lastStats.reps >= prs.bestKgReps) ? '🔥' : '📉';
-        if (lastStats.kg > 0) prLine += ` · Última: ${lastStats.kg}kg x ${lastStats.reps} reps ${trend}`;
-      }
     }
   }
 
