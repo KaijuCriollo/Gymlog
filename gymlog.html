@@ -1345,17 +1345,35 @@ function getAllPRs(exName) {
 // Get stats from the last session of an exercise
 function getLastSessionStats(exName) {
   const aliases = getAliases(exName);
-  // Skip current in-progress (find last completed session)
   const sessions = history.filter(h => h.exercises && h.exercises.some(e => aliases.includes(normalizeExName(e.name))));
   if (!sessions.length) return null;
   const last = sessions[0];
   const ex = last.exercises.find(e => aliases.includes(normalizeExName(e.name)));
-  if (!ex) return null;
-  const maxKg = Math.max(...ex.series.map(s => parseFloat(s.kg)||0), 0);
-  const maxReps = Math.max(...ex.series.map(s => parseInt(s.reps)||0), 0);
+  if (!ex || !ex.series || !ex.series.length) return null;
+
+  // For time exercises: max secs
   const maxSecs = Math.max(...ex.series.map(s => parseInt(s.secs)||0), 0);
+  if (maxSecs > 0) return { kg: 0, reps: 0, secs: maxSecs, totalReps: 0 };
+
+  // For weighted: find the BEST SERIE (highest kg, then highest reps as tiebreak)
+  // This avoids showing kg from one serie and reps from another
+  const bestSerie = ex.series.reduce((best, s) => {
+    const kg = parseFloat(s.kg)||0;
+    const reps = parseInt(s.reps)||0;
+    if (!best) return s;
+    const bestKg = parseFloat(best.kg)||0;
+    const bestReps = parseInt(best.reps)||0;
+    if (kg > bestKg) return s;
+    if (kg === bestKg && reps > bestReps) return s;
+    return best;
+  }, null);
+
+  const bestKg = parseFloat(bestSerie?.kg)||0;
+  const bestReps = parseInt(bestSerie?.reps)||0;
+  const maxReps = Math.max(...ex.series.map(s => parseInt(s.reps)||0), 0);
   const totalReps = ex.series.reduce((a,s) => a+(parseInt(s.reps)||0), 0);
-  return { kg: maxKg, reps: maxReps, secs: maxSecs, totalReps };
+
+  return { kg: bestKg, reps: bestReps, secs: 0, totalReps, maxReps };
 }
 
 // Feature 7: suggest next session weight/reps based on history
@@ -1715,6 +1733,9 @@ function updateDaysSince() {
 
 /* ── SAVE WORKOUT ── */
 window.saveWorkout = async () => {
+  const doneSeries = exercises.reduce((a,e) => a + (e.series||[]).filter(s=>s.done).length, 0);
+  const totalSeries = exercises.reduce((a,e) => a + (e.series||[]).length, 0);
+  if (!confirm(`¿Guardás el entrenamiento de hoy?\n\n✅ ${doneSeries} series completadas de ${totalSeries} totales`)) return;
   const doneAny = exercises.some(e => e.series.some(s => s.done));
   if (!doneAny) { showToast('¡Marcá al menos una serie!'); return; }
   document.getElementById('save-btn').disabled = true;
@@ -3367,8 +3388,12 @@ function updateStreakBadge(n) {
   const today = new Date();
   const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
   const weekStart = new Date(today); weekStart.setDate(today.getDate() - dayOfWeek); weekStart.setHours(0,0,0,0);
-  const weekCount = history.filter(h => !h.pesoOnly && new Date(h.date) >= weekStart).length;
-  document.getElementById('streak-badge').textContent = `🔥 ${weekCount} esta semana`;
+  // Count unique days, not documents
+  const weekDays = new Set(
+    history.filter(h => !h.pesoOnly && new Date(h.date) >= weekStart)
+           .map(h => new Date(h.date).toDateString())
+  ).size;
+  document.getElementById('streak-badge').textContent = `🔥 ${weekDays} esta semana`;
 }
 
 /* ── MISC ── */
