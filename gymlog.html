@@ -1038,7 +1038,8 @@ window.doAuth = async () => {
 function showAuthError(msg) { const el = document.getElementById('auth-error'); el.textContent = msg; el.classList.add('show'); }
 
 window.doLogout = async () => {
-  clearDraft(); await signOut(auth); };
+  clearDraft();
+  try { localStorage.removeItem(APP_CACHE_KEY()); } catch(e) {} await signOut(auth); };
 
 // Load cached profile preview on login screen
 function loadAuthPreview() {
@@ -1141,21 +1142,32 @@ function uid() { return currentUser.uid; }
 
 async function loadUserData() {
   showSync(true);
+
+  // ── STEP 1: Show cached data instantly ──
+  const hasCached = loadAppCache();
+  if (hasCached && exercises.length > 0) {
+    if (profile.accentColor) applyAccent(profile.accentColor);
+    renderAll();
+    showSync(false);
+  }
+
+  // ── STEP 2: Sync Firebase ──
   try {
-    const [exSnap, hSnap, nSnap, rSnap, profSnap] = await Promise.all([
+    const [exSnap, hSnap, nSnap, profSnap] = await Promise.all([
       getDocs(collection(db,'users',uid(),'exercises')),
       getDocs(query(collection(db,'users',uid(),'history'), orderBy('date','desc'))),
       getDocs(query(collection(db,'users',uid(),'nutricion'), orderBy('date','desc'))),
-      getDocs(collection(db,'users',uid(),'routines')),
       getDocs(collection(db,'users',uid(),'profile'))
     ]);
     exercises = exSnap.docs.map(d => ({fid:d.id,...d.data()}));
-    history = hSnap.docs.map(d => { const data = d.data(); if (data.peso != null) data.peso = parseFloat((Math.round(parseFloat(data.peso)*10)/10).toFixed(1)); return {fid:d.id,...data}; });
+    history = hSnap.docs.map(d => {
+      const data = d.data();
+      if (data.peso != null) data.peso = parseFloat((Math.round(parseFloat(data.peso)*10)/10).toFixed(1));
+      return {fid:d.id,...data};
+    });
     nutricion = nSnap.docs.map(d => ({fid:d.id,...d.data()}));
-    routines = rSnap.docs.map(d => ({fid:d.id,...d.data()}));
     if (profSnap.docs.length) {
       profile = profSnap.docs[0].data();
-      // Save for login screen preview
       try {
         localStorage.setItem('gymlog_last_profile', JSON.stringify({
           nickname: profile.nickname||'',
@@ -1164,31 +1176,19 @@ async function loadUserData() {
           accentColor: profile.accentColor||'#E83535'
         }));
       } catch(e) {}
-      // Save generic cache for login screen
-      try {
-        // Compress avatar to tiny version for login screen (avoids localStorage quota issues)
-        let loginAvatar = '';
-        if (profile.avatarUrl) {
-          try {
-            const img = new Image();
-            img.src = profile.avatarUrl;
-            const cv = document.createElement('canvas');
-            cv.width = 300; cv.height = 300;
-            const ctx = cv.getContext('2d');
-            ctx.drawImage(img, 0, 0, 300, 300);
-            loginAvatar = cv.toDataURL('image/jpeg', 0.5);
-          } catch(e) { loginAvatar = ''; }
-        }
-        localStorage.setItem('gymlog_last_profile', JSON.stringify({
-          nickname: profile.nickname || '',
-          frase: profile.frase || '',
-          avatarUrl: loginAvatar,
-          accentColor: profile.accentColor || '#E83535',
-        }));
-      } catch(e) {}
     }
     if (exercises.length === 0) await initDefaults();
-  } catch(e) { console.error(e); }
+    if (profile.accentColor) applyAccent(profile.accentColor);
+    saveAppCache();
+    renderAll();
+  } catch(e) {
+    // Offline — already showing cached data
+    console.warn('Offline, using cache');
+    if (!hasCached) {
+      const el = document.getElementById('exercises-list');
+      if (el) el.innerHTML = '<div style="padding:20px;text-align:center;color:#555;font-size:13px">📡 Sin conexión — abrí la app con internet para cachear los datos</div>';
+    }
+  }
   showSync(false);
 }
 
@@ -1206,6 +1206,34 @@ function saveDraft() {
       ts: Date.now()
     }));
   } catch(e) {}
+}
+
+// ── FULL APP CACHE (exercises + profile + history) ──
+const APP_CACHE_KEY = () => 'gymlog_app_' + (currentUser?.uid||'anon');
+
+function saveAppCache() {
+  try {
+    localStorage.setItem(APP_CACHE_KEY(), JSON.stringify({
+      exercises,
+      profile,
+      history: history.slice(0, 60),
+      ts: Date.now()
+    }));
+  } catch(e) {}
+}
+
+function loadAppCache() {
+  try {
+    const raw = localStorage.getItem(APP_CACHE_KEY());
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    // Use cache up to 7 days old
+    if (Date.now() - data.ts > 7 * 24 * 60 * 60 * 1000) return false;
+    if (data.exercises) exercises = data.exercises;
+    if (data.profile) profile = data.profile;
+    if (data.history) history = data.history;
+    return true;
+  } catch(e) { return false; }
 }
 
 function loadDraft() {
@@ -1304,6 +1332,7 @@ async function saveRoutineDB(r) {
 async function deleteRoutineDB(r) { if (r.fid) await deleteDoc(doc(db,'users',uid(),'routines',r.fid)); }
 async function saveProfileDB() {
   await setDoc(doc(db,'users',uid(),'profile','main'), profile);
+  saveAppCache(); // keep local cache in sync
   try {
     // Update uid-specific cache
     const cacheKey = 'gymlog_cache_' + uid();
@@ -2004,7 +2033,8 @@ window.saveWorkout = async () => {
   renderExercises(); renderMoods(); initDatePicker();
   document.getElementById('workout-note').value = '';
 
-  clearDraft(); // workout saved to Firebase, draft no longer needed
+  clearDraft();
+  saveAppCache(); // update local cache after workout
   updatePesoLast(); updateDaysSince(); calcStreak();
   document.getElementById('save-btn').disabled = false;
   showToast('¡Entrenamiento guardado! 💪');
@@ -2778,6 +2808,7 @@ updateConnectivity();
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
     saveDraft();
+    if (currentUser) saveAppCache(); // save full app state
   }
 });
 
