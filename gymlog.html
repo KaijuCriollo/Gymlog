@@ -366,6 +366,14 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .wm-progress-bar{height:3px;background:#2e2e2e;margin-bottom:16px;border-radius:2px}
 .wm-progress-fill{height:100%;background:var(--accent,#E83535);border-radius:2px;transition:width 0.3s}
 </style>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/Gymlog/sw.js', { scope: '/Gymlog/' })
+          .catch(function(err) { console.warn('SW:', err); });
+      });
+    }
+  </script>
 </head>
 <body>
 
