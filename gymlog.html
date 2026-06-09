@@ -604,6 +604,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()"></select>
       <div id="pr-banner"></div>
       <div class="chart-wrap"><canvas id="progressChart">Gráfico progreso</canvas></div>
+      <div class="chart-title" style="margin-top:14px">🔥 RÉCORDS — ÚLTIMA SESIÓN</div>
+      <div id="last-session-prs" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px;margin-bottom:16px"></div>
     </div>
 
     <!-- NUTRICIÓN -->
@@ -2134,6 +2136,7 @@ function renderProgress() {
   }
 
   renderConsistencyGrid();
+  renderLastSessionPRs();
   renderWeeklyChart();
   renderPesoChart(pesoEntries);
   renderBig3Charts();
@@ -2496,17 +2499,7 @@ function renderCierres() {
 
   let html = '';
 
-  // Last session PRs section
-  if (lastPRs && lastPRs.prs && lastPRs.prs.length) {
-    html += `<div style="margin:12px 12px 0;background:linear-gradient(135deg,rgba(232,53,53,0.12),rgba(232,53,53,0.05));border:1px solid rgba(232,53,53,0.25);border-radius:14px;padding:14px">
-      <div style="font-size:11px;font-weight:700;color:var(--red);letter-spacing:0.5px;margin-bottom:4px">🔥 RÉCORDS — ÚLTIMA SESIÓN</div>
-      <div style="font-size:11px;color:#555;margin-bottom:10px">${lastPRs.date}</div>
-      ${lastPRs.prs.map(r=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-        <span style="font-size:16px">🏆</span>
-        <span style="font-size:13px;color:#eee;font-weight:600">${r.replace('🏆 ','')}</span>
-      </div>`).join('')}
-    </div>`;
-  }
+
 
   if (!cierres.length) {
     html += `<div class="empty-state" style="padding-top:40px">
@@ -2544,6 +2537,23 @@ function renderCierres() {
       </div>
     </div>`).join('');
   el.innerHTML = html;
+}
+
+function renderLastSessionPRs() {
+  const el = document.getElementById('last-session-prs');
+  if (!el) return;
+  const data = profile.lastSessionPRs;
+  if (!data || !data.prs || !data.prs.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#444;text-align:center;padding:4px">Guardá un entrenamiento para ver tus récords aquí</div>';
+    return;
+  }
+  el.innerHTML = `
+    <div style="font-size:11px;color:#555;margin-bottom:10px;font-weight:600">${data.date}</div>
+    ${data.prs.map(r => `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+      <span style="font-size:20px">🏆</span>
+      <span style="font-size:13px;color:#eee;font-weight:600">${r.replace('🏆 ','')}</span>
+    </div>`).join('')}
+  `;
 }
 
 function renderNutriHistory() {
@@ -3097,16 +3107,16 @@ function detectLastSessionPRs() {
     }
   });
 
-  if (sessionPRs.length) {
-    // Only update if we don't already have PRs saved for this session
-    if (!profile.lastSessionPRs || profile.lastSessionPRs.date !== lastDate) {
-      profile.lastSessionPRs = {
-        date: new Date(lastSession.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
-        prs: sessionPRs
-      };
-      saveProfileDB();
-    }
-  }
+  // Always update with latest detection
+  profile.lastSessionPRs = {
+    date: new Date(lastSession.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
+    sessionDate: lastDate,
+    prs: sessionPRs
+  };
+  saveProfileDB();
+  // Refresh progreso if open
+  const progTab = document.getElementById('tab-progreso');
+  if (progTab && progTab.classList.contains('active')) renderLastSessionPRs();
 }
 
 function checkCierreDeMes() {
