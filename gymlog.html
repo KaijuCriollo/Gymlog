@@ -849,7 +849,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 <div class="toast" id="toast"></div>
 
 <!-- REST TIMER -->
-<div id="rest-timer-overlay" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#111;border-top:1px solid #2e2e2e;border-radius:16px 16px 0 0;z-index:10005;padding-top:4px">
+<div id="rest-timer-overlay" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#111;border-top:1px solid #2e2e2e;border-radius:16px 16px 0 0;z-index:10005;padding-top:4px;max-width:480px;margin:0 auto">
   <div style="width:40px;height:4px;background:#333;border-radius:2px;margin:8px auto 12px"></div>
   <div class="rest-timer-label" id="rest-timer-label">⏸ DESCANSO</div>
   <div class="rest-timer-display" id="rest-timer-display">1:30</div>
@@ -2355,7 +2355,7 @@ function renderMuscleStats() {
   });
 
   if (!Object.keys(muscleSeries).length) {
-    el.innerHTML = `<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos de la ${periodLabel}</div>`;
+    el.innerHTML = `<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos ${periodLabel}</div>`;
     return;
   }
 
@@ -2365,7 +2365,7 @@ function renderMuscleStats() {
   let html = '';
   sorted.forEach(([muscle, series]) => {
     const pct = Math.round((series/max)*100);
-    const sessionCount = history.filter(h => !h.pesoOnly && new Date(h.date) >= monthAgo && h.exercises && h.exercises.some(e=>e.muscle===muscle)).length;
+    const sessionCount = history.filter(h => !h.pesoOnly && new Date(h.date) >= fromDate && h.exercises && h.exercises.some(e=>e.muscle===muscle)).length;
     html += `<div style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;margin-bottom:4px">
         <span style="font-size:12px;font-weight:700;color:#eee">${muscle}</span>
@@ -3593,7 +3593,11 @@ function startRestTimer(secs) {
   _restRemaining = _restTotal;
   clearInterval(_restInterval);
   const overlay = document.getElementById('rest-timer-overlay');
+  // Save scroll position before showing timer
+  const scrollY = window.scrollY;
   overlay.style.display = 'block';
+  // Restore scroll position immediately (timer appearing can shift layout)
+  requestAnimationFrame(() => { window.scrollTo(0, scrollY); });
   updateRestDisplay();
   _restInterval = setInterval(() => {
     _restRemaining--;
