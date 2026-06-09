@@ -351,6 +351,13 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .wm-serie-check.done{background:rgba(34,201,122,0.2);border-color:#22c97a}
 .wm-serie-check svg{width:18px;height:18px;stroke:#555;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .wm-serie-check.done svg{stroke:#22c97a}
+.rest-timer-bar{height:4px;background:#2e2e2e;border-radius:2px;margin:0 12px 10px;overflow:hidden}
+.rest-timer-fill{height:100%;background:#22c97a;border-radius:2px;transition:width 1s linear}
+.rest-timer-display{text-align:center;font-size:28px;font-weight:700;color:#fff;font-family:'DM Mono',monospace;margin:8px 0 4px}
+.rest-timer-label{text-align:center;font-size:11px;color:#555;font-weight:600;margin-bottom:12px}
+.rest-timer-btns{display:flex;gap:8px;padding:0 12px 12px}
+.rest-timer-btn{flex:1;padding:10px;border-radius:10px;border:1px solid #2e2e2e;background:#1e1e1e;color:#aaa;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.rest-timer-btn.primary{background:var(--accent,#E83535);border-color:var(--accent,#E83535);color:#fff}
 .wm-nav{display:flex;gap:10px;margin-top:8px}
 .wm-nav-btn{flex:1;padding:14px;border-radius:12px;border:1px solid #2e2e2e;background:#1e1e1e;color:#aaa;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
 .wm-nav-btn.primary{background:var(--accent,#E83535);border-color:var(--accent,#E83535);color:#fff}
@@ -840,6 +847,20 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- REST TIMER -->
+<div id="rest-timer-overlay" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#111;border-top:1px solid #2e2e2e;border-radius:16px 16px 0 0;z-index:10005;padding-top:4px">
+  <div style="width:40px;height:4px;background:#333;border-radius:2px;margin:8px auto 12px"></div>
+  <div class="rest-timer-label" id="rest-timer-label">⏸ DESCANSO</div>
+  <div class="rest-timer-display" id="rest-timer-display">1:30</div>
+  <div class="rest-timer-bar"><div class="rest-timer-fill" id="rest-timer-fill" style="width:100%"></div></div>
+  <div class="rest-timer-btns">
+    <button class="rest-timer-btn" onclick="setRestDuration(60)">1 min</button>
+    <button class="rest-timer-btn" onclick="setRestDuration(90)">1:30</button>
+    <button class="rest-timer-btn" onclick="setRestDuration(120)">2 min</button>
+    <button class="rest-timer-btn primary" onclick="stopRestTimer()">✓ Listo</button>
+  </div>
+</div>
 
 <!-- MODO ENTRENAMIENTO -->
 <div class="workout-mode-overlay" id="workout-mode-overlay">
@@ -1633,12 +1654,25 @@ window.updateSeries = (exId, idx, field, val) => {
 window.toggleDone = (exId, idx) => {
   const ex = exercises.find(e => e.id === exId);
   if (ex && ex.series[idx]) {
-    ex.series[idx].done = !ex.series[idx].done;
-    saveDraft(); // immediate local save — works offline
-    saveEx(ex);  // Firebase in background
+    const wasDone = ex.series[idx].done;
+    ex.series[idx].done = !wasDone;
+    saveDraft();
+    saveEx(ex);
     renderExercises();
     const body = document.getElementById('body-'+exId);
-    if (body) { body.classList.add('open'); document.getElementById('chev-'+exId).classList.add('open'); }
+    if (body) { body.classList.add('open'); document.getElementById('chev-'+exId)?.classList.add('open'); }
+    // When marking as done: start timer + check for PR confetti
+    if (!wasDone && ex.series[idx].done) {
+      startRestTimer(90);
+      const serie = ex.series[idx];
+      const prs = getAllPRs(ex.name);
+      const type = ex.type || 'normal';
+      let isPR = false;
+      if (type === 'time' && (parseInt(serie.secs)||0) > prs.secs) isPR = true;
+      else if ((type==='bw_lastre'||type==='bw') && (parseInt(serie.reps)||0) > prs.reps) isPR = true;
+      else if (type==='normal' && (parseFloat(serie.kg)||0) > prs.kg) isPR = true;
+      if (isPR) setTimeout(fireConfetti, 150);
+    }
   }
 };
 
@@ -2301,12 +2335,18 @@ function renderMuscleStats() {
   const el = document.getElementById('muscle-stats');
   if (!el) return;
   const today = new Date();
-  const days = muscleFilterPeriod === 'week' ? 7 : 30;
-  const monthAgo = new Date(today); monthAgo.setDate(today.getDate() - days);
-  const periodLabel = muscleFilterPeriod === 'week' ? 'última semana' : 'último mes';
+  // Week = current week Mon-Sun, Month = current calendar month
+  let fromDate;
+  if (muscleFilterPeriod === 'week') {
+    const dow = today.getDay() === 0 ? 6 : today.getDay() - 1;
+    fromDate = new Date(today); fromDate.setDate(today.getDate() - dow); fromDate.setHours(0,0,0,0);
+  } else {
+    fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
+  }
+  const periodLabel = muscleFilterPeriod === 'week' ? 'esta semana' : 'este mes';
 
   const muscleSeries = {};
-  history.filter(h => !h.pesoOnly && new Date(h.date) >= monthAgo).forEach(h => {
+  history.filter(h => !h.pesoOnly && new Date(h.date) >= fromDate).forEach(h => {
     h.exercises && h.exercises.forEach(e => {
       const m = e.muscle || 'Otro';
       if (!muscleSeries[m]) muscleSeries[m] = 0;
@@ -3427,6 +3467,21 @@ window.startWorkoutMode = () => {
   wmFilteredExercises = exercises.filter(e => selected.includes(e.muscle) && e.series && e.series.length);
   if (!wmFilteredExercises.length) { showToast('No hay ejercicios de esos músculos'); return; }
   wmExIndex = 0;
+  // Restore workout mode body HTML (was replaced by picker)
+  const overlay = document.getElementById('workout-mode-overlay');
+  overlay.querySelector('.wm-body').innerHTML = `
+    <div class="wm-ex-name" id="wm-ex-name">—</div>
+    <div class="wm-ex-muscle" id="wm-ex-muscle">—</div>
+    <div class="wm-info-row">
+      <div class="wm-info-box"><div class="wm-info-label">📋 ÚLTIMA VEZ</div><div class="wm-info-val" id="wm-last">—</div></div>
+      <div class="wm-info-box"><div class="wm-info-label">🏆 RÉCORD</div><div class="wm-info-val" id="wm-pr">—</div></div>
+    </div>
+    <div class="wm-series-list" id="wm-series-list"></div>
+    <div class="wm-nav">
+      <button class="wm-nav-btn" id="wm-prev-btn" onclick="wmNavigate(-1)">← Anterior</button>
+      <button class="wm-nav-btn primary" id="wm-next-btn" onclick="wmNavigate(1)">Siguiente →</button>
+    </div>
+  `;
   document.querySelector('.wm-header').style.display = '';
   document.querySelector('.wm-progress-bar').style.display = '';
   renderWorkoutMode();
@@ -3503,6 +3558,68 @@ window.wmToggleDone = (exId, idx) => {
     ex.series[idx].done = !ex.series[idx].done;
     saveEx(ex); renderWorkoutMode();
   }
+};
+
+/* ── CONFETTI ── */
+function fireConfetti() {
+  const colors = ['#E83535','#22c97a','#f0a04b','#5b9cf6','#f5e642','#e84dbb'];
+  const container = document.createElement('div');
+  container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden';
+  document.body.appendChild(container);
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    const size = Math.random() * 8 + 5;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const left = Math.random() * 100;
+    const delay = Math.random() * 0.5;
+    const duration = Math.random() * 1.5 + 1.5;
+    const isRect = Math.random() > 0.5;
+    el.style.cssText = `position:absolute;top:-20px;left:${left}%;width:${size}px;height:${isRect?size*0.4:size}px;background:${color};border-radius:${isRect?'2px':'50%'};animation:confettiFall ${duration}s ${delay}s ease-in forwards;transform:rotate(${Math.random()*360}deg)`;
+    container.appendChild(el);
+  }
+  const style = document.createElement('style');
+  style.textContent = '@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}';
+  document.head.appendChild(style);
+  setTimeout(() => { container.remove(); style.remove(); }, 3500);
+}
+
+/* ── REST TIMER ── */
+let _restInterval = null;
+let _restTotal = 90;
+let _restRemaining = 90;
+
+function startRestTimer(secs) {
+  _restTotal = secs || 90;
+  _restRemaining = _restTotal;
+  clearInterval(_restInterval);
+  const overlay = document.getElementById('rest-timer-overlay');
+  overlay.style.display = 'block';
+  updateRestDisplay();
+  _restInterval = setInterval(() => {
+    _restRemaining--;
+    updateRestDisplay();
+    if (_restRemaining <= 0) stopRestTimer();
+  }, 1000);
+}
+
+function updateRestDisplay() {
+  const m = Math.floor(_restRemaining / 60);
+  const s = _restRemaining % 60;
+  document.getElementById('rest-timer-display').textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  const pct = Math.max(0, (_restRemaining / _restTotal) * 100);
+  document.getElementById('rest-timer-fill').style.width = pct + '%';
+  // Color turns red when < 10s
+  document.getElementById('rest-timer-fill').style.background = _restRemaining <= 10 ? '#E83535' : '#22c97a';
+}
+
+window.stopRestTimer = () => {
+  clearInterval(_restInterval);
+  _restInterval = null;
+  document.getElementById('rest-timer-overlay').style.display = 'none';
+};
+
+window.setRestDuration = (secs) => {
+  startRestTimer(secs);
 };
 
 /* ── ACCENT COLOR ── */
