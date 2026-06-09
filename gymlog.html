@@ -2436,19 +2436,46 @@ window.renderProgressChart = () => {
   const exName = document.getElementById('progress-ex-sel').value;
   const banner = document.getElementById('pr-banner');
   if (!exName||!history.length) { banner.innerHTML=''; return; }
-  const sessions = history.filter(h=>h.exercises.some(e=>e.name===exName))
-    .map(h=>{const ex=h.exercises.find(e=>e.name===exName);return{date:new Date(h.date),kg:Math.max(...ex.series.map(s=>s.kg||0),0)};})
-    .sort((a,b)=>a.date-b.date);
+
+  // Find exercise type from exercises list or history
+  const exDef = exercises.find(e => getAliases(exName).includes(normalizeExName(e.name)));
+  const exType = exDef ? (exDef.type||'normal') : 'normal';
+  const isTime = exType === 'time';
+  const isBW = exType === 'bw_lastre' || exType === 'bw';
+
+  const sessions = history
+    .filter(h => h.exercises && h.exercises.some(e => getAliases(exName).includes(normalizeExName(e.name))))
+    .map(h => {
+      const ex = h.exercises.find(e => getAliases(exName).includes(normalizeExName(e.name)));
+      let val;
+      if (isTime) val = Math.max(...ex.series.map(s=>parseInt(s.secs)||0), 0);
+      else if (isBW) val = Math.max(...ex.series.map(s=>parseInt(s.reps)||0), 0);
+      else val = Math.max(...ex.series.map(s=>parseFloat(s.kg)||0), 0);
+      return { date: new Date(h.date), val };
+    })
+    .sort((a,b) => a.date-b.date);
+
   if (!sessions.length) { banner.innerHTML=''; return; }
-  const pr = Math.max(...sessions.map(s=>s.kg));
-  banner.innerHTML = `<div class="pr-banner"><div class="pr-trophy">🏆</div><div><div class="pr-info-label">Récord · ${exName}</div><div class="pr-info-val">${pr}kg</div></div></div>`;
+
+  const pr = Math.max(...sessions.map(s=>s.val));
+  const unit = isTime ? 's' : isBW ? ' reps' : 'kg';
+  const label = isTime ? 'tiempo' : isBW ? 'reps' : 'peso';
+
+  banner.innerHTML = `<div class="pr-banner"><div class="pr-trophy">🏆</div><div><div class="pr-info-label">Récord · ${exName}</div><div class="pr-info-val">${pr}${unit}</div></div></div>`;
+
   if (progressChart) { progressChart.destroy(); progressChart = null; }
   progressChart = new Chart(document.getElementById('progressChart'), {
     type:'line',
-    data:{ labels:sessions.map(s=>s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
-      datasets:[{data:sessions.map(s=>s.kg),borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.08)',pointBackgroundColor:'#E24B4A',pointRadius:4,tension:0.35,fill:true}]},
+    data:{
+      labels: sessions.map(s=>s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
+      datasets:[{data:sessions.map(s=>s.val),borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.08)',pointBackgroundColor:'#E24B4A',pointRadius:4,tension:0.35,fill:true}]
+    },
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',callback:v=>Math.round(v).toLocaleString()+'kg'},grid:{color:'rgba(255,255,255,0.06)'}} } }
+      scales:{
+        x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false}},
+        y:{ticks:{font:{size:10},color:'#555',callback:v=>Math.round(v)+unit},grid:{color:'rgba(255,255,255,0.06)'}}
+      }
+    }
   });
 };
 
@@ -2542,9 +2569,13 @@ function renderCierres() {
 function renderLastSessionPRs() {
   const el = document.getElementById('last-session-prs');
   if (!el) return;
+  // If no saved PRs yet, try to detect them now
+  if (!profile.lastSessionPRs || !profile.lastSessionPRs.prs || !profile.lastSessionPRs.prs.length) {
+    detectLastSessionPRs();
+  }
   const data = profile.lastSessionPRs;
   if (!data || !data.prs || !data.prs.length) {
-    el.innerHTML = '<div style="font-size:12px;color:#444;text-align:center;padding:4px">Guardá un entrenamiento para ver tus récords aquí</div>';
+    el.innerHTML = '<div style="font-size:12px;color:#444;text-align:center;padding:8px">Sin récords detectados en la última sesión</div>';
     return;
   }
   el.innerHTML = `
