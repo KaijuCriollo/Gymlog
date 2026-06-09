@@ -1450,10 +1450,19 @@ function renderExercises() {
   if (currentFilter === 'Ahora') {
     items = exercises.filter(e => e.series.some(s => s.done));
   } else if (currentFilter === 'Todos') {
-    items = exercises;
+    items = [...exercises];
   } else {
     items = exercises.filter(e => e.muscle === currentFilter);
   }
+  // Sort: partial (some done, not all) → untouched → complete
+  items = [...items].sort((a, b) => {
+    const aDone = (a.series||[]).filter(s=>s.done).length;
+    const aTotal = (a.series||[]).length;
+    const bDone = (b.series||[]).filter(s=>s.done).length;
+    const bTotal = (b.series||[]).length;
+    const score = (done, total) => done === 0 ? 1 : done < total ? 0 : 2;
+    return score(aDone, aTotal) - score(bDone, bTotal);
+  });
   if (!items.length) {
     const msg = currentFilter === 'Ahora'
       ? `<div class="empty-state"><div class="empty-icon">💤</div><div class="empty-text">Todavía no completaste<br>ninguna serie hoy.<br><span style="color:#E83535;font-weight:700">¡A entrenar!</span></div></div>`
@@ -1664,6 +1673,11 @@ window.addExercise = async () => {
   if (!name) return;
   const muscle = document.getElementById('ex-muscle-inp').value;
   const type = document.getElementById('ex-type-inp').value;
+  // Block duplicate: same name + same muscle
+  const dup = exercises.find(e =>
+    e.name.toLowerCase().trim() === name.toLowerCase().trim() && e.muscle === muscle
+  );
+  if (dup) { showToast(`Ya existe "${name}" en ${muscle}`); return; }
   const s0 = type === 'time' ? {secs:'30',done:false} : {reps:'10',kg:'0',done:false};
   const newEx = { id: Date.now(), name, muscle, type, note:'', series:[s0] };
   await saveEx(newEx); exercises.push(newEx);
@@ -1705,6 +1719,27 @@ window.saveWorkout = async () => {
   const doneSeries = exercises.reduce((a,e) => a + (e.series||[]).filter(s=>s.done).length, 0);
   const totalSeries = exercises.reduce((a,e) => a + (e.series||[]).length, 0);
   if (!confirm(`¿Guardás el entrenamiento de hoy?\n\n✅ ${doneSeries} series completadas de ${totalSeries} totales`)) return;
+
+  // Detect PRs before saving (compare current done series vs historical)
+  const sessionPRs = [];
+  exercises.forEach(ex => {
+    const doneSers = (ex.series||[]).filter(s=>s.done);
+    if (!doneSers.length) return;
+    const prs = getAllPRs(ex.name);
+    const exType = ex.type || 'normal';
+    if (exType === 'time') {
+      const maxSecs = Math.max(...doneSers.map(s=>parseInt(s.secs)||0), 0);
+      if (maxSecs > prs.secs) sessionPRs.push(`🏆 ${ex.name}: ${maxSecs}s`);
+    } else if (exType === 'bw_lastre' || exType === 'bw') {
+      const maxReps = Math.max(...doneSers.map(s=>parseInt(s.reps)||0), 0);
+      if (maxReps > prs.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxReps} reps`);
+    } else {
+      const maxKg = Math.max(...doneSers.map(s=>parseFloat(s.kg)||0), 0);
+      const maxReps = Math.max(...doneSers.map(s=>parseInt(s.reps)||0), 0);
+      if (maxKg > prs.kg) sessionPRs.push(`🏆 ${ex.name}: ${maxKg}kg`);
+      else if (maxReps > prs.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxKg}kg × ${maxReps} reps`);
+    }
+  });
   const doneAny = exercises.some(e => e.series.some(s => s.done));
   if (!doneAny) { showToast('¡Marcá al menos una serie!'); return; }
   document.getElementById('save-btn').disabled = true;
@@ -1727,6 +1762,8 @@ window.saveWorkout = async () => {
   history.unshift(entry);
 
   // Build summary
+  // Attach session PRs to history entry
+  if (sessionPRs.length) entry.sessionPRs = sessionPRs;
   buildSummary(entry);
 
   for (const ex of exercises) { ex.series.forEach(s => s.done = false); ex.note = ''; await saveEx(ex); }
@@ -1739,6 +1776,11 @@ window.saveWorkout = async () => {
   updatePesoLast(); updateDaysSince(); calcStreak();
   document.getElementById('save-btn').disabled = false;
   showToast('¡Entrenamiento guardado! 💪');
+  if (sessionPRs.length) {
+    setTimeout(() => {
+      alert('🔥 ¡NUEVOS RÉCORDS HOY!\n\n' + sessionPRs.join('\n') + '\n\n¡Seguí así!');
+    }, 600);
+  }
 };
 
 function buildSummary(entry) {
@@ -1875,6 +1917,11 @@ function renderHistory() {
     const timeStr = d.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
     const totalS = entry.exercises.reduce((a,e)=>a+e.series.length,0);
     const totalV = entry.exercises.reduce((a,e)=>a+e.series.reduce((b,s)=>b+(s.reps*s.kg),0),0);
+    const prBlock = entry.sessionPRs && entry.sessionPRs.length ? `
+      <div style="background:rgba(232,53,53,0.08);border:1px solid rgba(232,53,53,0.2);border-radius:10px;padding:8px 12px;margin-bottom:8px">
+        <div style="font-size:10px;font-weight:700;color:var(--red);margin-bottom:4px">🏆 RÉCORDS ROTOS</div>
+        ${entry.sessionPRs.map(r=>'<div style="font-size:12px;color:#ff7070;font-weight:600">'+r+'</div>').join('')}
+      </div>` : '';
     const exItems = entry.exercises.map(ex => {
       const type = ex.type||'normal';
       const isTime = type === 'time';
@@ -1910,7 +1957,7 @@ function renderHistory() {
         </div>
       </div>
       <div id="hbody-${idx}" style="display:none">
-        ${exItems}${footer}
+        ${prBlock}${exItems}${footer}
       </div>
     </div>`;
   }).join('');
