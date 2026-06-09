@@ -102,6 +102,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .ex-note-wrap{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
 .note-textarea{width:100%;padding:8px 10px;border:1px solid #333;border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:#f0ede8;background:#111;resize:none;outline:none;min-height:56px}
 .note-textarea::placeholder{color:var(--subtle)}
+.card.drag-over{border:2px dashed var(--accent,#E83535);opacity:0.8}
+.card.dragging{opacity:0.4;transform:scale(0.98)}
 .add-series-btn{width:100%;margin-top:6px;padding:7px;background:none;border:1.5px dashed #333;border-radius:var(--radius-sm);font-size:13px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-weight:600}
 .del-btn{margin-top:8px;float:right;background:none;border:none;font-size:12px;color:var(--subtle);cursor:pointer;font-family:'DM Sans',sans-serif}
 .clearfix::after{content:'';display:table;clear:both}
@@ -525,9 +527,16 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <div id="tab-registro" class="tab active">
 
       <div class="filter-row" id="muscle-filters"></div>
+      <div id="ex-search-wrap" style="margin:6px 12px 0;display:none;position:relative">
+        <input type="text" id="ex-search-inp" placeholder="Buscar ejercicio..." 
+          oninput="filterExSearch(this.value)"
+          style="width:100%;padding:9px 36px 9px 12px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:10px;color:#f0ede8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box"/>
+        <button onclick="clearExSearch()" id="ex-search-clear" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:16px;cursor:pointer">✕</button>
+      </div>
       <div id="exercises-list"></div>
       <div class="add-ex-area" style="display:flex;gap:8px">
         <button class="add-ex-btn" style="flex:1" onclick="openAddExModal()">+ Agregar ejercicio</button>
+        <button onclick="toggleExSearch()" style="padding:12px 10px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);color:#aaa;font-size:16px;cursor:pointer;flex-shrink:0" title="Buscar">🔍</button>
         <button onclick="openWorkoutMode()" style="padding:12px 14px;background:var(--accent,#E83535);border:none;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">⚡ Modo</button>
       </div>
       <div class="section-card" style="margin-top:10px">
@@ -1316,7 +1325,14 @@ function renderFilters() {
     `<div class="filter-pill ${m===currentFilter?'active':''}" onclick="setFilter('${m}',this)">${m}</div>`
   ).join('');
 }
-window.setFilter = (m, el) => { currentFilter = m; document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active')); el.classList.add('active'); renderExercises(); };
+window.setFilter = (m, el) => {
+  currentFilter = m;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  // Hide search when changing filter
+  if (exSearchActive) { clearExSearch(); document.getElementById('ex-search-wrap').style.display='none'; exSearchActive=false; }
+  renderExercises();
+};
 
 /* ── PR HELPER ── */
 function normalizeExName(name) {
@@ -1479,9 +1495,14 @@ function renderExercises() {
   } else {
     items = exercises.filter(e => e.muscle === currentFilter);
   }
-  // Sort: partial (some done, not all) → untouched → complete
+  // Sort by user-defined order first, then by completion status
   if (currentFilter !== 'Ahora') {
     items = [...items].sort((a, b) => {
+      // First sort by user order if set
+      const aOrder = a.order !== undefined ? a.order : 999;
+      const bOrder = b.order !== undefined ? b.order : 999;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      // Then by completion
       const aDone = (a.series||[]).filter(s=>s.done).length;
       const aTotal = (a.series||[]).length;
       const bDone = (b.series||[]).filter(s=>s.done).length;
@@ -1528,7 +1549,9 @@ function buildExCard(ex) {
   } else {
     // Normal: show best serie as "Xkg x Y reps"
     if (prs.kg > 0) {
-      prLine = `🏆 Récord: ${prs.kg}kg x ${prs.bestKgReps} reps`;
+      // 1RM Epley: weight * (1 + reps/30)
+      const orm = prs.bestKgReps > 0 ? Math.round(prs.kg * (1 + prs.bestKgReps/30) * 10) / 10 : null;
+      prLine = `🏆 Récord: ${prs.kg}kg x ${prs.bestKgReps} reps${orm ? ` · 1RM ~${orm}kg` : ''}`;
     }
   }
 
@@ -1608,14 +1631,20 @@ function buildExCard(ex) {
   const suggestion = getNextSessionSuggestion(ex.name, type);
   const suggLine = suggestion ? suggestion.message : '';
 
-  return `<div class="card" id="card-${ex.id}">
+  return `<div class="card" id="card-${ex.id}" draggable="true" ondragstart="dragStart(event,${ex.id})" ondragover="dragOver(event)" ondrop="dragDrop(event,${ex.id})" ondragend="dragEnd(event)">
     <div class="card-header" onclick="toggleCard(${ex.id})">
-      <div class="card-header-left">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+      <div style="color:#333;font-size:18px;cursor:grab;padding:0 4px;flex-shrink:0;touch-action:none" 
+           onmousedown="event.stopPropagation()" 
+           ontouchstart="touchDragStart(event,${ex.id})" 
+           title="Arrastrá para ordenar">⠿</div>
+      <div class="card-header-left" style="flex:1;min-width:0">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-muscle">${ex.muscle}</div>
         ${compLine ? `<div style="font-size:11px;color:#5b9cf6;font-weight:600;margin-top:1px">${compLine}</div>` : ''}
         ${suggLine ? `<div style="font-size:11px;color:#22c97a;font-weight:600;margin-top:1px">💡 ${suggLine}</div>` : ''}
         ${prLine ? `<div class="ex-pr">${prLine}</div>` : ''}
+      </div>
       </div>
       <div class="card-header-right">
         <div class="prog-pill ${allDone?'done-all':''}">${done}/${total}</div>
@@ -1674,6 +1703,67 @@ window.toggleDone = (exId, idx) => {
       if (isPR) setTimeout(fireConfetti, 150);
     }
   }
+};
+
+// ── DRAG & DROP ──
+let dragSrcId = null;
+
+window.dragStart = (e, id) => {
+  dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  setTimeout(() => { const el = document.getElementById('card-'+id); if(el) el.classList.add('dragging'); }, 0);
+};
+window.dragOver = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+window.dragEnd = (e) => { document.querySelectorAll('.card').forEach(c=>c.classList.remove('dragging','drag-over')); };
+window.dragDrop = (e, targetId) => {
+  e.preventDefault();
+  if (dragSrcId === targetId) return;
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over'));
+  // Reorder exercises array
+  const srcIdx = exercises.findIndex(ex=>ex.id===dragSrcId);
+  const tgtIdx = exercises.findIndex(ex=>ex.id===targetId);
+  if (srcIdx<0||tgtIdx<0) return;
+  const [moved] = exercises.splice(srcIdx,1);
+  exercises.splice(tgtIdx,0,moved);
+  // Save order to each exercise as 'order' field
+  exercises.forEach((ex,i) => { ex.order = i; saveEx(ex); });
+  renderExercises();
+};
+
+// Touch drag for mobile
+let touchDragId = null, touchClone = null, touchScrollY = 0;
+window.touchDragStart = (e, id) => {
+  e.stopPropagation();
+  touchDragId = id;
+  touchScrollY = window.scrollY;
+  const card = document.getElementById('card-'+id);
+  if (!card) return;
+  card.classList.add('dragging');
+  // Create ghost
+  touchClone = card.cloneNode(true);
+  touchClone.style.cssText = `position:fixed;top:${card.getBoundingClientRect().top}px;left:${card.getBoundingClientRect().left}px;width:${card.offsetWidth}px;opacity:0.8;z-index:9999;pointer-events:none;transition:none;border:2px solid var(--accent,#E83535);border-radius:14px`;
+  document.body.appendChild(touchClone);
+
+  const move = (ev) => {
+    const t = ev.touches[0];
+    touchClone.style.top = (t.clientY - 40) + 'px';
+    // Highlight card under finger
+    document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over'));
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    if (el) { const card2 = el.closest('.card'); if(card2&&card2.id!=='card-'+touchDragId) card2.classList.add('drag-over'); }
+  };
+  const end = (ev) => {
+    document.removeEventListener('touchmove', move);
+    document.removeEventListener('touchend', end);
+    if(touchClone){ touchClone.remove(); touchClone=null; }
+    const t = ev.changedTouches[0];
+    const el = document.elementFromPoint(t.clientX, t.clientY);
+    document.querySelectorAll('.card').forEach(c=>c.classList.remove('dragging','drag-over'));
+    if(el){ const card2=el.closest('.card'); if(card2){ const tgtId=parseInt(card2.id.replace('card-','')); if(tgtId&&tgtId!==touchDragId){ dragDrop({preventDefault:()=>{}},tgtId); return; } } }
+    renderExercises();
+  };
+  document.addEventListener('touchmove', move, {passive:false});
+  document.addEventListener('touchend', end);
 };
 
 window.removeSerie = (id) => {
@@ -2177,10 +2267,10 @@ function renderProgress() {
   renderMuscleStats();
   renderMuscleTrend();
   // Populate exercise selector
-  const sel = document.getElementById('progress-ex-sel');
-  if (sel) {
+  const exSel = document.getElementById('progress-ex-sel');
+  if (exSel) {
     const exNames = [...new Set(history.flatMap(h=>(h.exercises||[]).map(e=>e.name)))].sort();
-    sel.innerHTML = exNames.map(n=>`<option value="${n}">${n}</option>`).join('');
+    exSel.innerHTML = exNames.map(n=>`<option value="${n}">${n}</option>`).join('');
     if (exNames.length) renderProgressChart();
   }
 }
@@ -2424,7 +2514,21 @@ function renderBig3Charts() {
       const prev = sessions.length > 1 ? sessions[sessions.length-2].val : null;
       const trend = prev !== null ? (last > prev ? '📈' : last < prev ? '📉' : '➡️') : '';
       const unit = ex.type === 'reps' ? ' reps' : sessions[0].hasKg ? 'kg' : ' reps';
-      prEl.textContent = `🏆 Récord: ${pr}${unit} · Última: ${last}${unit} ${trend}`;
+      let ormText = '';
+      if (ex.type === 'kg' && sessions.length) {
+        // Find best kg x reps combo for 1RM
+        let best1RM = 0;
+        history.filter(h=>h.exercises&&h.exercises.some(e=>getAliases(ex.name).includes(normalizeExName(e.name).toLowerCase())))
+          .forEach(h=>{
+            const e = h.exercises.find(x=>getAliases(ex.name).includes(normalizeExName(x.name).toLowerCase()));
+            if(e) e.series.forEach(s=>{
+              const kg=parseFloat(s.kg)||0, reps=parseInt(s.reps)||0;
+              if(kg>0&&reps>0){ const orm=kg*(1+reps/30); if(orm>best1RM)best1RM=orm; }
+            });
+          });
+        if(best1RM>0) ormText = ` · 1RM ~${Math.round(best1RM*10)/10}kg`;
+      }
+      prEl.textContent = `🏆 Récord: ${pr}${unit} · Última: ${last}${unit} ${trend}${ormText}`;
     } else {
       prEl.textContent = 'Sin datos aún';
     }
@@ -2512,7 +2616,21 @@ window.renderProgressChart = () => {
   const unit = isTime ? 's' : isBW ? ' reps' : 'kg';
   const label = isTime ? 'tiempo' : isBW ? 'reps' : 'peso';
 
-  banner.innerHTML = `<div class="pr-banner"><div class="pr-trophy">🏆</div><div><div class="pr-info-label">Récord · ${exName}</div><div class="pr-info-val">${pr}${unit}</div></div></div>`;
+  // Calculate 1RM for weighted exercises
+  let ormHtml = '';
+  if (!isTime && !isBW) {
+    let best1RM = 0;
+    history.filter(h=>h.exercises&&h.exercises.some(e=>getAliases(exName).includes(normalizeExName(e.name))))
+      .forEach(h=>{
+        const e=h.exercises.find(x=>getAliases(exName).includes(normalizeExName(x.name)));
+        if(e) e.series.forEach(s=>{
+          const kg=parseFloat(s.kg)||0,reps=parseInt(s.reps)||0;
+          if(kg>0&&reps>0){const orm=kg*(1+reps/30);if(orm>best1RM)best1RM=orm;}
+        });
+      });
+    if(best1RM>0) ormHtml = `<div style="font-size:12px;color:#888;margin-top:2px">1RM estimado: ~${Math.round(best1RM*10)/10}kg</div>`;
+  }
+  banner.innerHTML = `<div class="pr-banner"><div class="pr-trophy">🏆</div><div><div class="pr-info-label">Récord · ${exName}</div><div class="pr-info-val">${pr}${unit}</div>${ormHtml}</div></div>`;
 
   if (progressChart) { progressChart.destroy(); progressChart = null; }
   progressChart = new Chart(document.getElementById('progressChart'), {
@@ -3460,6 +3578,38 @@ function showWorkoutModePicker() {
   document.querySelector('.wm-header').style.display = 'none';
   document.querySelector('.wm-progress-bar').style.display = 'none';
 }
+
+// ── EXERCISE SEARCH ──
+let exSearchActive = false;
+window.toggleExSearch = () => {
+  exSearchActive = !exSearchActive;
+  const wrap = document.getElementById('ex-search-wrap');
+  if (wrap) {
+    wrap.style.display = exSearchActive ? 'block' : 'none';
+    if (exSearchActive) { document.getElementById('ex-search-inp').focus(); }
+    else { clearExSearch(); }
+  }
+};
+
+window.filterExSearch = (val) => {
+  const clearBtn = document.getElementById('ex-search-clear');
+  if (clearBtn) clearBtn.style.display = val ? 'block' : 'none';
+  const cards = document.querySelectorAll('#exercises-list .card');
+  const q = val.toLowerCase().trim();
+  cards.forEach(card => {
+    const name = card.querySelector('.ex-name')?.textContent?.toLowerCase() || '';
+    const muscle = card.querySelector('.ex-muscle')?.textContent?.toLowerCase() || '';
+    card.style.display = (!q || name.includes(q) || muscle.includes(q)) ? '' : 'none';
+  });
+};
+
+window.clearExSearch = () => {
+  const inp = document.getElementById('ex-search-inp');
+  if (inp) inp.value = '';
+  const clearBtn = document.getElementById('ex-search-clear');
+  if (clearBtn) clearBtn.style.display = 'none';
+  filterExSearch('');
+};
 
 window.toggleWmMuscle = (muscle, btn) => {
   const active = btn.style.background === 'rgba(232, 53, 53, 0.2)' || btn.getAttribute('data-active') === '1';
