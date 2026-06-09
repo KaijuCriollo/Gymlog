@@ -415,6 +415,41 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
   </div>
 
+  <script>
+  // Auth preview — runs immediately before module loads
+  (function(){
+    try {
+      var raw = localStorage.getItem('gymlog_last_profile');
+      if (!raw) return;
+      var prof = JSON.parse(raw);
+      var accent = prof.accentColor || '#E83535';
+      if (prof.avatarUrl && prof.avatarUrl.length > 100) {
+        var wrap = document.getElementById('auth-bg-img-wrap');
+        var img = document.getElementById('auth-bg-img');
+        if (wrap) wrap.style.display = 'block';
+        if (img) img.src = prof.avatarUrl;
+        var av = document.getElementById('auth-preview-avatar');
+        if (av) av.innerHTML = '<img src="'+prof.avatarUrl+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>';
+      }
+      if (prof.nickname) {
+        var nm = document.getElementById('auth-preview-name');
+        if (nm) { nm.textContent = prof.nickname; nm.style.display = 'block'; }
+        var lw = document.getElementById('auth-logo-wrap');
+        if (lw) lw.style.display = 'none';
+        var pv = document.getElementById('auth-profile-preview');
+        if (pv) pv.style.display = 'flex';
+      }
+      if (prof.frase) {
+        var fr = document.getElementById('auth-preview-frase');
+        if (fr) { fr.textContent = '"'+prof.frase+'"'; fr.style.display = 'block'; }
+      }
+      var btn = document.getElementById('auth-btn');
+      if (btn) btn.style.background = accent;
+      var grp = document.getElementById('gym-elements-group');
+      if (grp) grp.setAttribute('fill', accent);
+    } catch(e){}
+  })();
+  </script>
   <div class="auth-box" style="position:relative;z-index:1;background:rgba(15,15,15,0.88);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.07);border-radius:20px 20px 0 0;margin:0 -24px -40px;padding:24px 24px calc(24px + env(safe-area-inset-bottom,0px));width:calc(100% + 48px);max-width:none">
     <div class="auth-logo" id="auth-logo-text" style="display:none">Kaiju<span>GymLog</span></div>
     <div class="auth-tagline" id="auth-tagline" style="display:none">Registrá tu progreso en el gym</div>
@@ -427,7 +462,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         const prof = JSON.parse(raw);
         const accent = prof.accentColor || '#E83535';
         if (prof.nickname || prof.avatarUrl) {
-          document.getElementById('auth-profile-preview').style.display = 'flex';
+          var _pv=document.getElementById('auth-profile-preview'); if(_pv) _pv.style.display='flex';
           document.getElementById('auth-logo-wrap').style.display = 'none';
         }
         if (prof.avatarUrl) {
@@ -584,7 +619,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       </div>
       <div class="chart-title">CONSISTENCIA — ÚLTIMOS 6 MESES</div>
       <div id="consistency-grid" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px;overflow-x:auto"></div>
-      <div class="chart-title">VOLUMEN SEMANAL</div>
+      <div class="chart-title">💤 MÚSCULOS SIN TRABAJAR</div>
+      <div id="muscle-streak" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px;margin-bottom:4px"></div>
+      <div class="chart-title" style="margin-top:14px">VOLUMEN SEMANAL</div>
       <div class="weekly-wrap"><canvas id="weeklyChart">Gráfico semanal</canvas></div>
       <div class="chart-title">PESO CORPORAL</div>
       <div class="peso-chart-wrap"><canvas id="pesoChart">Gráfico peso</canvas></div>
@@ -994,7 +1031,7 @@ function loadAuthPreview() {
 
     // Show profile preview
     if (prof.nickname || prof.avatarUrl) {
-      document.getElementById('auth-profile-preview').style.display = 'flex';
+      var _pv=document.getElementById('auth-profile-preview'); if(_pv) _pv.style.display='flex';
       document.getElementById('auth-logo-wrap').style.display = 'none';
       document.getElementById('auth-logo-text').style.display = 'none';
       document.getElementById('auth-tagline').style.display = 'none';
@@ -1097,6 +1134,15 @@ async function loadUserData() {
     routines = rSnap.docs.map(d => ({fid:d.id,...d.data()}));
     if (profSnap.docs.length) {
       profile = profSnap.docs[0].data();
+      // Save for login screen preview
+      try {
+        localStorage.setItem('gymlog_last_profile', JSON.stringify({
+          nickname: profile.nickname||'',
+          frase: profile.frase||'',
+          avatarUrl: profile.avatarUrl ? profile.avatarUrl.substring(0,80000) : '',
+          accentColor: profile.accentColor||'#E83535'
+        }));
+      } catch(e) {}
       // Save generic cache for login screen
       try {
         // Compress avatar to tiny version for login screen (avoids localStorage quota issues)
@@ -2260,6 +2306,7 @@ function renderProgress() {
   }
 
   renderConsistencyGrid();
+  renderMuscleStreak();
   renderLastSessionPRs();
   renderWeeklyChart();
   renderPesoChart(pesoEntries);
@@ -2356,6 +2403,50 @@ window.setMuscleFilter = (period) => {
     : 'padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
   renderMuscleStats();
 };
+
+function renderMuscleStreak() {
+  const el = document.getElementById('muscle-streak');
+  if (!el) return;
+  const today = new Date();
+  // Get all muscles that have been trained at least once
+  const muscleLastTrained = {};
+  history.filter(h => !h.pesoOnly).forEach(h => {
+    const d = new Date(h.date);
+    (h.exercises||[]).forEach(e => {
+      const m = e.muscle || 'Otro';
+      if (!muscleLastTrained[m] || d > muscleLastTrained[m]) muscleLastTrained[m] = d;
+    });
+  });
+
+  if (!Object.keys(muscleLastTrained).length) {
+    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:4px">Sin datos aún</div>';
+    return;
+  }
+
+  // Sort by days since last trained (most neglected first)
+  const sorted = Object.entries(muscleLastTrained)
+    .map(([muscle, date]) => {
+      const days = Math.floor((today - date) / 86400000);
+      return { muscle, days, date };
+    })
+    .sort((a,b) => b.days - a.days);
+
+  el.innerHTML = sorted.map(({muscle, days}) => {
+    let color, icon;
+    if (days === 0) { color = '#22c97a'; icon = '✅'; }
+    else if (days <= 3) { color = '#f0a04b'; icon = '🟡'; }
+    else if (days <= 6) { color = '#E83535'; icon = '🔴'; }
+    else { color = '#9b5cf6'; icon = '💀'; }
+    const label = days === 0 ? 'Hoy' : days === 1 ? 'Ayer' : `Hace ${days} días`;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #2a2a2a">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:16px">${icon}</span>
+        <span style="font-size:13px;font-weight:700;color:#eee">${muscle}</span>
+      </div>
+      <span style="font-size:12px;font-weight:600;color:${color}">${label}</span>
+    </div>`;
+  }).join('').replace(/border-bottom:[^"]+"><\/div>$/, '"></div>');
+}
 
 function renderMuscleTrend() {
   const el = document.getElementById('muscle-trend');
@@ -3690,15 +3781,36 @@ function renderWorkoutMode() {
   document.getElementById('wm-last').textContent = lastText;
   document.getElementById('wm-pr').textContent = prText;
 
-  // Series
+  // Series — editable inputs
   const seriesHtml = ex.series.map((s,i) => {
-    let detail = '';
-    if (type==='time') detail = `${s.secs||30}s`;
-    else if (type==='bw_lastre') detail = `${s.reps||10} reps${parseFloat(s.kg)>0?' + '+s.kg+'kg lastre':''}`;
-    else detail = `${s.kg||0}kg × ${s.reps||10} reps`;
+    let inputs = '';
+    if (type==='time') {
+      inputs = `<input type="number" value="${s.secs||30}" inputmode="numeric" min="1"
+        style="width:70px;padding:6px;background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#fff;font-size:16px;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none"
+        onchange="wmUpdateSerie(${ex.id},${i},'secs',this.value)"/>
+        <span style="color:#666;font-size:13px;font-weight:600">seg</span>`;
+    } else if (type==='bw_lastre') {
+      inputs = `<input type="number" value="${s.reps||10}" inputmode="numeric" min="1"
+        style="width:60px;padding:6px;background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#fff;font-size:16px;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none"
+        onchange="wmUpdateSerie(${ex.id},${i},'reps',this.value)"/>
+        <span style="color:#666;font-size:13px;font-weight:600">reps</span>
+        <input type="number" value="${s.kg||0}" inputmode="decimal" step="0.5" min="0"
+        style="width:60px;padding:6px;background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#fff;font-size:16px;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none"
+        onchange="wmUpdateSerie(${ex.id},${i},'kg',this.value)"/>
+        <span style="color:#666;font-size:13px;font-weight:600">kg</span>`;
+    } else {
+      inputs = `<input type="number" value="${s.kg||0}" inputmode="decimal" step="0.5" min="0"
+        style="width:65px;padding:6px;background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#fff;font-size:16px;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none"
+        onchange="wmUpdateSerie(${ex.id},${i},'kg',this.value)"/>
+        <span style="color:#666;font-size:13px;font-weight:600">kg ×</span>
+        <input type="number" value="${s.reps||10}" inputmode="numeric" min="1"
+        style="width:55px;padding:6px;background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#fff;font-size:16px;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none"
+        onchange="wmUpdateSerie(${ex.id},${i},'reps',this.value)"/>
+        <span style="color:#666;font-size:13px;font-weight:600">reps</span>`;
+    }
     return `<div class="wm-serie-row ${s.done?'done':''}">
       <div class="wm-serie-num">${i+1}</div>
-      <div class="wm-serie-detail">${detail}</div>
+      <div style="flex:1;display:flex;align-items:center;gap:6px;flex-wrap:wrap">${inputs}</div>
       <button class="wm-serie-check ${s.done?'done':''}" onclick="wmToggleDone(${ex.id},${i})">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </button>
@@ -3712,6 +3824,15 @@ function renderWorkoutMode() {
   if (wmExIndex===total-1) document.getElementById('wm-next-btn').onclick = closeWorkoutMode;
   else document.getElementById('wm-next-btn').onclick = () => wmNavigate(1);
 }
+
+window.wmUpdateSerie = (exId, idx, field, val) => {
+  const ex = exercises.find(e => e.id === exId);
+  if (ex && ex.series[idx]) {
+    ex.series[idx][field] = field === 'kg' ? parseFloat(val)||0 : parseInt(val)||0;
+    saveDraft();
+    saveEx(ex);
+  }
+};
 
 window.wmToggleDone = (exId, idx) => {
   const ex = exercises.find(e => e.id === exId);
