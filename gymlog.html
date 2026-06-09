@@ -1033,6 +1033,8 @@ onAuthStateChanged(auth, async (user) => {
     if (regBtn) regBtn.classList.add('active');
     document.getElementById('save-bar').style.display = '';
     renderAll();
+    // Detect PRs from last session retroactively
+    setTimeout(detectLastSessionPRs, 1000);
     // Check for unsaved draft from previous session
     const draft = loadDraft();
     if (draft) setTimeout(() => offerRestoreDraft(draft), 800);
@@ -1722,6 +1724,39 @@ window.saveWorkout = async () => {
   const totalSeries = exercises.reduce((a,e) => a + (e.series||[]).length, 0);
   if (!confirm(`¿Guardás el entrenamiento de hoy?\n\n✅ ${doneSeries} series completadas de ${totalSeries} totales`)) return;
 
+  // Check if there's already a workout today
+  const todayStr = new Date().toDateString();
+  const todayWorkout = history.find(h => !h.pesoOnly && new Date(h.date).toDateString() === todayStr);
+  if (todayWorkout) {
+    const merge = confirm('Ya guardaste un entrenamiento hoy. ¿Querés unificarlo con este en una sola sesión?\n\n(Si decís NO se guarda como sesión separada)');
+    if (merge) {
+      // Merge: add today's done exercises to existing entry
+      const doneExercises = exercises.filter(e => e.series && e.series.some(s => s.done));
+      const merged = [...(todayWorkout.exercises||[])];
+      doneExercises.forEach(ex => {
+        const existing = merged.find(e => getAliases(ex.name).includes(normalizeExName(e.name)));
+        if (existing) {
+          // Add done series to existing exercise
+          existing.series = [...existing.series, ...ex.series.filter(s=>s.done)];
+        } else {
+          merged.push({...ex, series: ex.series.filter(s=>s.done)});
+        }
+      });
+      todayWorkout.exercises = merged;
+      showSync(true);
+      await updateDoc(doc(db,'users',uid(),'history',todayWorkout.fid), { exercises: merged });
+      showSync(false);
+      // Reset exercises done state
+      exercises.forEach(ex => ex.series.forEach(s => s.done = false));
+      exercises.forEach(ex => saveEx(ex));
+      renderExercises();
+      clearDraft();
+      showToast('✅ Entrenamiento unificado con el de hoy');
+      detectLastSessionPRs();
+      return;
+    }
+  }
+
   // Detect PRs before saving (compare current done series vs historical)
   const sessionPRs = [];
   exercises.forEach(ex => {
@@ -1956,7 +1991,7 @@ function renderHistory() {
           <div class="hist-day-meta">${timeStr} · ${totalS} series · ${Math.round(totalV)}kg vol${entry.peso?' · ⚖️'+entry.peso+'kg':''}</div>
         </div>
         <div class="hist-day-actions">
-          <button class="hist-edit-btn" onclick="event.stopPropagation();openEditEntry('${entry.fid}')">✏️</button><button class="hist-edit-btn" style="color:#E83535;border-color:#333" onclick="event.stopPropagation();deleteHistEntry('${entry.fid}')">🗑</button>
+          <button class="hist-edit-btn" onclick="event.stopPropagation();openEditEntry('${entry.fid}')">✏️</button><button class="hist-edit-btn" style="color:#5b9cf6;border-color:#333" title="Unificar" onclick="event.stopPropagation();offerMergeEntry('${entry.fid}')">🔗</button><button class="hist-edit-btn" style="color:#E83535;border-color:#333" onclick="event.stopPropagation();deleteHistEntry('${entry.fid}')">🗑</button>
           <svg id="hchev-${idx}" style="width:18px;height:18px;stroke:var(--subtle);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 0.2s;flex-shrink:0" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
@@ -1987,6 +2022,49 @@ window.openEditEntry = (fid) => {
   document.getElementById('modal-edit-entry').classList.add('open');
 };
 window.setEditMood = (m, el) => { editMood = m; document.querySelectorAll('#edit-mood-row .mood-chip').forEach(c=>c.classList.remove('selected')); el.classList.add('selected'); };
+window.offerMergeEntry = async (fid) => {
+  // Find other entries from the same day
+  const entry = history.find(h => h.fid === fid);
+  if (!entry) return;
+  const dayStr = new Date(entry.date).toDateString();
+  const sameDay = history.filter(h => !h.pesoOnly && h.fid !== fid && new Date(h.date).toDateString() === dayStr);
+  if (!sameDay.length) { showToast('No hay otros entrenos ese día para unificar'); return; }
+
+  const target = sameDay[0]; // if multiple, take the first
+  const msg = `¿Unificar este entreno con el de las ${new Date(target.date).toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}?\n\nSe combinarán los ejercicios en una sola sesión y se eliminará la entrada duplicada.`;
+  if (!confirm(msg)) return;
+  if (!confirm('Segunda confirmación: ¿seguro? La entrada duplicada se eliminará.')) return;
+
+  // Merge exercises from fid INTO target
+  const merged = [...(target.exercises||[])];
+  (entry.exercises||[]).forEach(ex => {
+    const existing = merged.find(e => getAliases(ex.name).includes(normalizeExName(e.name)));
+    if (existing) {
+      existing.series = [...existing.series, ...(ex.series||[])];
+    } else {
+      merged.push(ex);
+    }
+  });
+
+  showSync(true);
+  try {
+    // Update target with merged exercises
+    await updateDoc(doc(db,'users',uid(),'history',target.fid), { exercises: merged });
+    // Delete the duplicate
+    await deleteDoc(doc(db,'users',uid(),'history',fid));
+    // Update local history
+    target.exercises = merged;
+    history = history.filter(h => h.fid !== fid);
+    showSync(false);
+    renderHistory();
+    showToast('✅ Entrenos unificados');
+  } catch(e) {
+    showSync(false);
+    showToast('Error al unificar');
+    console.error(e);
+  }
+};
+
 window.deleteHistEntry = async (fid) => {
   // Triple confirmation
   if (!confirm('⚠️ ¿Seguro que querés eliminar este entrenamiento? Esta acción no se puede deshacer.')) return;
@@ -2967,6 +3045,69 @@ window.cerrarMesManual = () => {
   profile.lastMesClose = null;
   showCierreDeMes(monthHistory, monthStart);
 };
+
+function detectLastSessionPRs() {
+  // Find the most recent real workout
+  const realHistory = history.filter(h => !h.pesoOnly);
+  if (realHistory.length < 2) return; // need at least 2 sessions to compare
+
+  const lastSession = realHistory[0];
+  const lastDate = new Date(lastSession.date).toDateString();
+
+  // Get all sessions BEFORE the last one
+  const prevHistory = realHistory.slice(1);
+
+  // Temporarily use prevHistory to calculate PRs
+  function getPRFromHistory(exName, hist) {
+    const aliases = getAliases(exName);
+    let prKg = 0, prReps = 0, prSecs = 0;
+    hist.forEach(h => {
+      (h.exercises||[]).forEach(e => {
+        if (!aliases.includes(normalizeExName(e.name))) return;
+        (e.series||[]).forEach(s => {
+          const kg = parseFloat(s.kg)||0;
+          const reps = parseInt(s.reps)||0;
+          const secs = parseInt(s.secs)||0;
+          if (kg > prKg) prKg = kg;
+          if (reps > prReps) prReps = reps;
+          if (secs > prSecs) prSecs = secs;
+        });
+      });
+    });
+    return { kg: prKg, reps: prReps, secs: prSecs };
+  }
+
+  const sessionPRs = [];
+  (lastSession.exercises||[]).forEach(ex => {
+    const exType = ex.type || 'normal';
+    const prevPR = getPRFromHistory(ex.name, prevHistory);
+    const doneSeries = ex.series || [];
+
+    if (exType === 'time') {
+      const maxSecs = Math.max(...doneSeries.map(s=>parseInt(s.secs)||0), 0);
+      if (maxSecs > prevPR.secs) sessionPRs.push(`🏆 ${ex.name}: ${maxSecs}s`);
+    } else if (exType === 'bw_lastre' || exType === 'bw') {
+      const maxReps = Math.max(...doneSeries.map(s=>parseInt(s.reps)||0), 0);
+      if (maxReps > prevPR.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxReps} reps`);
+    } else {
+      const maxKg = Math.max(...doneSeries.map(s=>parseFloat(s.kg)||0), 0);
+      const maxReps = Math.max(...doneSeries.map(s=>parseInt(s.reps)||0), 0);
+      if (maxKg > prevPR.kg) sessionPRs.push(`🏆 ${ex.name}: ${maxKg}kg`);
+      else if (maxReps > prevPR.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxKg}kg × ${maxReps} reps`);
+    }
+  });
+
+  if (sessionPRs.length) {
+    // Only update if we don't already have PRs saved for this session
+    if (!profile.lastSessionPRs || profile.lastSessionPRs.date !== lastDate) {
+      profile.lastSessionPRs = {
+        date: new Date(lastSession.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
+        prs: sessionPRs
+      };
+      saveProfileDB();
+    }
+  }
+}
 
 function checkCierreDeMes() {
   if (!history.length) return;
