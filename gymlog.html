@@ -1218,9 +1218,11 @@ function loadDraft() {
       localStorage.removeItem(DRAFT_KEY());
       return false;
     }
-    // Check if there's anything meaningful (at least one done series)
+    // Restore if there's at least one done serie OR the draft was recently saved (< 2h)
     const hasDone = (data.exercises||[]).some(e => e.series && e.series.some(s => s.done));
-    if (!hasDone) return false;
+    const isRecent = Date.now() - data.ts < 2 * 60 * 60 * 1000;
+    if (!hasDone && !isRecent) return false;
+    if (!hasDone) return false; // only restore with done series to avoid false positives
     return data;
   } catch(e) { return false; }
 }
@@ -1742,8 +1744,8 @@ window.updateSeries = (exId, idx, field, val) => {
   const ex = exercises.find(e => e.id === exId);
   if (ex && ex.series[idx]) {
     ex.series[idx][field] = val;
-    saveDraft(); // immediate local save
-    saveEx(ex);  // Firebase (background)
+    saveDraft();
+    saveEx(ex);
   }
 };
 
@@ -2771,6 +2773,18 @@ function updateConnectivity() {
 window.addEventListener('online', () => { updateConnectivity(); showToast('✅ Conexión restaurada — sincronizando...'); });
 window.addEventListener('offline', () => { updateConnectivity(); showToast('📡 Sin conexión — modo offline activo'); });
 updateConnectivity();
+
+// Save draft when app is minimized or tab is hidden
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    saveDraft();
+  }
+});
+
+// Save draft before page unloads
+window.addEventListener('beforeunload', () => {
+  saveDraft();
+});
 window.saveNutri = async () => {
   const date = document.getElementById('nutri-date-inp').value;
   if (!date) { showToast('Seleccioná una fecha'); return; }
