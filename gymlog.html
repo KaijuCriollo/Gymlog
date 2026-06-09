@@ -2176,7 +2176,13 @@ function renderProgress() {
   renderBig3Charts();
   renderMuscleStats();
   renderMuscleTrend();
-  renderProgressChart();
+  // Populate exercise selector
+  const sel = document.getElementById('progress-ex-sel');
+  if (sel) {
+    const exNames = [...new Set(history.flatMap(h=>(h.exercises||[]).map(e=>e.name)))].sort();
+    sel.innerHTML = exNames.map(n=>`<option value="${n}">${n}</option>`).join('');
+    if (exNames.length) renderProgressChart();
+  }
 }
 
 function renderConsistencyGrid() {
@@ -2264,6 +2270,10 @@ window.setMuscleFilter = (period) => {
 function renderMuscleTrend() {
   const el = document.getElementById('muscle-trend');
   if (!el) return;
+  if (!history.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos aún</div>';
+    return;
+  }
   const today = new Date();
   const curMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
   const prevMonthStart = new Date(today.getFullYear(), today.getMonth()-1, 1);
@@ -2355,7 +2365,8 @@ function renderMuscleStats() {
   });
 
   if (!Object.keys(muscleSeries).length) {
-    el.innerHTML = `<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos ${periodLabel}</div>`;
+    const alt = muscleFilterPeriod === 'week' ? 'Probá con "Último mes"' : '';
+    el.innerHTML = `<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos ${periodLabel}. ${alt}</div>`;
     return;
   }
 
