@@ -651,9 +651,10 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
       </div>
       <div class="chart-title" style="margin-top:14px">MÚSCULOS</div>
-      <div style="margin:6px 12px 0;display:flex;gap:8px">
-        <button id="muscle-filter-week" onclick="setMuscleFilter('week')" style="padding:5px 14px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Última semana</button>
-        <button id="muscle-filter-month" onclick="setMuscleFilter('month')" style="padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Último mes</button>
+      <div style="margin:6px 12px 0;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none">
+        <button id="muscle-filter-week" onclick="setMuscleFilter('week')" style="flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Esta semana</button>
+        <button id="muscle-filter-month" onclick="setMuscleFilter('month')" style="flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Este mes</button>
+        <button id="muscle-filter-prevmonth" onclick="setMuscleFilter('prevmonth')" style="flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" id="muscle-filter-prevmonth">Mes anterior</button>
       </div>
       <div id="muscle-stats" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
       <div class="chart-title" style="margin-top:14px">TENDENCIA POR MÚSCULO</div>
@@ -665,6 +666,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <div class="chart-wrap"><canvas id="progressChart">Gráfico progreso</canvas></div>
       <div class="chart-title" style="margin-top:14px">💤 MÚSCULOS SIN TRABAJAR</div>
       <div id="muscle-streak" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
+      <div class="chart-title" style="margin-top:14px">⚖️ FUERZA VS PESO CORPORAL</div>
+      <div id="strength-weight-analysis" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:14px;margin-bottom:4px"></div>
       <div class="chart-title" style="margin-top:14px">🔥 RÉCORDS — ÚLTIMA SESIÓN</div>
       <div id="last-session-prs" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px;margin-bottom:16px"></div>
     </div>
@@ -2034,14 +2037,19 @@ window.saveWorkout = async () => {
   document.getElementById('workout-note').value = '';
 
   clearDraft();
-  saveAppCache(); // update local cache after workout
+  saveAppCache();
+  // Reset all done flags so "Ahora" is empty after saving
+  exercises.forEach(ex => {
+    ex.series.forEach(s => s.done = false);
+    saveEx(ex);
+  });
   updatePesoLast(); updateDaysSince(); calcStreak();
   document.getElementById('save-btn').disabled = false;
   showToast('¡Entrenamiento guardado! 💪');
   if (sessionPRs.length) {
-    // Save last session PRs to profile for Cierres tab
     profile.lastSessionPRs = {
       date: new Date().toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
+      sessionDate: new Date().toDateString(),
       prs: sessionPRs
     };
     saveProfileDB();
@@ -2366,6 +2374,7 @@ function renderProgress() {
   renderBig3Charts();
   renderMuscleStats();
   renderMuscleTrend();
+  renderStrengthAnalysis();
   // Populate exercise selector
   const exSel = document.getElementById('progress-ex-sel');
   if (exSel) {
@@ -2448,12 +2457,20 @@ function renderConsistencyGrid() {
 let muscleFilterPeriod = 'week';
 window.setMuscleFilter = (period) => {
   muscleFilterPeriod = period;
-  document.getElementById('muscle-filter-week').style.cssText = period==='week'
-    ? 'padding:5px 14px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif'
-    : 'padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
-  document.getElementById('muscle-filter-month').style.cssText = period==='month'
-    ? 'padding:5px 14px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif'
-    : 'padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+  ['week','month','prevmonth'].forEach(p => {
+    const btn = document.getElementById('muscle-filter-'+p);
+    if (!btn) return;
+    const active = p === period;
+    btn.style.cssText = active
+      ? 'flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif'
+      : 'flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+  });
+  // Update prevmonth button label dynamically
+  const prevBtn = document.getElementById('muscle-filter-prevmonth');
+  if (prevBtn) {
+    const prevMonth = new Date(); prevMonth.setMonth(prevMonth.getMonth()-1);
+    prevBtn.textContent = prevMonth.toLocaleDateString('es-AR',{month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  }
   renderMuscleStats();
 };
 
@@ -2578,19 +2595,28 @@ function renderMuscleTrend() {
 function renderMuscleStats() {
   const el = document.getElementById('muscle-stats');
   if (!el) return;
+  // Update prevmonth button label
+  const prevBtn = document.getElementById('muscle-filter-prevmonth');
+  if (prevBtn) {
+    const pm = new Date(); pm.setMonth(pm.getMonth()-1);
+    prevBtn.textContent = pm.toLocaleDateString('es-AR',{month:'long'}).replace(/^\w/,c=>c.toUpperCase());
+  }
   const today = new Date();
-  // Week = current week Mon-Sun, Month = current calendar month
-  let fromDate;
+  // Week = Mon-Sun, Month = this month, prevmonth = last calendar month
+  let fromDate, toDate = today;
   if (muscleFilterPeriod === 'week') {
     const dow = today.getDay() === 0 ? 6 : today.getDay() - 1;
     fromDate = new Date(today); fromDate.setDate(today.getDate() - dow); fromDate.setHours(0,0,0,0);
+  } else if (muscleFilterPeriod === 'prevmonth') {
+    fromDate = new Date(today.getFullYear(), today.getMonth()-1, 1);
+    toDate = new Date(today.getFullYear(), today.getMonth(), 0);
   } else {
     fromDate = new Date(today.getFullYear(), today.getMonth(), 1);
   }
-  const periodLabel = muscleFilterPeriod === 'week' ? 'esta semana' : 'este mes';
+  const periodLabel = muscleFilterPeriod === 'week' ? 'esta semana' : muscleFilterPeriod === 'prevmonth' ? 'el mes anterior' : 'este mes';
 
   const muscleSeries = {};
-  history.filter(h => !h.pesoOnly && new Date(h.date) >= fromDate).forEach(h => {
+  history.filter(h => !h.pesoOnly && new Date(h.date) >= fromDate && new Date(h.date) <= toDate).forEach(h => {
     h.exercises && h.exercises.forEach(e => {
       const m = e.muscle || 'Otro';
       if (!muscleSeries[m]) muscleSeries[m] = 0;
@@ -2610,7 +2636,7 @@ function renderMuscleStats() {
   let html = '';
   sorted.forEach(([muscle, series]) => {
     const pct = Math.round((series/max)*100);
-    const sessionCount = history.filter(h => !h.pesoOnly && new Date(h.date) >= fromDate && h.exercises && h.exercises.some(e=>e.muscle===muscle)).length;
+    const sessionCount = history.filter(h => !h.pesoOnly && new Date(h.date) >= fromDate && new Date(h.date) <= toDate && h.exercises && h.exercises.some(e=>e.muscle===muscle)).length;
     html += `<div style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;margin-bottom:4px">
         <span style="font-size:12px;font-weight:700;color:#eee">${muscle}</span>
@@ -2889,6 +2915,109 @@ function renderCierres() {
           </div>` : ''}
       </div>
     </div>`).join('');
+  el.innerHTML = html;
+}
+
+function renderStrengthAnalysis() {
+  const el = document.getElementById('strength-weight-analysis');
+  if (!el) return;
+
+  // Need at least 2 weeks of data
+  const pesoEntries = history.filter(h=>h.peso&&h.peso>0).sort((a,b)=>new Date(a.date)-new Date(b.date));
+  if (pesoEntries.length < 2) {
+    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:4px">Necesitás más registros de peso corporal para ver este análisis</div>';
+    return;
+  }
+
+  // Get weekly avg peso and weekly max strength for key exercises
+  const keyEx = ['Press de banca','Dominadas','Sentadillas'];
+  const weeks = {};
+  history.filter(h=>!h.pesoOnly).forEach(h => {
+    const d = new Date(h.date);
+    const wk = `${d.getFullYear()}-W${Math.floor((d-new Date(d.getFullYear(),0,1))/604800000)}`;
+    if (!weeks[wk]) weeks[wk] = { strength:{}, peso:[] };
+    // Peso from same week
+  });
+  pesoEntries.forEach(h => {
+    const d = new Date(h.date);
+    const wk = `${d.getFullYear()}-W${Math.floor((d-new Date(d.getFullYear(),0,1))/604800000)}`;
+    if (!weeks[wk]) weeks[wk] = { strength:{}, peso:[] };
+    weeks[wk].peso.push(h.peso);
+  });
+  history.filter(h=>!h.pesoOnly).forEach(h => {
+    const d = new Date(h.date);
+    const wk = `${d.getFullYear()}-W${Math.floor((d-new Date(d.getFullYear(),0,1))/604800000)}`;
+    if (!weeks[wk]) weeks[wk] = { strength:{}, peso:[] };
+    (h.exercises||[]).forEach(ex => {
+      keyEx.forEach(kex => {
+        if (getAliases(kex).includes(normalizeExName(ex.name))) {
+          const maxKg = Math.max(...(ex.series||[]).map(s=>parseFloat(s.kg)||0),0);
+          const maxReps = Math.max(...(ex.series||[]).map(s=>parseInt(s.reps)||0),0);
+          if (!weeks[wk].strength[kex] || maxKg > (weeks[wk].strength[kex].kg||0)) {
+            weeks[wk].strength[kex] = { kg:maxKg, reps:maxReps };
+          }
+        }
+      });
+    });
+  });
+
+  // Last 4 weeks with data
+  const sortedWeeks = Object.entries(weeks)
+    .filter(([,v]) => v.peso.length > 0)
+    .sort(([a],[b]) => a.localeCompare(b))
+    .slice(-8);
+
+  if (sortedWeeks.length < 2) {
+    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:4px">Necesitás más semanas de datos para ver tendencias</div>';
+    return;
+  }
+
+  // Compare first half vs second half
+  const mid = Math.floor(sortedWeeks.length/2);
+  const firstHalf = sortedWeeks.slice(0,mid);
+  const secondHalf = sortedWeeks.slice(mid);
+
+  const avgPeso1 = firstHalf.filter(([,v])=>v.peso.length).reduce((a,[,v])=>a+v.peso.reduce((x,y)=>x+y,0)/v.peso.length,0)/Math.max(1,firstHalf.filter(([,v])=>v.peso.length).length);
+  const avgPeso2 = secondHalf.filter(([,v])=>v.peso.length).reduce((a,[,v])=>a+v.peso.reduce((x,y)=>x+y,0)/v.peso.length,0)/Math.max(1,secondHalf.filter(([,v])=>v.peso.length).length);
+  const pesoDiff = Math.round((avgPeso2-avgPeso1)*10)/10;
+
+  // Strength trend per exercise
+  let html = '';
+  if (Math.abs(pesoDiff) < 0.3) {
+    html += `<div style="background:rgba(91,156,246,0.1);border:1px solid rgba(91,156,246,0.3);border-radius:10px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:#5b9cf6">⚖️ Peso estable (${pesoDiff>0?'+':''}${pesoDiff}kg)</div>
+      <div style="font-size:12px;color:#888;margin-top:3px">Estás en mantenimiento. Cada récord que rompas es pura ganancia de fuerza.</div>
+    </div>`;
+  } else if (pesoDiff < 0) {
+    html += `<div style="background:rgba(34,201,122,0.1);border:1px solid rgba(34,201,122,0.3);border-radius:10px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:#22c97a">📉 Bajando peso (${pesoDiff}kg)</div>
+      <div style="font-size:12px;color:#888;margin-top:3px">Si mantenés o subís cargas mientras bajás, estás preservando músculo. Excelente.</div>
+    </div>`;
+  } else {
+    html += `<div style="background:rgba(240,160,75,0.1);border:1px solid rgba(240,160,75,0.3);border-radius:10px;padding:10px 12px;margin-bottom:12px">
+      <div style="font-size:13px;font-weight:700;color:#f0a04b">📈 Subiendo peso (+${pesoDiff}kg)</div>
+      <div style="font-size:12px;color:#888;margin-top:3px">Si la fuerza sube junto al peso, estás ganando masa muscular.</div>
+    </div>`;
+  }
+
+  // Per exercise strength trend
+  keyEx.forEach(kex => {
+    const s1 = firstHalf.map(([,v])=>v.strength[kex]?.kg||0).filter(x=>x>0);
+    const s2 = secondHalf.map(([,v])=>v.strength[kex]?.kg||0).filter(x=>x>0);
+    if (!s1.length || !s2.length) return;
+    const avg1 = Math.round(s1.reduce((a,b)=>a+b,0)/s1.length*10)/10;
+    const avg2 = Math.round(s2.reduce((a,b)=>a+b,0)/s2.length*10)/10;
+    const diff = Math.round((avg2-avg1)*10)/10;
+    const pct = avg1 > 0 ? Math.round((diff/avg1)*100) : 0;
+    const icon = diff > 0 ? '📈' : diff < 0 ? '📉' : '➡️';
+    const color = diff > 0 ? '#22c97a' : diff < 0 ? '#E83535' : '#666';
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #2a2a2a">
+      <span style="font-size:13px;color:#aaa;font-weight:600">${kex}</span>
+      <span style="font-size:13px;font-weight:700;color:${color}">${icon} ${diff>0?'+':''}${diff}kg (${diff>0?'+':''}${pct}%)</span>
+    </div>`;
+  });
+
+  html += `<div style="font-size:10px;color:#444;margin-top:8px">Comparando primeras ${mid} semanas vs últimas ${secondHalf.length} semanas con datos</div>`;
   el.innerHTML = html;
 }
 
@@ -3464,14 +3593,13 @@ function detectLastSessionPRs() {
     }
   });
 
-  // Always update with latest detection
+  // Always update
   profile.lastSessionPRs = {
     date: new Date(lastSession.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
     sessionDate: lastDate,
     prs: sessionPRs
   };
   saveProfileDB();
-  // Refresh progreso if open
   const progTab = document.getElementById('tab-progreso');
   if (progTab && progTab.classList.contains('active')) renderLastSessionPRs();
 }
