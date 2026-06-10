@@ -102,8 +102,6 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .ex-note-wrap{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
 .note-textarea{width:100%;padding:8px 10px;border:1px solid #333;border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:#f0ede8;background:#111;resize:none;outline:none;min-height:56px}
 .note-textarea::placeholder{color:var(--subtle)}
-.card.drag-over{border:2px dashed var(--accent,#E83535);opacity:0.8}
-.card.dragging{opacity:0.4;transform:scale(0.98)}
 .add-series-btn{width:100%;margin-top:6px;padding:7px;background:none;border:1.5px dashed #333;border-radius:var(--radius-sm);font-size:13px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-weight:600}
 .del-btn{margin-top:8px;float:right;background:none;border:none;font-size:12px;color:var(--subtle);cursor:pointer;font-family:'DM Sans',sans-serif}
 .clearfix::after{content:'';display:table;clear:both}
@@ -660,16 +658,18 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <div class="chart-title" style="margin-top:14px">TENDENCIA POR MÚSCULO</div>
       <div style="margin:4px 12px 0;font-size:11px;color:#444;font-weight:600">Este mes vs mes anterior · volumen total</div>
       <div id="muscle-trend" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
-      <div class="chart-title" style="margin-top:14px">OTRO EJERCICIO</div>
-      <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()"></select>
-      <div id="pr-banner"></div>
-      <div class="chart-wrap"><canvas id="progressChart">Gráfico progreso</canvas></div>
+
       <div class="chart-title" style="margin-top:14px">💤 MÚSCULOS SIN TRABAJAR</div>
       <div id="muscle-streak" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
       <div class="chart-title" style="margin-top:14px">⚖️ FUERZA VS PESO CORPORAL</div>
       <div id="strength-weight-analysis" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:14px;margin-bottom:4px"></div>
       <div class="chart-title" style="margin-top:14px">🔥 RÉCORDS — ÚLTIMA SESIÓN</div>
-      <div id="last-session-prs" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px;margin-bottom:16px"></div>
+      <div id="last-session-prs" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
+      <div class="chart-title" style="margin-top:14px">PROGRESO POR EJERCICIO</div>
+      <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()" style="margin:6px 12px 0;width:calc(100% - 24px);padding:10px 12px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:10px;color:#f0ede8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none"></select>
+      <div id="pr-banner" style="margin:6px 12px 0"></div>
+      <div class="chart-wrap"><canvas id="progressChart">Gráfico progreso</canvas></div>
+      <div style="height:20px"></div>
     </div>
 
     <!-- NUTRICIÓN -->
@@ -1732,20 +1732,22 @@ function buildExCard(ex) {
   const suggestion = getNextSessionSuggestion(ex.name, type);
   const suggLine = suggestion ? suggestion.message : '';
 
-  return `<div class="card" id="card-${ex.id}" draggable="true" ondragstart="dragStart(event,${ex.id})" ondragover="dragOver(event)" ondrop="dragDrop(event,${ex.id})" ondragend="dragEnd(event)">
+  const exIdx = exercises.indexOf(ex);
+  const isFirst = exIdx === 0;
+  const isLast = exIdx === exercises.length - 1;
+  return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
       <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
-      <div style="color:#333;font-size:18px;cursor:grab;padding:0 4px;flex-shrink:0;touch-action:none" 
-           onmousedown="event.stopPropagation()" 
-           ontouchstart="touchDragStart(event,${ex.id})" 
-           title="Arrastrá para ordenar">⠿</div>
+      <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0" onclick="event.stopPropagation()">
+        <button onclick="moveExUp(${ex.id})" style="background:none;border:none;color:${isFirst?'#2a2a2a':'#555'};font-size:12px;cursor:pointer;padding:1px 4px;line-height:1" ${isFirst?'disabled':''}>▲</button>
+        <button onclick="moveExDown(${ex.id})" style="background:none;border:none;color:${isLast?'#2a2a2a':'#555'};font-size:12px;cursor:pointer;padding:1px 4px;line-height:1" ${isLast?'disabled':''}>▼</button>
+      </div>
       <div class="card-header-left" style="flex:1;min-width:0">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-muscle">${ex.muscle}</div>
         ${compLine ? `<div style="font-size:11px;color:#5b9cf6;font-weight:600;margin-top:1px">${compLine}</div>` : ''}
         ${suggLine ? `<div style="font-size:11px;color:#22c97a;font-weight:600;margin-top:1px">💡 ${suggLine}</div>` : ''}
         ${prLine ? `<div class="ex-pr">${prLine}</div>` : ''}
-      </div>
       </div>
       <div class="card-header-right">
         <div class="prog-pill ${allDone?'done-all':''}">${done}/${total}</div>
@@ -1806,65 +1808,29 @@ window.toggleDone = (exId, idx) => {
   }
 };
 
-// ── DRAG & DROP ──
-let dragSrcId = null;
-
-window.dragStart = (e, id) => {
-  dragSrcId = id;
-  e.dataTransfer.effectAllowed = 'move';
-  setTimeout(() => { const el = document.getElementById('card-'+id); if(el) el.classList.add('dragging'); }, 0);
-};
-window.dragOver = (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
-window.dragEnd = (e) => { document.querySelectorAll('.card').forEach(c=>c.classList.remove('dragging','drag-over')); };
-window.dragDrop = (e, targetId) => {
-  e.preventDefault();
-  if (dragSrcId === targetId) return;
-  document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over'));
-  // Reorder exercises array
-  const srcIdx = exercises.findIndex(ex=>ex.id===dragSrcId);
-  const tgtIdx = exercises.findIndex(ex=>ex.id===targetId);
-  if (srcIdx<0||tgtIdx<0) return;
-  const [moved] = exercises.splice(srcIdx,1);
-  exercises.splice(tgtIdx,0,moved);
-  // Save order to each exercise as 'order' field
+// ── MOVE EXERCISES UP/DOWN ──
+window.moveExUp = (id) => {
+  const idx = exercises.findIndex(e => e.id === id);
+  if (idx <= 0) return;
+  [exercises[idx-1], exercises[idx]] = [exercises[idx], exercises[idx-1]];
   exercises.forEach((ex,i) => { ex.order = i; saveEx(ex); });
   renderExercises();
+  // Keep card open
+  setTimeout(() => {
+    const body = document.getElementById('body-'+id);
+    if (body && body.classList.contains('open')) {
+      body.classList.add('open');
+      document.getElementById('chev-'+id)?.classList.add('open');
+    }
+  }, 50);
 };
 
-// Touch drag for mobile
-let touchDragId = null, touchClone = null, touchScrollY = 0;
-window.touchDragStart = (e, id) => {
-  e.stopPropagation();
-  touchDragId = id;
-  touchScrollY = window.scrollY;
-  const card = document.getElementById('card-'+id);
-  if (!card) return;
-  card.classList.add('dragging');
-  // Create ghost
-  touchClone = card.cloneNode(true);
-  touchClone.style.cssText = `position:fixed;top:${card.getBoundingClientRect().top}px;left:${card.getBoundingClientRect().left}px;width:${card.offsetWidth}px;opacity:0.8;z-index:9999;pointer-events:none;transition:none;border:2px solid var(--accent,#E83535);border-radius:14px`;
-  document.body.appendChild(touchClone);
-
-  const move = (ev) => {
-    const t = ev.touches[0];
-    touchClone.style.top = (t.clientY - 40) + 'px';
-    // Highlight card under finger
-    document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over'));
-    const el = document.elementFromPoint(t.clientX, t.clientY);
-    if (el) { const card2 = el.closest('.card'); if(card2&&card2.id!=='card-'+touchDragId) card2.classList.add('drag-over'); }
-  };
-  const end = (ev) => {
-    document.removeEventListener('touchmove', move);
-    document.removeEventListener('touchend', end);
-    if(touchClone){ touchClone.remove(); touchClone=null; }
-    const t = ev.changedTouches[0];
-    const el = document.elementFromPoint(t.clientX, t.clientY);
-    document.querySelectorAll('.card').forEach(c=>c.classList.remove('dragging','drag-over'));
-    if(el){ const card2=el.closest('.card'); if(card2){ const tgtId=parseInt(card2.id.replace('card-','')); if(tgtId&&tgtId!==touchDragId){ dragDrop({preventDefault:()=>{}},tgtId); return; } } }
-    renderExercises();
-  };
-  document.addEventListener('touchmove', move, {passive:false});
-  document.addEventListener('touchend', end);
+window.moveExDown = (id) => {
+  const idx = exercises.findIndex(e => e.id === id);
+  if (idx < 0 || idx >= exercises.length-1) return;
+  [exercises[idx], exercises[idx+1]] = [exercises[idx+1], exercises[idx]];
+  exercises.forEach((ex,i) => { ex.order = i; saveEx(ex); });
+  renderExercises();
 };
 
 window.removeSerie = (id) => {
@@ -2478,12 +2444,13 @@ function renderMuscleStreak() {
   const el = document.getElementById('muscle-streak');
   if (!el) return;
   const today = new Date();
-  // Get all muscles that have been trained at least once
+  const SKIP_MUSCLES = ['Abdominales', 'Otro'];
   const muscleLastTrained = {};
   history.filter(h => !h.pesoOnly).forEach(h => {
     const d = new Date(h.date);
     (h.exercises||[]).forEach(e => {
       const m = e.muscle || 'Otro';
+      if (SKIP_MUSCLES.includes(m)) return;
       if (!muscleLastTrained[m] || d > muscleLastTrained[m]) muscleLastTrained[m] = d;
     });
   });
