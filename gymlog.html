@@ -1755,11 +1755,18 @@ function buildExCard(ex) {
   const suggestion = getNextSessionSuggestion(ex.name, type);
   const suggLine = suggestion ? suggestion.message : '';
 
-  const exIdx = exercises.findIndex(e => e.id === ex.id);
+  // Index within current filtered group
+  const filteredList = currentFilter === 'Ahora'
+    ? exercises.filter(e => e.series && e.series.some(s => s.done))
+    : currentFilter === 'Todos'
+    ? exercises
+    : exercises.filter(e => e.muscle === currentFilter);
+  const exIdx = filteredList.findIndex(e => e.id === ex.id);
+  const exTotal = filteredList.length;
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
       <div onclick="event.stopPropagation()" style="flex-shrink:0;display:flex;align-items:center;justify-content:center">
-        <input type="number" value="${exIdx+1}" min="1" max="${exercises.length}"
+        <input type="number" value="${exIdx+1}" min="1" max="${exTotal}"
           onchange="event.stopPropagation();moveExToPos(${ex.id},parseInt(this.value)-1)"
           onclick="event.stopPropagation()"
           style="width:36px;padding:4px 2px;background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#888;font-size:13px;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none;outline:none"/>
@@ -1839,12 +1846,31 @@ async function saveExOrder(ex, order) {
 }
 
 window.moveExToPos = (id, newIdx) => {
-  const curIdx = exercises.findIndex(e => e.id === id);
-  if (curIdx < 0) return;
-  const clamped = Math.max(0, Math.min(exercises.length-1, newIdx));
-  const [moved] = exercises.splice(curIdx, 1);
-  exercises.splice(clamped, 0, moved);
-  exercises.forEach((ex,i) => saveExOrder(ex, i));
+  const ex = exercises.find(e => e.id === id);
+  if (!ex) return;
+
+  // Get the filtered group this exercise belongs to
+  const muscle = ex.muscle;
+  const groupFilter = currentFilter === 'Todos' || currentFilter === 'Ahora' ? muscle : currentFilter;
+  const group = exercises.filter(e => e.muscle === groupFilter);
+  const curGroupIdx = group.findIndex(e => e.id === id);
+  const clamped = Math.max(0, Math.min(group.length-1, newIdx));
+  if (curGroupIdx === clamped) return;
+
+  // Reorder within group
+  const [moved] = group.splice(curGroupIdx, 1);
+  group.splice(clamped, 0, moved);
+
+  // Apply group order back to exercises array
+  // Keep non-group exercises in place, reorder group exercises
+  let gi = 0;
+  exercises.forEach((e, i) => {
+    if (e.muscle === groupFilter) {
+      exercises[i] = group[gi++];
+    }
+  });
+
+  exercises.forEach((e,i) => saveExOrder(e, i));
   renderExercises();
 };
 
