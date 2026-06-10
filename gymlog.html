@@ -1740,9 +1740,9 @@ function buildExCard(ex) {
 
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
-      <div style="display:flex;flex-direction:column;flex-shrink:0">
-        <button onclick="event.stopPropagation();moveExUp(${ex.id})" style="background:none;border:none;color:#555;font-size:18px;cursor:pointer;padding:4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center">▲</button>
-        <button onclick="event.stopPropagation();moveExDown(${ex.id})" style="background:none;border:none;color:#555;font-size:18px;cursor:pointer;padding:4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center">▼</button>
+      <div style="display:flex;flex-direction:column;flex-shrink:0;gap:2px" onclick="event.stopPropagation()">
+        <button data-move="up" data-exid="${ex.id}" style="background:#2a2a2a;border:none;color:#aaa;font-size:16px;cursor:pointer;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,0)">▲</button>
+        <button data-move="down" data-exid="${ex.id}" style="background:#2a2a2a;border:none;color:#aaa;font-size:16px;cursor:pointer;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,0)">▼</button>
       </div>
       <div class="card-header-left">
         <div class="ex-name">${ex.name}</div>
@@ -2798,6 +2798,29 @@ function updateConnectivity() {
   const banner = document.getElementById('offline-banner');
   if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
 }
+// Move buttons: capture phase to beat toggleCard
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-move]');
+  if (!btn) return;
+  e.stopPropagation();
+  e.preventDefault();
+  const id = parseInt(btn.getAttribute('data-exid'));
+  const dir = btn.getAttribute('data-move');
+  if (dir === 'up') moveExUp(id);
+  else moveExDown(id);
+}, true); // capture=true fires before toggleCard
+
+document.addEventListener('touchend', (e) => {
+  const btn = e.target.closest('[data-move]');
+  if (!btn) return;
+  e.stopPropagation();
+  e.preventDefault();
+  const id = parseInt(btn.getAttribute('data-exid'));
+  const dir = btn.getAttribute('data-move');
+  if (dir === 'up') moveExUp(id);
+  else moveExDown(id);
+}, true);
+
 window.addEventListener('online', () => { updateConnectivity(); showToast('✅ Conexión restaurada — sincronizando...'); });
 window.addEventListener('offline', () => { updateConnectivity(); showToast('📡 Sin conexión — modo offline activo'); });
 updateConnectivity();
