@@ -1181,6 +1181,22 @@ async function loadUserData() {
       } catch(e) {}
     }
     if (exercises.length === 0) await initDefaults();
+    // Auto-deduplicate exercises (keep first occurrence by name+muscle)
+    const seen = {};
+    const toDelete = [];
+    exercises.forEach(ex => {
+      const key = (ex.name||'').toLowerCase().trim() + '_' + (ex.muscle||'');
+      if (seen[key]) { toDelete.push(ex); }
+      else seen[key] = true;
+    });
+    if (toDelete.length > 0) {
+      console.log(`Deduplicando ${toDelete.length} ejercicios...`);
+      for (const ex of toDelete) {
+        if (ex.fid) await deleteDoc(doc(db,'users',uid(),'exercises',ex.fid));
+      }
+      exercises = exercises.filter(ex => !toDelete.includes(ex));
+      console.log('Deduplicación completa');
+    }
     if (profile.accentColor) applyAccent(profile.accentColor);
     saveAppCache();
     renderAll();
@@ -1739,11 +1755,14 @@ function buildExCard(ex) {
   const suggestion = getNextSessionSuggestion(ex.name, type);
   const suggLine = suggestion ? suggestion.message : '';
 
+  const exIdx = exercises.findIndex(e => e.id === ex.id);
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
-      <div style="display:flex;flex-direction:column;flex-shrink:0;gap:2px" onclick="event.stopPropagation()">
-        <button data-move="up" data-exid="${ex.id}" style="background:#2a2a2a;border:none;color:#aaa;font-size:16px;cursor:pointer;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,0)">▲</button>
-        <button data-move="down" data-exid="${ex.id}" style="background:#2a2a2a;border:none;color:#aaa;font-size:16px;cursor:pointer;width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;touch-action:manipulation;-webkit-tap-highlight-color:rgba(0,0,0,0)">▼</button>
+      <div onclick="event.stopPropagation()" style="flex-shrink:0;display:flex;align-items:center;justify-content:center">
+        <input type="number" value="${exIdx+1}" min="1" max="${exercises.length}"
+          onchange="event.stopPropagation();moveExToPos(${ex.id},parseInt(this.value)-1)"
+          onclick="event.stopPropagation()"
+          style="width:36px;padding:4px 2px;background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#888;font-size:13px;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none;outline:none"/>
       </div>
       <div class="card-header-left">
         <div class="ex-name">${ex.name}</div>
@@ -1813,25 +1832,18 @@ window.toggleDone = (exId, idx) => {
 
 // ── MOVE EXERCISES UP/DOWN ──
 async function saveExOrder(ex, order) {
-  // Only update the order field — never creates new docs
   ex.order = order;
   if (ex.fid) {
     try { await setDoc(doc(db,'users',uid(),'exercises',ex.fid), {order}, {merge:true}); } catch(e) {}
   }
 }
 
-window.moveExUp = (id) => {
-  const idx = exercises.findIndex(e => e.id === id);
-  if (idx <= 0) return;
-  [exercises[idx-1], exercises[idx]] = [exercises[idx], exercises[idx-1]];
-  exercises.forEach((ex,i) => saveExOrder(ex, i));
-  renderExercises();
-};
-
-window.moveExDown = (id) => {
-  const idx = exercises.findIndex(e => e.id === id);
-  if (idx < 0 || idx >= exercises.length-1) return;
-  [exercises[idx], exercises[idx+1]] = [exercises[idx+1], exercises[idx]];
+window.moveExToPos = (id, newIdx) => {
+  const curIdx = exercises.findIndex(e => e.id === id);
+  if (curIdx < 0) return;
+  const clamped = Math.max(0, Math.min(exercises.length-1, newIdx));
+  const [moved] = exercises.splice(curIdx, 1);
+  exercises.splice(clamped, 0, moved);
   exercises.forEach((ex,i) => saveExOrder(ex, i));
   renderExercises();
 };
@@ -2799,29 +2811,6 @@ function updateConnectivity() {
   const banner = document.getElementById('offline-banner');
   if (banner) banner.style.display = navigator.onLine ? 'none' : 'block';
 }
-// Move buttons: capture phase to beat toggleCard
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-move]');
-  if (!btn) return;
-  e.stopPropagation();
-  e.preventDefault();
-  const id = parseInt(btn.getAttribute('data-exid'));
-  const dir = btn.getAttribute('data-move');
-  if (dir === 'up') moveExUp(id);
-  else moveExDown(id);
-}, true); // capture=true fires before toggleCard
-
-document.addEventListener('touchend', (e) => {
-  const btn = e.target.closest('[data-move]');
-  if (!btn) return;
-  e.stopPropagation();
-  e.preventDefault();
-  const id = parseInt(btn.getAttribute('data-exid'));
-  const dir = btn.getAttribute('data-move');
-  if (dir === 'up') moveExUp(id);
-  else moveExDown(id);
-}, true);
-
 window.addEventListener('online', () => { updateConnectivity(); showToast('✅ Conexión restaurada — sincronizando...'); });
 window.addEventListener('offline', () => { updateConnectivity(); showToast('📡 Sin conexión — modo offline activo'); });
 updateConnectivity();
