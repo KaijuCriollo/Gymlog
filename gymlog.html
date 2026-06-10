@@ -1267,7 +1267,11 @@ function offerRestoreDraft(draft) {
   const timeAgo = Math.round((Date.now() - draft.ts) / 60000);
   const timeStr = timeAgo < 60 ? `${timeAgo} min atrás` : `${Math.round(timeAgo/60)}h atrás`;
   if (confirm(`📋 Hay un entreno sin guardar de ${timeStr} con ${doneCount} series completadas. ¿Restaurarlo?`)) {
-    exercises = draft.exercises;
+    // Restore only series/done state, keep current exercises from Firebase
+    draft.exercises.forEach(draftEx => {
+      const live = exercises.find(e => e.fid === draftEx.fid || e.name === draftEx.name && e.muscle === draftEx.muscle);
+      if (live) live.series = draftEx.series;
+    });
     currentMood = draft.mood;
     if (draft.workoutNote && document.getElementById('workout-note')) {
       document.getElementById('workout-note').value = draft.workoutNote;
@@ -1278,7 +1282,7 @@ function offerRestoreDraft(draft) {
     renderExercises();
     renderMoods();
     showToast('✅ Entreno restaurado');
-    // Only update exercises that already exist in Firebase (have fid)
+    // Update series state for existing exercises only
     exercises.filter(ex => ex.fid).forEach(ex => saveEx(ex));
   } else {
     clearDraft();
@@ -1320,14 +1324,11 @@ async function initDefaults() {
 }
 
 async function saveEx(ex) {
+  // ONLY update existing exercises — never create new ones
+  // New exercises are only created via addExercise() or initDefaults()
+  if (!ex.fid) return; // no fid = not saved yet, skip
   const {fid,...data} = ex;
-  if (fid) {
-    await setDoc(doc(db,'users',uid(),'exercises',fid), data);
-  } else if (!exercises.find(e => e !== ex && e.name === ex.name && e.muscle === ex.muscle)) {
-    // Only create if not a duplicate
-    const r = await addDoc(collection(db,'users',uid(),'exercises'), data);
-    ex.fid = r.id;
-  }
+  await setDoc(doc(db,'users',uid(),'exercises',fid), data);
 }
 async function deleteExDB(ex) { if (ex.fid) await deleteDoc(doc(db,'users',uid(),'exercises',ex.fid)); }
 async function addHistEntry(entry) { const {fid,...d} = entry; const r = await addDoc(collection(db,'users',uid(),'history'), d); entry.fid = r.id; }
