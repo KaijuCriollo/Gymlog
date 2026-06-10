@@ -1732,15 +1732,15 @@ function buildExCard(ex) {
   const suggestion = getNextSessionSuggestion(ex.name, type);
   const suggLine = suggestion ? suggestion.message : '';
 
-  const exIdx = exercises.indexOf(ex);
-  const isFirst = exIdx === 0;
-  const isLast = exIdx === exercises.length - 1;
+  const exIdx = exercises.findIndex(e => e.id === ex.id);
+  const isFirst = exIdx <= 0;
+  const isLast = exIdx >= exercises.length - 1;
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
       <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
-      <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0" onclick="event.stopPropagation()">
-        <button onclick="moveExUp(${ex.id})" style="background:none;border:none;color:${isFirst?'#2a2a2a':'#555'};font-size:12px;cursor:pointer;padding:1px 4px;line-height:1" ${isFirst?'disabled':''}>▲</button>
-        <button onclick="moveExDown(${ex.id})" style="background:none;border:none;color:${isLast?'#2a2a2a':'#555'};font-size:12px;cursor:pointer;padding:1px 4px;line-height:1" ${isLast?'disabled':''}>▼</button>
+      <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;padding:0 2px" onclick="event.stopPropagation()">
+        <button onclick="moveExUp(${ex.id})" style="background:none;border:none;color:${isFirst?'#222':'#666'};font-size:13px;cursor:pointer;padding:2px 5px;line-height:1" ${isFirst?'disabled':''}>▲</button>
+        <button onclick="moveExDown(${ex.id})" style="background:none;border:none;color:${isLast?'#222':'#666'};font-size:13px;cursor:pointer;padding:2px 5px;line-height:1" ${isLast?'disabled':''}>▼</button>
       </div>
       <div class="card-header-left" style="flex:1;min-width:0">
         <div class="ex-name">${ex.name}</div>
