@@ -74,7 +74,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
 /* CARDS */
 .card{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);margin:10px 12px 0}
-.card-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer;user-select:none}
+.card-header{display:flex;align-items:center;gap:6px;padding:12px 14px;cursor:pointer;user-select:none}.card-header-left{flex:1;min-width:0}
 .card-header-left{flex:1;min-width:0}
 .ex-name{font-size:14px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ex-muscle{font-size:12px;color:#777;margin-top:1px;font-weight:600}
@@ -1735,12 +1735,11 @@ function buildExCard(ex) {
 
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
-      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
-      <div class="ex-move-btns" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;padding:0 2px" onclick="event.stopPropagation()" id="move-${ex.id}">
-        <button onclick="moveExUp(${ex.id})" class="ex-move-btn" style="background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:2px 5px;line-height:1">▲</button>
-        <button onclick="moveExDown(${ex.id})" class="ex-move-btn" style="background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:2px 5px;line-height:1">▼</button>
+      <div class="ex-move-btns" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;padding:0 2px" onclick="event.stopPropagation()">
+        <button onclick="moveExUp(${ex.id})" style="background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:2px 5px;line-height:1">▲</button>
+        <button onclick="moveExDown(${ex.id})" style="background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:2px 5px;line-height:1">▼</button>
       </div>
-      <div class="card-header-left" style="flex:1;min-width:0">
+      <div class="card-header-left">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-muscle">${ex.muscle}</div>
         ${compLine ? `<div style="font-size:11px;color:#5b9cf6;font-weight:600;margin-top:1px">${compLine}</div>` : ''}
