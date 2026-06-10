@@ -1278,8 +1278,8 @@ function offerRestoreDraft(draft) {
     renderExercises();
     renderMoods();
     showToast('✅ Entreno restaurado');
-    // Save exercises back to Firebase in background
-    exercises.forEach(ex => saveEx(ex));
+    // Only update exercises that already exist in Firebase (have fid)
+    exercises.filter(ex => ex.fid).forEach(ex => saveEx(ex));
   } else {
     clearDraft();
   }
@@ -1321,8 +1321,13 @@ async function initDefaults() {
 
 async function saveEx(ex) {
   const {fid,...data} = ex;
-  if (fid) await setDoc(doc(db,'users',uid(),'exercises',fid), data);
-  else { const r = await addDoc(collection(db,'users',uid(),'exercises'), data); ex.fid = r.id; }
+  if (fid) {
+    await setDoc(doc(db,'users',uid(),'exercises',fid), data);
+  } else if (!exercises.find(e => e !== ex && e.name === ex.name && e.muscle === ex.muscle)) {
+    // Only create if not a duplicate
+    const r = await addDoc(collection(db,'users',uid(),'exercises'), data);
+    ex.fid = r.id;
+  }
 }
 async function deleteExDB(ex) { if (ex.fid) await deleteDoc(doc(db,'users',uid(),'exercises',ex.fid)); }
 async function addHistEntry(entry) { const {fid,...d} = entry; const r = await addDoc(collection(db,'users',uid(),'history'), d); entry.fid = r.id; }
@@ -1735,9 +1740,9 @@ function buildExCard(ex) {
 
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
-      <div class="ex-move-btns" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;padding:0 2px">
-        <button onclick="event.stopPropagation();moveExUp(${ex.id})" style="background:none;border:none;color:#555;font-size:15px;cursor:pointer;padding:2px 6px;line-height:1">▲</button>
-        <button onclick="event.stopPropagation();moveExDown(${ex.id})" style="background:none;border:none;color:#555;font-size:15px;cursor:pointer;padding:2px 6px;line-height:1">▼</button>
+      <div style="display:flex;flex-direction:column;flex-shrink:0">
+        <button onclick="event.stopPropagation();moveExUp(${ex.id})" style="background:none;border:none;color:#555;font-size:18px;cursor:pointer;padding:4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center">▲</button>
+        <button onclick="event.stopPropagation();moveExDown(${ex.id})" style="background:none;border:none;color:#555;font-size:18px;cursor:pointer;padding:4px 8px;line-height:1;min-width:32px;min-height:32px;display:flex;align-items:center;justify-content:center">▼</button>
       </div>
       <div class="card-header-left">
         <div class="ex-name">${ex.name}</div>
@@ -1806,11 +1811,19 @@ window.toggleDone = (exId, idx) => {
 };
 
 // ── MOVE EXERCISES UP/DOWN ──
+async function saveExOrder(ex, order) {
+  // Only update the order field — never creates new docs
+  ex.order = order;
+  if (ex.fid) {
+    try { await setDoc(doc(db,'users',uid(),'exercises',ex.fid), {order}, {merge:true}); } catch(e) {}
+  }
+}
+
 window.moveExUp = (id) => {
   const idx = exercises.findIndex(e => e.id === id);
   if (idx <= 0) return;
   [exercises[idx-1], exercises[idx]] = [exercises[idx], exercises[idx-1]];
-  exercises.forEach((ex,i) => { ex.order = i; saveEx(ex); });
+  exercises.forEach((ex,i) => saveExOrder(ex, i));
   renderExercises();
 };
 
@@ -1818,7 +1831,7 @@ window.moveExDown = (id) => {
   const idx = exercises.findIndex(e => e.id === id);
   if (idx < 0 || idx >= exercises.length-1) return;
   [exercises[idx], exercises[idx+1]] = [exercises[idx+1], exercises[idx]];
-  exercises.forEach((ex,i) => { ex.order = i; saveEx(ex); });
+  exercises.forEach((ex,i) => saveExOrder(ex, i));
   renderExercises();
 };
 
@@ -1998,7 +2011,8 @@ window.saveWorkout = async () => {
   // Reset all done flags so "Ahora" is empty after saving
   exercises.forEach(ex => {
     ex.series.forEach(s => s.done = false);
-    saveEx(ex);
+    // Only update if already exists in Firebase
+    if (ex.fid) saveEx(ex);
   });
   updatePesoLast(); updateDaysSince(); calcStreak();
   document.getElementById('save-btn').disabled = false;
