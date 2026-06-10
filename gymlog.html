@@ -1388,8 +1388,7 @@ function updateQuickPesoLast() {
   const el = document.getElementById('quick-peso-last');
   if (!el) return;
   const last = history.find(h => h.peso);
-  const el = document.getElementById('quick-peso-last');
-  if (el && last) el.textContent = `Último: ${last.peso}kg`;
+  if (last) el.textContent = `Último: ${last.peso}kg`;
 }
 
 /* ── RENDER ALL ── */
