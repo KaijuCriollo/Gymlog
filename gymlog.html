@@ -1949,9 +1949,16 @@ function updateDaysSince() {
   const realWorkouts = history.filter(h => !h.pesoOnly);
   if (!realWorkouts.length) { el.textContent = ''; return; }
   const last = new Date(realWorkouts[0].date);
-  const diff = Math.floor((new Date() - last)/(1000*60*60*24));
-  if (diff === 0) el.innerHTML = '✅ Entrenaste hoy';
-  else el.innerHTML = `Último entreno: <span>${diff} día${diff===1?'':'s'} atrás</span>`;
+  const todayStr = new Date().toDateString();
+  const lastStr = last.toDateString();
+  if (todayStr === lastStr) {
+    el.innerHTML = '✅ Entrenaste hoy';
+  } else {
+    const today = new Date(); today.setHours(0,0,0,0);
+    const lastDay = new Date(last); lastDay.setHours(0,0,0,0);
+    const diff = Math.round((today - lastDay) / (1000*60*60*24));
+    el.innerHTML = `Último entreno: <span>${diff} día${diff===1?'':'s'} atrás</span>`;
+  }
 }
 
 /* ── SAVE WORKOUT ── */
