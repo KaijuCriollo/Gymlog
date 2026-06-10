@@ -1385,6 +1385,8 @@ window.saveQuickPeso = async () => {
   showToast(`⚖️ ${val}kg guardado ✓`);
 };
 function updateQuickPesoLast() {
+  const el = document.getElementById('quick-peso-last');
+  if (!el) return;
   const last = history.find(h => h.peso);
   const el = document.getElementById('quick-peso-last');
   if (el && last) el.textContent = `Último: ${last.peso}kg`;
@@ -1732,15 +1734,12 @@ function buildExCard(ex) {
   const suggestion = getNextSessionSuggestion(ex.name, type);
   const suggLine = suggestion ? suggestion.message : '';
 
-  const exIdx = exercises.findIndex(e => e.id === ex.id);
-  const isFirst = exIdx <= 0;
-  const isLast = exIdx >= exercises.length - 1;
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
       <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
-      <div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;padding:0 2px" onclick="event.stopPropagation()">
-        <button onclick="moveExUp(${ex.id})" style="background:none;border:none;color:${isFirst?'#222':'#666'};font-size:13px;cursor:pointer;padding:2px 5px;line-height:1" ${isFirst?'disabled':''}>▲</button>
-        <button onclick="moveExDown(${ex.id})" style="background:none;border:none;color:${isLast?'#222':'#666'};font-size:13px;cursor:pointer;padding:2px 5px;line-height:1" ${isLast?'disabled':''}>▼</button>
+      <div class="ex-move-btns" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;padding:0 2px" onclick="event.stopPropagation()" id="move-${ex.id}">
+        <button onclick="moveExUp(${ex.id})" class="ex-move-btn" style="background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:2px 5px;line-height:1">▲</button>
+        <button onclick="moveExDown(${ex.id})" class="ex-move-btn" style="background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:2px 5px;line-height:1">▼</button>
       </div>
       <div class="card-header-left" style="flex:1;min-width:0">
         <div class="ex-name">${ex.name}</div>
@@ -1815,14 +1814,6 @@ window.moveExUp = (id) => {
   [exercises[idx-1], exercises[idx]] = [exercises[idx], exercises[idx-1]];
   exercises.forEach((ex,i) => { ex.order = i; saveEx(ex); });
   renderExercises();
-  // Keep card open
-  setTimeout(() => {
-    const body = document.getElementById('body-'+id);
-    if (body && body.classList.contains('open')) {
-      body.classList.add('open');
-      document.getElementById('chev-'+id)?.classList.add('open');
-    }
-  }, 50);
 };
 
 window.moveExDown = (id) => {
@@ -1898,8 +1889,10 @@ window.selectMood = (m, el) => {
 window.setDateToday = () => { document.getElementById('workout-date-input').value = new Date().toISOString().slice(0,10); };
 function initDatePicker() { setDateToday(); }
 function updatePesoLast() {
+  const el = document.getElementById('peso-last');
+  if (!el) return;
   const last = history.find(h => h.peso);
-  document.getElementById('peso-last').textContent = last ? `Último: ${last.peso}kg` : '';
+  el.textContent = last ? `Último: ${last.peso}kg` : '';
 }
 function updateDaysSince() {
   const el = document.getElementById('days-since');
