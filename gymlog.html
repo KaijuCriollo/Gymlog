@@ -1735,9 +1735,9 @@ function buildExCard(ex) {
 
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
-      <div class="ex-move-btns" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;padding:0 2px" onclick="event.stopPropagation()">
-        <button onclick="moveExUp(${ex.id})" style="background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:2px 5px;line-height:1">▲</button>
-        <button onclick="moveExDown(${ex.id})" style="background:none;border:none;color:#555;font-size:13px;cursor:pointer;padding:2px 5px;line-height:1">▼</button>
+      <div class="ex-move-btns" style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;padding:0 2px">
+        <button onclick="event.stopPropagation();moveExUp(${ex.id})" style="background:none;border:none;color:#555;font-size:15px;cursor:pointer;padding:2px 6px;line-height:1">▲</button>
+        <button onclick="event.stopPropagation();moveExDown(${ex.id})" style="background:none;border:none;color:#555;font-size:15px;cursor:pointer;padding:2px 6px;line-height:1">▼</button>
       </div>
       <div class="card-header-left">
         <div class="ex-name">${ex.name}</div>
