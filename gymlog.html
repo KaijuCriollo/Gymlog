@@ -3042,10 +3042,6 @@ function renderStrengthAnalysis() {
 function renderLastSessionPRs() {
   const el = document.getElementById('last-session-prs');
   if (!el) return;
-  // If no saved PRs yet, try to detect them now
-  if (!profile.lastSessionPRs || !profile.lastSessionPRs.prs || !profile.lastSessionPRs.prs.length) {
-    detectLastSessionPRs();
-  }
   const data = profile.lastSessionPRs;
   if (!data || !data.prs || !data.prs.length) {
     el.innerHTML = '<div style="font-size:12px;color:#444;text-align:center;padding:8px">Sin récords detectados en la última sesión</div>';
@@ -3611,15 +3607,17 @@ function detectLastSessionPRs() {
     }
   });
 
-  // Always update
-  profile.lastSessionPRs = {
-    date: new Date(lastSession.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
-    sessionDate: lastDate,
-    prs: sessionPRs
-  };
-  saveProfileDB();
-  const progTab = document.getElementById('tab-progreso');
-  if (progTab && progTab.classList.contains('active')) renderLastSessionPRs();
+  // Only save if different from what we already have
+  const existing = profile.lastSessionPRs;
+  if (!existing || existing.sessionDate !== lastDate || 
+      JSON.stringify(existing.prs) !== JSON.stringify(sessionPRs)) {
+    profile.lastSessionPRs = {
+      date: new Date(lastSession.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
+      sessionDate: lastDate,
+      prs: sessionPRs
+    };
+    saveProfileDB();
+  }
 }
 
 function checkCierreDeMes() {
