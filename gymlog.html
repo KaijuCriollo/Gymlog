@@ -625,8 +625,6 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       </div>
       <div class="chart-title">CONSISTENCIA — ÚLTIMOS 6 MESES</div>
       <div id="consistency-grid" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px;overflow-x:auto"></div>
-      <div class="chart-title" style="margin-top:14px">VOLUMEN SEMANAL</div>
-      <div class="weekly-wrap"><canvas id="weeklyChart">Gráfico semanal</canvas></div>
       <div class="chart-title">PESO CORPORAL</div>
       <div class="peso-chart-wrap"><canvas id="pesoChart">Gráfico peso</canvas></div>
       <div class="chart-title">📊 LOS 3 GRANDES</div>
@@ -1510,7 +1508,7 @@ function getAllPRs(exName) {
 // Get stats from the last session of an exercise
 function getLastSessionStats(exName) {
   const aliases = getAliases(exName);
-  const sessions = history.filter(h => h.exercises && h.exercises.some(e => aliases.includes(normalizeExName(e.name))));
+  const sessions = history.filter(h => (h.exercises||[]).some(e => aliases.includes(normalizeExName(e.name))));
   if (!sessions.length) return null;
   const last = sessions[0];
   const ex = last.exercises.find(e => aliases.includes(normalizeExName(e.name)));
@@ -1535,7 +1533,7 @@ function getNextSessionSuggestion(exName, exType) {
   const aliases = getAliases(exName);
   // Get last 3 sessions for this exercise
   const sessions = history
-    .filter(h => h.exercises && h.exercises.some(e => aliases.includes(normalizeExName(e.name))))
+    .filter(h => (h.exercises||[]).some(e => aliases.includes(normalizeExName(e.name))))
     .slice(0, 3)
     .map(h => {
       const ex = h.exercises.find(e => aliases.includes(normalizeExName(e.name)));
@@ -2357,7 +2355,7 @@ window.exportData = () => {
 
 /* ── PROGRESO ── */
 function renderProgress() {
-  const exNames = [...new Set(history.flatMap(h => h.exercises.map(e => e.name)))];
+  const exNames = [...new Set(history.flatMap(h => (h.exercises||[]).map(e => e.name||'')).filter(Boolean))];
   const sel = document.getElementById('progress-ex-sel');
   const prev = sel.value;
   sel.innerHTML = exNames.length ? exNames.map(n=>`<option>${n}</option>`) : '<option>Sin datos</option>';
@@ -2365,8 +2363,8 @@ function renderProgress() {
 
   const realHistory = history.filter(h=>!h.pesoOnly);
   const totalW = new Set(realHistory.map(h=>new Date(h.date).toDateString())).size;
-  const totalS = realHistory.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.length,0),0);
-  const totalKg = realHistory.reduce((a,h)=>a+h.exercises.reduce((b,e)=>b+e.series.reduce((c,s)=>c+(s.reps*s.kg),0),0),0);
+  const totalS = realHistory.reduce((a,h)=>a+(h.exercises||[]).reduce((b,e)=>b+(e.series||[]).length,0),0);
+  const totalKg = realHistory.reduce((a,h)=>a+(h.exercises||[]).reduce((b,e)=>b+(e.series||[]).reduce((cc,s)=>cc+((s.reps||0)*(s.kg||0)),0),0),0);
   const streak = calcStreak();
   const pesoEntries = history.filter(h=>h.peso).map(h=>({...h,peso:parseFloat((Math.round(parseFloat(h.peso)*10)/10).toFixed(1))})).sort((a,b)=>new Date(a.date)-new Date(b.date));
   const pesoActual = pesoEntries.length ? pesoEntries[pesoEntries.length-1].peso : null;
@@ -2386,7 +2384,6 @@ function renderProgress() {
   renderConsistencyGrid();
   renderMuscleStreak();
   renderLastSessionPRs();
-  renderWeeklyChart();
   renderPesoChart(pesoEntries);
   renderBig3Charts();
   renderMuscleStats();
@@ -2514,7 +2511,9 @@ function renderMuscleStreak() {
   // Sort by days since last trained (most neglected first)
   const sorted = Object.entries(muscleLastTrained)
     .map(([muscle, date]) => {
-      const days = Math.floor((today - date) / 86400000);
+      const todayMid = new Date(today); todayMid.setHours(0,0,0,0);
+      const dateMid = new Date(date); dateMid.setHours(0,0,0,0);
+      const days = Math.max(0, Math.floor((todayMid - dateMid) / 86400000));
       return { muscle, days, date };
     })
     .sort((a,b) => b.days - a.days);
@@ -2539,7 +2538,8 @@ function renderMuscleStreak() {
 function renderMuscleTrend() {
   const el = document.getElementById('muscle-trend');
   if (!el) return;
-  if (!history.length) {
+  const validHistory = history.filter(h => !h.pesoOnly && (h.exercises||[]).length > 0);
+  if (!validHistory.length) {
     el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos aún</div>';
     return;
   }
@@ -2676,7 +2676,7 @@ function renderBig3Charts() {
   ];
   big3.forEach(ex => {
     const sessions = history
-      .filter(h => h.exercises && h.exercises.some(e => getAliases(ex.name).includes(normalizeExName(e.name).toLowerCase())))
+      .filter(h => (h.exercises||[]).some(e => getAliases(ex.name).includes(normalizeExName(e.name).toLowerCase())))
       .map(h => {
         const e = h.exercises.find(x => getAliases(ex.name).includes(normalizeExName(x.name).toLowerCase()));
         let val;
@@ -2764,7 +2764,7 @@ function renderWeeklyChart() {
 }
 
 function renderPesoChart(entries) {
-  if (pesoChart) { pesoChart.destroy(); pesoChart = null; }
+  if (pesoChart) { try { pesoChart.destroy(); } catch(e) {} pesoChart = null; }
   if (!entries||!entries.length) return;
   pesoChart = new Chart(document.getElementById('pesoChart'), {
     type:'line',
@@ -2787,7 +2787,7 @@ window.renderProgressChart = () => {
   const isBW = exType === 'bw_lastre' || exType === 'bw';
 
   const sessions = history
-    .filter(h => h.exercises && h.exercises.some(e => getAliases(exName).includes(normalizeExName(e.name))))
+    .filter(h => (h.exercises||[]).some(e => getAliases(exName).includes(normalizeExName(e.name))))
     .map(h => {
       const ex = h.exercises.find(e => getAliases(exName).includes(normalizeExName(e.name)));
       let val;
