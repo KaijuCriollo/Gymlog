@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KaijuGymLog — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0d0d;font-family:'DM Sans',sans-serif;color:#f0ede8;min-height:100vh}
+:root{--red:#E83535;--green:#22c97a;--accent:#22c97a;--surface:#1e1e1e;--border:#2e2e2e}
+
+/* AUTH */
+#auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.auth-card{background:#1a1a1a;border:1px solid #2e2e2e;border-radius:20px;padding:40px;width:100%;max-width:400px}
+.auth-logo{font-size:28px;font-weight:700;margin-bottom:6px}
+.auth-logo span{color:var(--red)}
+.auth-sub{color:#555;font-size:13px;margin-bottom:32px}
+.auth-label{font-size:12px;color:#888;font-weight:600;margin-bottom:6px}
+.auth-input{width:100%;padding:12px 14px;background:#111;border:1px solid #2e2e2e;border-radius:10px;color:#f0ede8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;margin-bottom:16px}
+.auth-input:focus{border-color:#333}
+.auth-btn{width:100%;padding:14px;background:var(--red);border:none;border-radius:10px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.auth-error{color:#ff6b6b;font-size:12px;margin-top:8px;display:none}
+
+/* APP */
+#app{display:none;min-height:100vh}
+.topbar{background:#111;border-bottom:1px solid #1e1e1e;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-logo{font-size:18px;font-weight:700}
+.topbar-logo span{color:var(--red)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-badge{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:20px;padding:5px 12px;font-size:12px;color:#888}
+.logout-btn{background:none;border:1px solid #2e2e2e;border-radius:8px;color:#555;padding:6px 12px;cursor:pointer;font-size:12px;font-family:'DM Sans',sans-serif}
+
+.main{display:grid;grid-template-columns:280px 1fr;min-height:calc(100vh - 53px)}
+
+/* SIDEBAR */
+.sidebar{background:#111;border-right:1px solid #1e1e1e;padding:20px 0;overflow-y:auto}
+.sidebar-title{font-size:10px;font-weight:700;color:#444;letter-spacing:1px;padding:0 20px 10px}
+.user-item{padding:12px 20px;cursor:pointer;border-left:3px solid transparent;transition:all 0.15s}
+.user-item:hover{background:#1a1a1a;border-left-color:#333}
+.user-item.active{background:#1e1e1e;border-left-color:var(--red)}
+.user-name{font-size:14px;font-weight:600;color:#eee}
+.user-meta{font-size:11px;color:#555;margin-top:2px}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden;margin-right:10px}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
+.user-item-inner{display:flex;align-items:center}
+.sidebar-empty{padding:20px;font-size:12px;color:#444;text-align:center}
+
+/* CONTENT */
+.content{padding:24px;overflow-y:auto}
+.welcome{display:flex;align-items:center;justify-content:center;height:400px;text-align:center}
+.welcome-text{color:#333;font-size:15px}
+
+/* USER DASHBOARD */
+.user-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid #1e1e1e}
+.user-header-avatar{width:64px;height:64px;border-radius:50%;background:#2a2a2a;display:flex;align-items:center;justify-content:center;font-size:28px;overflow:hidden;flex-shrink:0}
+.user-header-avatar img{width:100%;height:100%;object-fit:cover}
+.user-header-name{font-size:22px;font-weight:700}
+.user-header-frase{font-size:13px;color:#f0a04b;font-style:italic;margin-top:4px}
+.user-header-meta{font-size:12px;color:#555;margin-top:4px}
+
+/* STATS GRID */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px}
+.stat-card-label{font-size:10px;color:#555;font-weight:700;letter-spacing:0.5px;margin-bottom:6px}
+.stat-card-val{font-size:28px;font-weight:700;color:#fff;line-height:1}
+.stat-card-unit{font-size:13px;color:#555;margin-left:2px}
+
+/* SECTION */
+.section{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:20px}
+.section-title{font-size:11px;font-weight:700;color:#555;letter-spacing:0.8px;margin-bottom:16px}
+
+/* CHARTS GRID */
+.charts-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px}
+.chart-card-title{font-size:11px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:4px}
+.chart-card-pr{font-size:20px;font-weight:700;color:var(--red);margin-bottom:12px}
+.chart-container{position:relative;height:160px}
+
+/* CONSISTENCY */
+.consistency-grid{display:flex;gap:3px;flex-wrap:wrap}
+.cons-cell{width:14px;height:14px;border-radius:3px;background:#1a1a1a}
+.cons-cell.trained{background:var(--green)}
+.cons-cell.today{background:var(--red)}
+.cons-legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:#555}
+.cons-legend span{display:flex;align-items:center;gap:5px}
+
+/* RECORDS TABLE */
+.records-table{width:100%;border-collapse:collapse}
+.records-table th{text-align:left;font-size:10px;font-weight:700;color:#444;letter-spacing:0.5px;padding:8px 0;border-bottom:1px solid #2a2a2a}
+.records-table td{padding:10px 0;border-bottom:1px solid #1e1e1e;font-size:13px}
+.records-table td:last-child{text-align:right;color:var(--red);font-weight:700;font-family:'DM Mono',monospace}
+.records-table tr:last-child td{border-bottom:none}
+
+/* HISTORY LIST */
+.hist-item{padding:12px 0;border-bottom:1px solid #1e1e1e;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.hist-item:last-child{border-bottom:none}
+.hist-date{font-size:12px;color:#555;min-width:80px;flex-shrink:0}
+.hist-exercises{font-size:12px;color:#aaa;line-height:1.6}
+.hist-stats{font-size:11px;color:#444;text-align:right;flex-shrink:0}
+
+/* MUSCLE BARS */
+.muscle-bar-row{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.muscle-bar-label{font-size:12px;color:#aaa;min-width:90px}
+.muscle-bar-wrap{flex:1;background:#1a1a1a;border-radius:4px;height:6px;overflow:hidden}
+.muscle-bar-fill{height:100%;background:var(--green);border-radius:4px;transition:width 0.4s}
+.muscle-bar-count{font-size:11px;color:#555;min-width:40px;text-align:right}
+
+/* PERIOD FILTER */
+.period-btns{display:flex;gap:8px;margin-bottom:16px}
+.period-btn{padding:6px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.period-btn.active{border-color:var(--red);background:rgba(232,53,53,0.15);color:#ff7070}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:#333;font-size:13px}
+.spinner{width:20px;height:20px;border:2px solid #2e2e2e;border-top-color:var(--red);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:10px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:900px){
+  .main{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .charts-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">Kaiju<span>GymLog</span></div>
+    <div class="auth-sub">Panel de administración</div>
+    <div class="auth-label">Email</div>
+    <input type="email" id="auth-email" class="auth-input" placeholder="tu@email.com" value=""/>
+    <div class="auth-label">Contraseña</div>
+    <input type="password" id="auth-pass" class="auth-input" placeholder="••••••••"/>
+    <button class="auth-btn" onclick="doLogin()">Ingresar</button>
+    <div class="auth-error" id="auth-error">Email o contraseña incorrectos</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo">Kaiju<span>GymLog</span> <span style="color:#333;font-weight:400;font-size:14px">· Admin</span></div>
+    <div class="topbar-right">
+      <div class="topbar-badge" id="topbar-users">Cargando usuarios...</div>
+      <button class="logout-btn" onclick="doLogout()">Cerrar sesión</button>
+    </div>
+  </div>
+  <div class="main">
+    <div class="sidebar">
+      <div class="sidebar-title">USUARIOS</div>
+      <div id="users-list"><div class="sidebar-empty">Cargando...</div></div>
+    </div>
+    <div class="content" id="content">
+      <div class="welcome"><div class="welcome-text">← Seleccioná un usuario para ver sus datos</div></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, collection, getDocs, query, orderBy }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const ADMIN_UID = 'SQzxizpcCwPmBPWFouhBqIRijbB2';
+
+const app = initializeApp({
+  apiKey: "AIzaSyCgPk8QisGhFz7z4ow2AaTzDwx3ddc2rng",
+  authDomain: "kaijugymlog.firebaseapp.com",
+  projectId: "kaijugymlog",
+  storageBucket: "kaijugymlog.firebasestorage.app",
+  messagingSenderId: "1037263046321",
+  appId: "1:1037263046321:web:149f37ea6a5c30d3e38490"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let allUsers = [];
+let selectedUID = null;
+let periodFilter = 'month'; // week | month | all
+let big3Charts = {};
+
+// ── AUTH ──
+window.doLogin = async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-pass').value;
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    document.getElementById('auth-error').style.display = 'block';
+  }
+};
+
+window.doLogout = async () => {
+  await signOut(auth);
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+};
+
+onAuthStateChanged(auth, async user => {
+  if (!user) {
+    document.getElementById('auth-screen').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    return;
+  }
+  if (user.uid !== ADMIN_UID) {
+    await signOut(auth);
+    document.getElementById('auth-error').textContent = 'Acceso solo para administradores';
+    document.getElementById('auth-error').style.display = 'block';
+    return;
+  }
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadAllUsers();
+});
+
+// ── LOAD ALL USERS ──
+async function loadAllUsers() {
+  document.getElementById('users-list').innerHTML = '<div class="sidebar-empty"><div class="loading"><div class="spinner"></div> Cargando...</div></div>';
+  try {
+    const usersSnap = await getDocs(collection(db, 'users'));
+    allUsers = [];
+    for (const userDoc of usersSnap.docs) {
+      const uid = userDoc.id;
+      try {
+        const [profSnap, histSnap] = await Promise.all([
+          getDocs(collection(db, 'users', uid, 'profile')),
+          getDocs(query(collection(db, 'users', uid, 'history'), orderBy('date', 'desc')))
+        ]);
+        const profile = profSnap.docs.length ? profSnap.docs[0].data() : {};
+        const history = histSnap.docs.map(d => ({fid:d.id,...d.data()}));
+        const realWorkouts = history.filter(h => !h.pesoOnly);
+        allUsers.push({ uid, profile, history, realWorkouts });
+      } catch(e) {
+        console.warn('Error loading user', uid, e);
+      }
+    }
+    allUsers.sort((a,b) => {
+      const aLast = a.realWorkouts[0]?.date || '';
+      const bLast = b.realWorkouts[0]?.date || '';
+      return bLast.localeCompare(aLast);
+    });
+    renderUsersList();
+    document.getElementById('topbar-users').textContent = `${allUsers.length} usuario${allUsers.length!==1?'s':''}`;
+  } catch(e) {
+    console.error(e);
+    document.getElementById('users-list').innerHTML = '<div class="sidebar-empty">Error al cargar usuarios</div>';
+  }
+}
+
+function renderUsersList() {
+  const el = document.getElementById('users-list');
+  if (!allUsers.length) { el.innerHTML = '<div class="sidebar-empty">Sin usuarios</div>'; return; }
+  el.innerHTML = allUsers.map(u => {
+    const name = u.profile.nickname || u.uid.slice(0,8)+'...';
+    const workouts = u.realWorkouts.length;
+    const lastDate = u.realWorkouts[0]?.date ? new Date(u.realWorkouts[0].date).toLocaleDateString('es-AR',{day:'numeric',month:'short'}) : 'Sin datos';
+    const avatarHtml = u.profile.avatarUrl
+      ? `<img src="${u.profile.avatarUrl}" />`
+      : '🏋️';
+    return `<div class="user-item ${u.uid===selectedUID?'active':''}" onclick="selectUser('${u.uid}')">
+      <div class="user-item-inner">
+        <div class="user-avatar">${avatarHtml}</div>
+        <div>
+          <div class="user-name">${name}</div>
+          <div class="user-meta">${workouts} entrenos · Último: ${lastDate}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.selectUser = (uid) => {
+  selectedUID = uid;
+  renderUsersList();
+  const user = allUsers.find(u => u.uid === uid);
+  if (user) renderUserDashboard(user);
+};
+
+// ── USER DASHBOARD ──
+async function renderUserDashboard(user) {
+  const content = document.getElementById('content');
+  content.innerHTML = '<div class="loading"><div class="spinner"></div> Cargando datos del usuario...</div>';
+
+  // Load exercises too
+  let exercises = [];
+  try {
+    const exSnap = await getDocs(collection(db, 'users', user.uid, 'exercises'));
+    exercises = exSnap.docs.map(d => ({fid:d.id,...d.data()}));
+  } catch(e) {}
+
+  const { profile, history, realWorkouts } = user;
+  const accent = profile.accentColor || '#E83535';
+
+  // Period filter dates
+  const now = new Date();
+  let fromDate = null;
+  if (periodFilter === 'week') {
+    const dow = now.getDay() === 0 ? 6 : now.getDay()-1;
+    fromDate = new Date(now); fromDate.setDate(now.getDate()-dow); fromDate.setHours(0,0,0,0);
+  } else if (periodFilter === 'month') {
+    fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+  }
+
+  const filteredWorkouts = fromDate
+    ? realWorkouts.filter(h => new Date(h.date) >= fromDate)
+    : realWorkouts;
+
+  const totalWorkouts = new Set(filteredWorkouts.map(h => new Date(h.date).toDateString())).size;
+  const totalSeries = filteredWorkouts.reduce((a,h) => a+(h.exercises||[]).reduce((b,e) => b+(e.series||[]).length, 0), 0);
+  const pesoEntries = history.filter(h => h.peso).sort((a,b) => new Date(a.date)-new Date(b.date));
+  const pesoActual = pesoEntries.length ? pesoEntries[pesoEntries.length-1].peso : null;
+  const totalDias = new Set(realWorkouts.map(h => new Date(h.date).toDateString())).size;
+
+  // PRs
+  function getPR(exName, type) {
+    const aliases = getAliases(exName);
+    let best = 0;
+    realWorkouts.forEach(h => {
+      (h.exercises||[]).forEach(e => {
+        if (!aliases.includes(normalizeEx(e.name))) return;
+        (e.series||[]).forEach(s => {
+          const val = type === 'reps' ? (parseInt(s.reps)||0) : (parseFloat(s.kg)||0);
+          if (val > best) best = val;
+        });
+      });
+    });
+    return best;
+  }
+
+  function getAliases(name) {
+    const n = normalizeEx(name);
+    const groups = [
+      ['press de banca','press banca','press banca plano','banca'],
+      ['dominadas','dominada','pull up','pullup','chin up'],
+      ['sentadillas','sentadilla','squat'],
+    ];
+    for (const g of groups) { if (g.includes(n)) return g; }
+    return [n];
+  }
+  function normalizeEx(n) { return (n||'').toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+
+  const bancaPR = getPR('Press de banca', 'kg');
+  const dominadasPR = getPR('Dominadas', 'reps');
+  const sentadillasPR = getPR('Sentadillas', 'kg');
+
+  // Muscle volume
+  const muscleVol = {};
+  filteredWorkouts.forEach(h => {
+    (h.exercises||[]).forEach(e => {
+      const m = e.muscle || 'Otro';
+      if (!muscleVol[m]) muscleVol[m] = 0;
+      muscleVol[m] += (e.series||[]).length;
+    });
+  });
+  const maxMuscleVol = Math.max(...Object.values(muscleVol), 1);
+  const sortedMuscles = Object.entries(muscleVol).sort((a,b) => b[1]-a[1]);
+
+  // Records list from exercises
+  const recordsList = exercises.map(ex => {
+    let pr = 0, prStr = '';
+    realWorkouts.forEach(h => {
+      (h.exercises||[]).forEach(e => {
+        if (normalizeEx(e.name) !== normalizeEx(ex.name)) return;
+        (e.series||[]).forEach(s => {
+          if (ex.type === 'time') { const v = parseInt(s.secs)||0; if (v>pr){pr=v;prStr=v+'s';} }
+          else if (ex.type === 'bw_lastre'||ex.type==='bw') { const v=parseInt(s.reps)||0; if(v>pr){pr=v;prStr=v+' reps';} }
+          else { const v=parseFloat(s.kg)||0; if(v>pr){pr=v;prStr=v+'kg';} }
+        });
+      });
+    });
+    return { name: ex.name, muscle: ex.muscle, pr: prStr, val: pr };
+  }).filter(r => r.val > 0).sort((a,b) => b.val-a.val).slice(0, 15);
+
+  // Recent history
+  const recentHistory = realWorkouts.slice(0, 10);
+
+  // Consistency last 60 days
+  const trainedDays = new Set(realWorkouts.map(h => new Date(h.date).toDateString()));
+  const consHtml = [];
+  for (let i = 59; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate()-i); d.setHours(0,0,0,0);
+    const isToday = i === 0;
+    const trained = trainedDays.has(d.toDateString());
+    consHtml.push(`<div class="cons-cell ${trained?'trained':''} ${isToday&&trained?'today':''}" title="${d.toLocaleDateString('es-AR')}"></div>`);
+  }
+
+  content.innerHTML = `
+    <div class="user-header">
+      <div class="user-header-avatar">
+        ${profile.avatarUrl ? `<img src="${profile.avatarUrl}"/>` : '🏋️'}
+      </div>
+      <div>
+        <div class="user-header-name">${profile.nickname || 'Usuario'}</div>
+        ${profile.frase ? `<div class="user-header-frase">"${profile.frase}"</div>` : ''}
+        <div class="user-header-meta">Objetivo: ${profile.objetivoCustom||profile.objetivo||'—'} · ${totalDias} días entrenados en total</div>
+      </div>
+    </div>
+
+    <!-- Period filter -->
+    <div class="period-btns">
+      <button class="period-btn ${periodFilter==='week'?'active':''}" onclick="setPeriod('week','${user.uid}')">Esta semana</button>
+      <button class="period-btn ${periodFilter==='month'?'active':''}" onclick="setPeriod('month','${user.uid}')">Este mes</button>
+      <button class="period-btn ${periodFilter==='all'?'active':''}" onclick="setPeriod('all','${user.uid}')">Todo</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-label">ENTRENAMIENTOS</div>
+        <div class="stat-card-val">${totalWorkouts}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">SERIES TOTALES</div>
+        <div class="stat-card-val">${totalSeries}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">PESO ACTUAL</div>
+        <div class="stat-card-val">${pesoActual||'—'}<span class="stat-card-unit">${pesoActual?'kg':''}</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">DÍAS TOTALES</div>
+        <div class="stat-card-val">${totalDias}</div>
+      </div>
+    </div>
+
+    <!-- Los 3 Grandes -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">PRESS DE BANCA</div>
+        <div class="chart-card-pr" style="color:${accent}">${bancaPR ? bancaPR+'kg' : '—'}</div>
+        <div class="chart-container"><canvas id="dash-chart-banca"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">DOMINADAS</div>
+        <div class="chart-card-pr" style="color:${accent}">${dominadasPR ? dominadasPR+' reps' : '—'}</div>
+        <div class="chart-container"><canvas id="dash-chart-dominadas"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">SENTADILLAS</div>
+        <div class="chart-card-pr" style="color:${accent}">${sentadillasPR ? sentadillasPR+'kg' : '—'}</div>
+        <div class="chart-container"><canvas id="dash-chart-sentadillas"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Peso corporal -->
+    <div class="section" style="margin-bottom:20px">
+      <div class="section-title">PESO CORPORAL</div>
+      <div style="position:relative;height:180px"><canvas id="dash-peso-chart"></canvas></div>
+    </div>
+
+    <!-- Músculo y consistencia -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+      <div class="section">
+        <div class="section-title">VOLUMEN POR MÚSCULO</div>
+        ${sortedMuscles.map(([m,v]) => `
+          <div class="muscle-bar-row">
+            <div class="muscle-bar-label">${m}</div>
+            <div class="muscle-bar-wrap"><div class="muscle-bar-fill" style="width:${(v/maxMuscleVol*100).toFixed(1)}%;background:${accent}"></div></div>
+            <div class="muscle-bar-count">${v} series</div>
+          </div>`).join('')}
+        ${!sortedMuscles.length ? '<div style="color:#444;font-size:12px;text-align:center;padding:8px">Sin datos</div>' : ''}
+      </div>
+      <div class="section">
+        <div class="section-title">CONSISTENCIA — ÚLTIMOS 60 DÍAS</div>
+        <div class="consistency-grid">${consHtml.join('')}</div>
+        <div class="cons-legend">
+          <span><div style="width:12px;height:12px;background:${accent};border-radius:2px"></div> Entrenó</span>
+          <span><div style="width:12px;height:12px;background:#1a1a1a;border:1px solid #2e2e2e;border-radius:2px"></div> Descanso</div></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Records -->
+    <div class="section" style="margin-bottom:20px">
+      <div class="section-title">RÉCORDS PERSONALES</div>
+      <table class="records-table">
+        <thead><tr><th>EJERCICIO</th><th>MÚSCULO</th><th>RÉCORD</th></tr></thead>
+        <tbody>
+          ${recordsList.map(r => `<tr>
+            <td>${r.name}</td>
+            <td style="color:#555">${r.muscle||'—'}</td>
+            <td>${r.pr}</td>
+          </tr>`).join('')}
+          ${!recordsList.length ? '<tr><td colspan="3" style="text-align:center;color:#444;padding:16px">Sin récords</td></tr>' : ''}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recent history -->
+    <div class="section">
+      <div class="section-title">ÚLTIMAS SESIONES</div>
+      ${recentHistory.map(h => {
+        const date = new Date(h.date).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
+        const exList = (h.exercises||[]).map(e => e.name).slice(0,5).join(', ');
+        const seriesCount = (h.exercises||[]).reduce((a,e) => a+(e.series||[]).length, 0);
+        return `<div class="hist-item">
+          <div class="hist-date">${date}</div>
+          <div class="hist-exercises">${exList}${(h.exercises||[]).length > 5 ? ' +más' : ''}</div>
+          <div class="hist-stats">${seriesCount} series${h.mood ? '<br>'+h.mood : ''}</div>
+        </div>`;
+      }).join('')}
+      ${!recentHistory.length ? '<div style="color:#444;font-size:12px;text-align:center;padding:16px">Sin historial</div>' : ''}
+    </div>
+  `;
+
+  // Render charts
+  renderDashChart('dash-chart-banca', realWorkouts, 'Press de banca', 'kg', accent, getAliases, normalizeEx);
+  renderDashChart('dash-chart-dominadas', realWorkouts, 'Dominadas', 'reps', accent, getAliases, normalizeEx);
+  renderDashChart('dash-chart-sentadillas', realWorkouts, 'Sentadillas', 'kg', accent, getAliases, normalizeEx);
+  renderDashPesoChart(pesoEntries, accent);
+}
+
+function renderDashChart(canvasId, history, exName, type, accent, getAliases, normalizeEx) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const sessions = history
+    .filter(h => (h.exercises||[]).some(e => getAliases(exName).includes(normalizeEx(e.name))))
+    .map(h => {
+      const ex = h.exercises.find(e => getAliases(exName).includes(normalizeEx(e.name)));
+      const val = type === 'reps'
+        ? Math.max(...(ex.series||[]).map(s => parseInt(s.reps)||0), 0)
+        : Math.max(...(ex.series||[]).map(s => parseFloat(s.kg)||0), 0);
+      return { date: new Date(h.date), val };
+    })
+    .sort((a,b) => a.date-b.date)
+    .slice(-20);
+
+  if (!sessions.length) { canvas.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#333;font-size:12px">Sin datos</div>'; return; }
+
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: sessions.map(s => s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
+      datasets: [{
+        data: sessions.map(s => s.val),
+        borderColor: accent,
+        backgroundColor: accent+'22',
+        pointBackgroundColor: accent,
+        pointRadius: 3,
+        tension: 0.35,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { font:{size:9}, color:'#444', maxRotation:30 }, grid: { display:false } },
+        y: { ticks: { font:{size:9}, color:'#444', callback: v => v+(type==='reps'?' reps':'kg') }, grid: { color:'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+}
+
+function renderDashPesoChart(entries, accent) {
+  const canvas = document.getElementById('dash-peso-chart');
+  if (!canvas || !entries.length) return;
+  new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: entries.map(e => new Date(e.date).toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
+      datasets: [{
+        data: entries.map(e => e.peso),
+        borderColor: '#5b9cf6',
+        backgroundColor: '#5b9cf622',
+        pointBackgroundColor: '#5b9cf6',
+        pointRadius: 3,
+        tension: 0.35,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display:false } },
+      scales: {
+        x: { ticks: { font:{size:9}, color:'#444', maxRotation:30 }, grid: { display:false } },
+        y: { ticks: { font:{size:9}, color:'#444', callback: v => v+'kg' }, grid: { color:'rgba(255,255,255,0.04)' } }
+      }
+    }
+  });
+}
+
+window.setPeriod = (period, uid) => {
+  periodFilter = period;
+  const user = allUsers.find(u => u.uid === uid);
+  if (user) renderUserDashboard(user);
+};
+
+// Enter key on login
+document.getElementById('auth-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+</script>
+</body>
+</html>
