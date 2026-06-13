@@ -225,10 +225,13 @@ onAuthStateChanged(auth, async user => {
 async function loadAllUsers() {
   document.getElementById('users-list').innerHTML = '<div class="sidebar-empty"><div class="loading"><div class="spinner"></div> Cargando...</div></div>';
   try {
-    const usersSnap = await getDocs(collection(db, 'users'));
+    // Use collectionGroup to find all profile/main docs across all users
+    const { collectionGroup, where } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    const profilesSnap = await getDocs(collectionGroup(db, 'profile'));
+    const uids = [...new Set(profilesSnap.docs.map(d => d.ref.parent.parent.id))];
+    console.log('Found UIDs:', uids);
     allUsers = [];
-    for (const userDoc of usersSnap.docs) {
-      const uid = userDoc.id;
+    for (const uid of uids) {
       try {
         const [profSnap, histSnap] = await Promise.all([
           getDocs(collection(db, 'users', uid, 'profile')),
