@@ -557,7 +557,7 @@ function renderDashChart(canvasId, history, exName, type, accent, getAliases, no
       plugins: { legend: { display: false } },
       scales: {
         x: { ticks: { font:{size:9}, color:'#444', maxRotation:30 }, grid: { display:false } },
-        y: { ticks: { font:{size:9}, color:'#444', callback: v => v+(type==='reps'?' reps':'kg') }, grid: { color:'rgba(255,255,255,0.04)' } }
+        y: { ticks: { font:{size:9}, color:'#444', callback: v => (type==='reps' ? Math.round(v)+' reps' : (Math.round(v*10)/10)+'kg') }, grid: { color:'rgba(255,255,255,0.04)' } }
       }
     }
   });
@@ -585,7 +585,7 @@ function renderDashPesoChart(entries, accent) {
       plugins: { legend: { display:false } },
       scales: {
         x: { ticks: { font:{size:9}, color:'#444', maxRotation:30 }, grid: { display:false } },
-        y: { ticks: { font:{size:9}, color:'#444', callback: v => v+'kg' }, grid: { color:'rgba(255,255,255,0.04)' } }
+        y: { ticks: { font:{size:9}, color:'#444', callback: v => Math.round(v*10)/10+'kg' }, grid: { color:'rgba(255,255,255,0.04)' } }
       }
     }
   });
