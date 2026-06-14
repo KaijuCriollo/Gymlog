@@ -437,17 +437,17 @@ async function renderUserDashboard(user) {
     <!-- Los 3 Grandes -->
     <div class="charts-grid">
       <div class="chart-card">
-        <div class="chart-card-title">PRESS DE BANCA</div>
+        <div class="chart-card-title">PRESS DE BANCA · 1RM estimado</div>
         <div class="chart-card-pr" style="color:${accent}">${bancaPR ? bancaPR+'kg' : '—'}</div>
         <div class="chart-container"><canvas id="dash-chart-banca"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">DOMINADAS</div>
+        <div class="chart-card-title">DOMINADAS · máx reps</div>
         <div class="chart-card-pr" style="color:${accent}">${dominadasPR ? dominadasPR+' reps' : '—'}</div>
         <div class="chart-container"><canvas id="dash-chart-dominadas"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-card-title">SENTADILLAS</div>
+        <div class="chart-card-title">SENTADILLAS · 1RM estimado</div>
         <div class="chart-card-pr" style="color:${accent}">${sentadillasPR ? sentadillasPR+'kg' : '—'}</div>
         <div class="chart-container"><canvas id="dash-chart-sentadillas"></canvas></div>
       </div>
@@ -528,9 +528,25 @@ function renderDashChart(canvasId, history, exName, type, accent, getAliases, no
     .filter(h => (h.exercises||[]).some(e => getAliases(exName).includes(normalizeEx(e.name))))
     .map(h => {
       const ex = h.exercises.find(e => getAliases(exName).includes(normalizeEx(e.name)));
-      const val = type === 'reps'
-        ? Math.max(...(ex.series||[]).map(s => parseInt(s.reps)||0), 0)
-        : Math.max(...(ex.series||[]).map(s => parseFloat(s.kg)||0), 0);
+      let val, label;
+      if (type === 'reps') {
+        // For bodyweight: show max reps
+        val = Math.max(...(ex.series||[]).map(s => parseInt(s.reps)||0), 0);
+        label = val + ' reps';
+      } else {
+        // For weighted: show best 1RM (Epley: kg * (1 + reps/30))
+        let best1RM = 0;
+        (ex.series||[]).forEach(s => {
+          const kg = parseFloat(s.kg)||0;
+          const reps = parseInt(s.reps)||0;
+          if (kg > 0 && reps > 0) {
+            const orm = kg * (1 + reps/30);
+            if (orm > best1RM) best1RM = orm;
+          }
+        });
+        val = best1RM > 0 ? Math.round(best1RM*10)/10 : Math.max(...(ex.series||[]).map(s => parseFloat(s.kg)||0), 0);
+        label = val + 'kg';
+      }
       return { date: new Date(h.date), val };
     })
     .sort((a,b) => a.date-b.date)
@@ -538,6 +554,7 @@ function renderDashChart(canvasId, history, exName, type, accent, getAliases, no
 
   if (!sessions.length) { canvas.parentElement.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#333;font-size:12px">Sin datos</div>'; return; }
 
+  const unit = type === 'reps' ? ' reps' : 'kg 1RM';
   new Chart(canvas, {
     type: 'line',
     data: {
@@ -557,7 +574,7 @@ function renderDashChart(canvasId, history, exName, type, accent, getAliases, no
       plugins: { legend: { display: false } },
       scales: {
         x: { ticks: { font:{size:9}, color:'#444', maxRotation:30 }, grid: { display:false } },
-        y: { ticks: { font:{size:9}, color:'#444', callback: v => (type==='reps' ? Math.round(v)+' reps' : (Math.round(v*10)/10)+'kg') }, grid: { color:'rgba(255,255,255,0.04)' } }
+        y: { ticks: { font:{size:9}, color:'#444', callback: v => Math.round(v*10)/10 + unit }, grid: { color:'rgba(255,255,255,0.04)' } }
       }
     }
   });
