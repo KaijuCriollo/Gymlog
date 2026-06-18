@@ -1829,7 +1829,17 @@ window.toggleDone = (exId, idx) => {
       let isPR = false;
       if (type === 'time' && (parseInt(serie.secs)||0) > prs.secs) isPR = true;
       else if ((type==='bw_lastre'||type==='bw') && (parseInt(serie.reps)||0) > prs.reps) isPR = true;
-      else if (type==='normal' && (parseFloat(serie.kg)||0) > prs.kg) isPR = true;
+      else if (type==='normal') {
+        const kg = parseFloat(serie.kg)||0;
+        const reps = parseInt(serie.reps)||0;
+        if (kg > prs.kg) isPR = true;
+        else if (kg === prs.kg && reps > (prs.bestKgReps||0)) isPR = true;
+        else if (kg > 0 && reps > 0 && prs.kg > 0) {
+          const newOrm = kg * (1 + reps/30);
+          const prevOrm = prs.kg * (1 + (prs.bestKgReps||0)/30);
+          if (newOrm > prevOrm) isPR = true;
+        }
+      }
       if (isPR) setTimeout(fireConfetti, 150);
     }
   }
@@ -2012,10 +2022,26 @@ window.saveWorkout = async () => {
       const maxReps = Math.max(...doneSers.map(s=>parseInt(s.reps)||0), 0);
       if (maxReps > prs.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxReps} reps`);
     } else {
-      const maxKg = Math.max(...doneSers.map(s=>parseFloat(s.kg)||0), 0);
-      const maxReps = Math.max(...doneSers.map(s=>parseInt(s.reps)||0), 0);
-      if (maxKg > prs.kg) sessionPRs.push(`🏆 ${ex.name}: ${maxKg}kg`);
-      else if (maxReps > prs.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxKg}kg × ${maxReps} reps`);
+      // Best serie by 1RM
+      let bestSerie = null, bestOrm = 0;
+      doneSers.forEach(s => {
+        const kg = parseFloat(s.kg)||0, reps = parseInt(s.reps)||0;
+        if (kg > 0 && reps > 0) {
+          const orm = kg * (1 + reps/30);
+          if (orm > bestOrm) { bestOrm = orm; bestSerie = s; }
+        }
+      });
+      if (!bestSerie) return;
+      const kg = parseFloat(bestSerie.kg)||0;
+      const reps = parseInt(bestSerie.reps)||0;
+      const prevOrm = prs.kg * (1 + (prs.bestKgReps||0)/30);
+      if (kg > prs.kg) {
+        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg (nuevo máximo)`);
+      } else if (kg === prs.kg && reps > (prs.bestKgReps||0)) {
+        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps (+${reps-(prs.bestKgReps||0)} reps)`);
+      } else if (bestOrm > prevOrm) {
+        sessionPRs.push(`🏆 ${ex.name}: 1RM ~${Math.round(bestOrm*10)/10}kg`);
+      }
     }
   });
   const doneAny = exercises.some(e => e.series.some(s => s.done));
@@ -3600,10 +3626,25 @@ function detectLastSessionPRs() {
       const maxReps = Math.max(...doneSeries.map(s=>parseInt(s.reps)||0), 0);
       if (maxReps > prevPR.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxReps} reps`);
     } else {
-      const maxKg = Math.max(...doneSeries.map(s=>parseFloat(s.kg)||0), 0);
-      const maxReps = Math.max(...doneSeries.map(s=>parseInt(s.reps)||0), 0);
-      if (maxKg > prevPR.kg) sessionPRs.push(`🏆 ${ex.name}: ${maxKg}kg`);
-      else if (maxReps > prevPR.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxKg}kg × ${maxReps} reps`);
+      let bestSerie = null, bestOrm = 0;
+      doneSeries.forEach(s => {
+        const kg = parseFloat(s.kg)||0, reps = parseInt(s.reps)||0;
+        if (kg > 0 && reps > 0) {
+          const orm = kg * (1 + reps/30);
+          if (orm > bestOrm) { bestOrm = orm; bestSerie = s; }
+        }
+      });
+      if (!bestSerie) return;
+      const kg = parseFloat(bestSerie.kg)||0;
+      const reps = parseInt(bestSerie.reps)||0;
+      const prevOrm = (prevPR.kg||0) * (1 + (prevPR.bestKgReps||0)/30);
+      if (kg > (prevPR.kg||0)) {
+        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg (nuevo máximo)`);
+      } else if (kg === prevPR.kg && reps > (prevPR.bestKgReps||0)) {
+        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps (+${reps-(prevPR.bestKgReps||0)} reps)`);
+      } else if (bestOrm > prevOrm) {
+        sessionPRs.push(`🏆 ${ex.name}: 1RM ~${Math.round(bestOrm*10)/10}kg`);
+      }
     }
   });
 
