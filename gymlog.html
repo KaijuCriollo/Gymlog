@@ -4212,13 +4212,22 @@ function showWorkoutModePicker() {
 let wmSelectedExIds = new Set();
 
 window.showWmExercisePicker = (muscle, btn) => {
-  document.querySelectorAll('#wm-muscle-picks button').forEach(b => {
-    b.style.background = '#1e1e1e'; b.style.color = '#aaa'; b.style.borderColor = '#333';
-  });
-  btn.style.background = 'rgba(232,53,53,0.2)'; btn.style.color = '#ff7070'; btn.style.borderColor = 'var(--accent,#E83535)';
+  // Toggle muscle button highlight (allow multiple)
+  const isActive = btn.getAttribute('data-wm-active') === '1';
+  if (isActive) {
+    btn.style.background = '#1e1e1e'; btn.style.color = '#aaa'; btn.style.borderColor = '#333';
+    btn.setAttribute('data-wm-active','0');
+  } else {
+    btn.style.background = 'rgba(232,53,53,0.2)'; btn.style.color = '#ff7070'; btn.style.borderColor = 'var(--accent,#E83535)';
+    btn.setAttribute('data-wm-active','1');
+  }
 
-  const muscleExs = exercises.filter(e => e.muscle === muscle);
+  // Collect all selected muscles
+  const selectedMuscles = [...document.querySelectorAll('#wm-muscle-picks button[data-wm-active="1"]')].map(b=>b.getAttribute('data-muscle'));
+  const muscleExs = exercises.filter(e => selectedMuscles.includes(e.muscle));
+
   const picker = document.getElementById('wm-ex-picker');
+  if (!muscleExs.length) { picker.innerHTML = ''; return; }
   picker.innerHTML = `
     <div style="font-size:10px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:8px">${muscle.toUpperCase()} — ELEGÍ LOS EJERCICIOS</div>
     ${muscleExs.map(ex => {
@@ -4271,12 +4280,12 @@ window.startWmFromPicker = () => {
     </div>
     <div class="wm-series-list" id="wm-series-list"></div>
     <div style="display:flex;gap:6px;margin-top:6px">
-      <button style="flex:1;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="wmRemoveSerie(wmFilteredExercises[wmExIndex]?.id)">− Serie</button>
-      <button style="flex:1;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="wmAddSerie(wmFilteredExercises[wmExIndex]?.id)">+ Serie</button>
+      <button style="flex:1;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="wmRemoveCurrentSerie()">− Serie</button>
+      <button style="flex:1;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="wmAddCurrentSerie()">+ Serie</button>
     </div>
     <div style="display:flex;gap:6px;margin-top:6px" id="wm-nav-row">
       <button class="wm-nav-btn" id="wm-prev-btn" onclick="wmNavigate(-1)">← Ant</button>
-      <button class="wm-nav-btn" onclick="showWorkoutModePicker()" style="flex:0.5;font-size:11px" title="Cambiar ejercicios">🔄</button>
+      <button class="wm-nav-btn" onclick="wmChangePicker()" style="flex:0.5;font-size:11px" title="Cambiar ejercicios">🔄</button>
       <button class="wm-nav-btn primary" id="wm-next-btn" onclick="wmNavigate(1)">Sig →</button>
     </div>
   `;
@@ -4480,6 +4489,20 @@ window.wmRemoveSerie = (exId) => {
   if (!ex || ex.series.length <= 1) return;
   ex.series.pop();
   saveDraft(); saveEx(ex); renderWorkoutMode();
+};
+
+// Helpers that use current wmExIndex
+window.wmAddCurrentSerie = () => {
+  const ex = wmFilteredExercises[wmExIndex];
+  if (ex) wmAddSerie(ex.id);
+};
+window.wmRemoveCurrentSerie = () => {
+  const ex = wmFilteredExercises[wmExIndex];
+  if (ex) wmRemoveSerie(ex.id);
+};
+window.wmChangePicker = () => {
+  // Save current state then show picker
+  showWorkoutModePicker();
 };
 
 window.wmToggleDone = (exId, idx) => {
