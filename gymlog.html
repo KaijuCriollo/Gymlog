@@ -665,7 +665,14 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <div class="chart-title" style="margin-top:14px">🔥 RÉCORDS — ÚLTIMA SESIÓN</div>
       <div id="last-session-prs" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px"></div>
       <div class="chart-title" style="margin-top:14px">PROGRESO POR EJERCICIO</div>
-      <select class="progress-ex-sel" id="progress-ex-sel" onchange="renderProgressChart()" style="margin:6px 12px 0;width:calc(100% - 24px);padding:10px 12px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:10px;color:#f0ede8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none"></select>
+      <div style="margin:6px 12px 0;display:flex;gap:8px">
+        <select id="progress-muscle-sel" onchange="updateProgressExSel()" style="flex:1;padding:10px 12px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:10px;color:#f0ede8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none">
+          <option value="">— Músculo —</option>
+        </select>
+        <select id="progress-ex-sel" onchange="renderProgressChart()" style="flex:1;padding:10px 12px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:10px;color:#f0ede8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none">
+          <option value="">— Ejercicio —</option>
+        </select>
+      </div>
       <div id="pr-banner" style="margin:6px 12px 0"></div>
       <div class="chart-wrap"><canvas id="progressChart">Gráfico progreso</canvas></div>
       <div style="height:20px"></div>
@@ -2494,21 +2501,35 @@ function renderProgress() {
   renderMuscleTrend();
   renderStrengthAnalysis();
   // Populate exercise selector
+  // Build muscle→exercises map from history, filtering deleted exercises
+  const SKIP_EX = ['ab','abdo oblicuos','abdominales cortos','plancha-','abdominales'];
+  const exByMuscle = {};
+  const SKIP_MUSCLES = ['Abdominales'];
+  history.flatMap(h=>(h.exercises||[])).forEach(e=>{
+    if (!e.name) return;
+    if (SKIP_EX.includes(e.name.toLowerCase().trim())) return;
+    const muscle = e.muscle || 'Otro';
+    if (SKIP_MUSCLES.includes(muscle)) return;
+    if (!exByMuscle[muscle]) exByMuscle[muscle] = new Set();
+    exByMuscle[muscle].add(e.name);
+  });
+  // Also filter by currently existing exercises
+  const existingNames = new Set(exercises.map(e=>e.name));
+  Object.keys(exByMuscle).forEach(m => {
+    exByMuscle[m] = new Set([...exByMuscle[m]].filter(n => existingNames.has(n)));
+    if (!exByMuscle[m].size) delete exByMuscle[m];
+  });
+  window._exByMuscle = exByMuscle;
+
+  const muscleSel = document.getElementById('progress-muscle-sel');
+  if (muscleSel) {
+    const muscles = Object.keys(exByMuscle).sort();
+    muscleSel.innerHTML = '<option value="">— Músculo —</option>' +
+      muscles.map(m=>`<option value="${m}">${m}</option>`).join('');
+  }
   const exSel = document.getElementById('progress-ex-sel');
   if (exSel) {
-    // Group by muscle
-    const exByMuscle = {};
-    history.flatMap(h=>(h.exercises||[])).forEach(e=>{
-      if (!e.name) return;
-      const muscle = e.muscle || 'Otro';
-      if (!exByMuscle[muscle]) exByMuscle[muscle] = new Set();
-      exByMuscle[muscle].add(e.name);
-    });
-    const muscles = Object.keys(exByMuscle).sort();
-    exSel.innerHTML = muscles.map(m =>
-      `<optgroup label="${m}">${[...exByMuscle[m]].sort().map(n=>`<option value="${n}">${n}</option>`).join('')}</optgroup>`
-    ).join('');
-    if (muscles.length) renderProgressChart();
+    exSel.innerHTML = '<option value="">— Ejercicio —</option>';
   }
 }
 
@@ -2634,7 +2655,8 @@ function renderMuscleStreak() {
 
   el.innerHTML = sorted.map(({muscle, days}) => {
     let color, icon;
-    if (days <= 2) { color = '#22c97a'; icon = '🟢'; }
+    if (days === 0) { color = '#16a05a'; icon = '✅'; }
+    else if (days <= 2) { color = '#5ee8a0'; icon = '🟢'; }
     else if (days <= 4) { color = '#f5e642'; icon = '🟡'; }
     else if (days <= 5) { color = '#f0a04b'; icon = '🟠'; }
     else { color = '#E83535'; icon = '🔴'; }
@@ -2888,6 +2910,19 @@ function renderPesoChart(entries) {
       scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',precision:1,callback:v=>parseFloat(v.toFixed(1))+'kg'},grid:{color:'rgba(255,255,255,0.06)'},grace:'5%'} } }
   });
 }
+
+window.updateProgressExSel = () => {
+  const muscle = document.getElementById('progress-muscle-sel').value;
+  const exSel = document.getElementById('progress-ex-sel');
+  if (!exSel) return;
+  if (!muscle || !window._exByMuscle || !window._exByMuscle[muscle]) {
+    exSel.innerHTML = '<option value="">— Ejercicio —</option>';
+    return;
+  }
+  const exNames = [...window._exByMuscle[muscle]].sort();
+  exSel.innerHTML = '<option value="">— Ejercicio —</option>' +
+    exNames.map(n=>`<option value="${n}">${n}</option>`).join('');
+};
 
 window.renderProgressChart = () => {
   const exName = document.getElementById('progress-ex-sel').value;
