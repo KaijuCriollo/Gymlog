@@ -3095,17 +3095,30 @@ function renderStrengthAnalysis() {
     return;
   }
 
-  // Get all weighted exercises that appear in at least 3 sessions
-  const exCount = {};
+  // Get top 2 weighted exercises per muscle group, skip Core/Abdominales
+  const SKIP_MUSCLES_STR = ['Core','Abdominales','Cardio'];
+  const exByMuscleCount = {};
   history.filter(h=>!h.pesoOnly).forEach(h=>{
     (h.exercises||[]).forEach(e=>{
+      const muscle = e.muscle||'Otro';
+      if (SKIP_MUSCLES_STR.includes(muscle)) return;
       if ((e.type||'normal')==='normal' && (e.series||[]).some(s=>parseFloat(s.kg)>0)) {
         const name = e.name||'';
-        exCount[name] = (exCount[name]||0)+1;
+        if (!exByMuscleCount[muscle]) exByMuscleCount[muscle] = {};
+        exByMuscleCount[muscle][name] = (exByMuscleCount[muscle][name]||0)+1;
       }
     });
   });
-  const keyEx = Object.entries(exCount).filter(([,n])=>n>=3).sort((a,b)=>b[1]-a[1]).map(([n])=>n).slice(0,6);
+  // Take top 2 per muscle with at least 2 sessions
+  const keyEx = [];
+  Object.entries(exByMuscleCount).sort(([a],[b])=>a.localeCompare(b)).forEach(([muscle, exMap]) => {
+    const top2 = Object.entries(exMap)
+      .filter(([,n])=>n>=3)
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,2)
+      .map(([n])=>n);
+    keyEx.push(...top2);
+  });
   if (!keyEx.length) keyEx.push('Press de banca');
   const weeks = {};
   history.filter(h=>!h.pesoOnly).forEach(h => {
