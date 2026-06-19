@@ -2450,13 +2450,23 @@ function renderProgress() {
   const pesoMesAntes = pesoEntries.filter(e=>new Date(e.date)<monthStart).slice(-1)[0]?.peso||null;
   const pesoDiff = pesoActual&&pesoMesAntes ? Math.round((pesoActual-pesoMesAntes)*10)/10 : null;
   const pesoFlecha = pesoDiff!==null ? (pesoDiff>0?`↑ +${pesoDiff}kg`:`↓ ${pesoDiff}kg`) : '';
-  const pesoFlechaColor = pesoDiff!==null ? (pesoDiff>0?'#E83535':'#22c97a') : '#555';
+  // Color depends on objetivo: gaining = up is good, deficit = down is good
+  const isGaining = (profile.objetivo||'').toLowerCase().includes('volum') || (profile.objetivoCustom||'').toLowerCase().includes('volum') || (profile.objetivo||'').toLowerCase().includes('masa');
+  const pesoFlechaColor = pesoDiff===null ? '#555' : pesoDiff===0 ? '#888' : isGaining ? (pesoDiff>0?'#22c97a':'#f0a04b') : (pesoDiff>0?'#E83535':'#22c97a');
+
+  // Records this month — count from cierresHistory or lastSessionPRs
+  let recsMonth = 0;
+  if (profile.lastSessionPRs?.prs?.length) {
+    const prDate = profile.lastSessionPRs.sessionDate ? new Date(profile.lastSessionPRs.sessionDate) : null;
+    if (prDate && prDate >= monthStart) recsMonth = profile.lastSessionPRs.prs.length;
+  }
 
   document.getElementById('global-stats').innerHTML = `
     <div class="stat-box"><div class="stat-box-label">ENTRENOS ESTE MES</div><div class="stat-box-val">${thisMonthW}</div></div>
     <div class="stat-box"><div class="stat-box-label">FUERZA PROMEDIO</div><div class="stat-box-val" style="color:${fuerzaColor};font-size:22px">${fuerzaStr}</div><div style="font-size:10px;color:#555;margin-top:2px">${fuerzaLabel}</div></div>
     <div class="stat-box"><div class="stat-box-label">VOLUMEN SEMANA</div><div class="stat-box-val">${weekKg>0?weekKg.toLocaleString():'—'}<span class="stat-box-unit">${weekKg>0?' kg':''}</span></div></div>
     <div class="stat-box"><div class="stat-box-label">PESO ACTUAL</div><div class="stat-box-val">${pesoActual||'—'}<span class="stat-box-unit">${pesoActual?' kg':''}</span></div>${pesoDiff!==null?`<div style="font-size:11px;color:${pesoFlechaColor};margin-top:2px;font-weight:700">${pesoFlecha} este mes</div>`:''}</div>
+    ${recsMonth>0?`<div class="stat-box" style="grid-column:1/-1;background:rgba(232,53,53,0.08);border-color:rgba(232,53,53,0.2)"><div class="stat-box-label">🏆 RÉCORDS ESTE MES</div><div class="stat-box-val" style="color:#E83535">${recsMonth}</div></div>`:''}
   `;
 
   // Objetivo banner
@@ -2475,9 +2485,19 @@ function renderProgress() {
   // Populate exercise selector
   const exSel = document.getElementById('progress-ex-sel');
   if (exSel) {
-    const exNames = [...new Set(history.flatMap(h=>(h.exercises||[]).map(e=>e.name)))].sort();
-    exSel.innerHTML = exNames.map(n=>`<option value="${n}">${n}</option>`).join('');
-    if (exNames.length) renderProgressChart();
+    // Group by muscle
+    const exByMuscle = {};
+    history.flatMap(h=>(h.exercises||[])).forEach(e=>{
+      if (!e.name) return;
+      const muscle = e.muscle || 'Otro';
+      if (!exByMuscle[muscle]) exByMuscle[muscle] = new Set();
+      exByMuscle[muscle].add(e.name);
+    });
+    const muscles = Object.keys(exByMuscle).sort();
+    exSel.innerHTML = muscles.map(m =>
+      `<optgroup label="${m}">${[...exByMuscle[m]].sort().map(n=>`<option value="${n}">${n}</option>`).join('')}</optgroup>`
+    ).join('');
+    if (muscles.length) renderProgressChart();
   }
 }
 
@@ -3023,15 +3043,24 @@ function renderStrengthAnalysis() {
   const el = document.getElementById('strength-weight-analysis');
   if (!el) return;
 
-  // Need at least 2 weeks of data
   const pesoEntries = history.filter(h=>h.peso&&h.peso>0).sort((a,b)=>new Date(a.date)-new Date(b.date));
   if (pesoEntries.length < 2) {
     el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:4px">Necesitás más registros de peso corporal para ver este análisis</div>';
     return;
   }
 
-  // Get weekly avg peso and weekly max strength for key exercises
-  const keyEx = ['Press de banca','Dominadas','Sentadillas'];
+  // Get all weighted exercises that appear in at least 3 sessions
+  const exCount = {};
+  history.filter(h=>!h.pesoOnly).forEach(h=>{
+    (h.exercises||[]).forEach(e=>{
+      if ((e.type||'normal')==='normal' && (e.series||[]).some(s=>parseFloat(s.kg)>0)) {
+        const name = e.name||'';
+        exCount[name] = (exCount[name]||0)+1;
+      }
+    });
+  });
+  const keyEx = Object.entries(exCount).filter(([,n])=>n>=3).sort((a,b)=>b[1]-a[1]).map(([n])=>n).slice(0,6);
+  if (!keyEx.length) keyEx.push('Press de banca');
   const weeks = {};
   history.filter(h=>!h.pesoOnly).forEach(h => {
     const d = new Date(h.date);
