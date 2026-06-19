@@ -4194,20 +4194,96 @@ function showWorkoutModePicker() {
   const overlay = document.getElementById('workout-mode-overlay');
   overlay.classList.add('open');
   const body = overlay.querySelector('.wm-body');
-  body.innerHTML = `
-    <div style="font-size:22px;font-weight:700;color:#fff;margin-bottom:6px">¿Qué entrenás hoy?</div>
-    <div style="font-size:13px;color:#666;margin-bottom:20px">Elegí uno o más grupos musculares</div>
-    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px" id="wm-muscle-picks">
-      ${muscles.map(m => `<button onclick="toggleWmMuscle('${m}',this)"
-        style="padding:10px 16px;border-radius:20px;border:1px solid #333;background:#1e1e1e;color:#aaa;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s"
-        data-muscle="${m}">${m}</button>`).join('')}
-    </div>
-    <button onclick="startWorkoutMode()" style="width:100%;padding:14px;background:var(--accent,#E83535);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer">⚡ Empezar</button>
-    <button onclick="closeWorkoutMode()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:12px;color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cancelar</button>
-  `;
   document.querySelector('.wm-header').style.display = 'none';
   document.querySelector('.wm-progress-bar').style.display = 'none';
+  body.innerHTML = `
+    <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:4px">¿Qué entrenás hoy?</div>
+    <div style="font-size:12px;color:#555;margin-bottom:14px">1. Elegí el músculo → 2. Seleccioná ejercicios</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px" id="wm-muscle-picks">
+      ${muscles.map(m => `<button onclick="showWmExercisePicker('${m}',this)"
+        style="padding:8px 14px;border-radius:20px;border:1px solid #333;background:#1e1e1e;color:#aaa;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif"
+        data-muscle="${m}">${m}</button>`).join('')}
+    </div>
+    <div id="wm-ex-picker"></div>
+    <button onclick="closeWorkoutMode()" style="width:100%;margin-top:10px;padding:11px;background:none;border:1px solid #2e2e2e;border-radius:12px;color:#555;font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer">Cancelar</button>
+  `;
 }
+
+let wmSelectedExIds = new Set();
+
+window.showWmExercisePicker = (muscle, btn) => {
+  document.querySelectorAll('#wm-muscle-picks button').forEach(b => {
+    b.style.background = '#1e1e1e'; b.style.color = '#aaa'; b.style.borderColor = '#333';
+  });
+  btn.style.background = 'rgba(232,53,53,0.2)'; btn.style.color = '#ff7070'; btn.style.borderColor = 'var(--accent,#E83535)';
+
+  const muscleExs = exercises.filter(e => e.muscle === muscle);
+  const picker = document.getElementById('wm-ex-picker');
+  picker.innerHTML = `
+    <div style="font-size:10px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:8px">${muscle.toUpperCase()} — ELEGÍ LOS EJERCICIOS</div>
+    ${muscleExs.map(ex => {
+      const lastStats = getLastSessionStats(ex.name);
+      const lastStr = lastStats ? (ex.type==='time'?`${lastStats.secs}s`:lastStats.kg>0?`${lastStats.kg}kg × ${lastStats.reps} reps`:`${lastStats.reps} reps`) : '';
+      const isSelected = wmSelectedExIds.has(ex.id);
+      return `<div onclick="toggleWmExCheck(${ex.id})" id="wmex-${ex.id}"
+        style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:${isSelected?'#1e1a1a':'#1a1a1a'};border:1px solid ${isSelected?'rgba(232,53,53,0.4)':'#2a2a2a'};border-radius:10px;margin-bottom:6px;cursor:pointer">
+        <div id="wmex-check-${ex.id}" style="width:20px;height:20px;border-radius:5px;border:2px solid ${isSelected?'var(--accent,#E83535)':'#333'};background:${isSelected?'var(--accent,#E83535)':'#111'};flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff">${isSelected?'✓':''}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:700;color:#eee">${ex.name}</div>
+          ${lastStr?`<div style="font-size:11px;color:#555;margin-top:1px">📋 ${lastStr}</div>`:''}
+        </div>
+      </div>`;
+    }).join('')}
+    <button onclick="startWmFromPicker()" style="width:100%;padding:13px;background:var(--accent,#E83535);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:6px">⚡ Empezar (${wmSelectedExIds.size} seleccionados)</button>
+  `;
+};
+
+window.toggleWmExCheck = (id) => {
+  const check = document.getElementById('wmex-check-'+id);
+  const row = document.getElementById('wmex-'+id);
+  if (wmSelectedExIds.has(id)) {
+    wmSelectedExIds.delete(id);
+    if(check){check.textContent='';check.style.borderColor='#333';check.style.background='#111';}
+    if(row){row.style.borderColor='#2a2a2a';row.style.background='#1a1a1a';}
+  } else {
+    wmSelectedExIds.add(id);
+    if(check){check.textContent='✓';check.style.borderColor='var(--accent,#E83535)';check.style.background='var(--accent,#E83535)';}
+    if(row){row.style.borderColor='rgba(232,53,53,0.4)';row.style.background='#1e1a1a';}
+  }
+  // Update button count
+  const btn = document.querySelector('#wm-ex-picker button');
+  if(btn) btn.textContent = `⚡ Empezar (${wmSelectedExIds.size} seleccionados)`;
+};
+
+window.startWmFromPicker = () => {
+  if (wmSelectedExIds.size === 0) { showToast('Seleccioná al menos un ejercicio'); return; }
+  const selected = exercises.filter(e => wmSelectedExIds.has(e.id));
+  wmFilteredExercises = selected;
+  wmExIndex = 0;
+  wmSelectedExIds = new Set();
+  const overlay = document.getElementById('workout-mode-overlay');
+  overlay.querySelector('.wm-body').innerHTML = `
+    <div class="wm-ex-name" id="wm-ex-name">—</div>
+    <div class="wm-ex-muscle" id="wm-ex-muscle">—</div>
+    <div class="wm-info-row">
+      <div class="wm-info-box"><div class="wm-info-label">📋 ÚLTIMA VEZ</div><div class="wm-info-val" id="wm-last">—</div></div>
+      <div class="wm-info-box"><div class="wm-info-label">🏆 RÉCORD</div><div class="wm-info-val" id="wm-pr">—</div></div>
+    </div>
+    <div class="wm-series-list" id="wm-series-list"></div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <button style="flex:1;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="wmRemoveSerie(wmFilteredExercises[wmExIndex]?.id)">− Serie</button>
+      <button style="flex:1;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="wmAddSerie(wmFilteredExercises[wmExIndex]?.id)">+ Serie</button>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px" id="wm-nav-row">
+      <button class="wm-nav-btn" id="wm-prev-btn" onclick="wmNavigate(-1)">← Ant</button>
+      <button class="wm-nav-btn" onclick="showWorkoutModePicker()" style="flex:0.5;font-size:11px" title="Cambiar ejercicios">🔄</button>
+      <button class="wm-nav-btn primary" id="wm-next-btn" onclick="wmNavigate(1)">Sig →</button>
+    </div>
+  `;
+  document.querySelector('.wm-header').style.display = '';
+  document.querySelector('.wm-progress-bar').style.display = '';
+  renderWorkoutMode();
+};
 
 // ── EXERCISE SEARCH ──
 let exSearchActive = false;
@@ -4241,41 +4317,11 @@ window.clearExSearch = () => {
   filterExSearch('');
 };
 
-window.toggleWmMuscle = (muscle, btn) => {
-  const active = btn.style.background === 'rgba(232, 53, 53, 0.2)' || btn.getAttribute('data-active') === '1';
-  if (active) {
-    btn.style.cssText = 'padding:10px 16px;border-radius:20px;border:1px solid #333;background:#1e1e1e;color:#aaa;font-size:14px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.15s';
-    btn.setAttribute('data-active','0');
-  } else {
-    btn.style.cssText = 'padding:10px 16px;border-radius:20px;border:1px solid var(--accent,#E83535);background:rgba(232,53,53,0.2);color:#ff7070;font-size:14px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;transition:all 0.15s';
-    btn.setAttribute('data-active','1');
-  }
-};
+
 
 window.startWorkoutMode = () => {
-  const selected = [...document.querySelectorAll('#wm-muscle-picks button[data-active="1"]')].map(b => b.getAttribute('data-muscle'));
-  if (!selected.length) { showToast('Elegí al menos un músculo'); return; }
-  wmFilteredExercises = exercises.filter(e => selected.includes(e.muscle) && e.series && e.series.length);
-  if (!wmFilteredExercises.length) { showToast('No hay ejercicios de esos músculos'); return; }
-  wmExIndex = 0;
-  // Restore workout mode body HTML (was replaced by picker)
-  const overlay = document.getElementById('workout-mode-overlay');
-  overlay.querySelector('.wm-body').innerHTML = `
-    <div class="wm-ex-name" id="wm-ex-name">—</div>
-    <div class="wm-ex-muscle" id="wm-ex-muscle">—</div>
-    <div class="wm-info-row">
-      <div class="wm-info-box"><div class="wm-info-label">📋 ÚLTIMA VEZ</div><div class="wm-info-val" id="wm-last">—</div></div>
-      <div class="wm-info-box"><div class="wm-info-label">🏆 RÉCORD</div><div class="wm-info-val" id="wm-pr">—</div></div>
-    </div>
-    <div class="wm-series-list" id="wm-series-list"></div>
-    <div class="wm-nav">
-      <button class="wm-nav-btn" id="wm-prev-btn" onclick="wmNavigate(-1)">← Anterior</button>
-      <button class="wm-nav-btn primary" id="wm-next-btn" onclick="wmNavigate(1)">Siguiente →</button>
-    </div>
-  `;
-  document.querySelector('.wm-header').style.display = '';
-  document.querySelector('.wm-progress-bar').style.display = '';
-  renderWorkoutMode();
+  // Now handled by startWmFromPicker
+  startWmFromPicker();
 };
 window.closeWorkoutMode = () => {
   const hasDone = wmFilteredExercises.some(e => e.series && e.series.some(s => s.done));
@@ -4361,10 +4407,13 @@ function renderWorkoutMode() {
   document.getElementById('wm-series-list').innerHTML = seriesHtml;
 
   // Nav buttons
-  document.getElementById('wm-prev-btn').style.display = wmExIndex===0 ? 'none' : '';
-  document.getElementById('wm-next-btn').textContent = wmExIndex===total-1 ? '✅ Terminar' : 'Siguiente →';
-  if (wmExIndex===total-1) document.getElementById('wm-next-btn').onclick = closeWorkoutMode;
-  else document.getElementById('wm-next-btn').onclick = () => wmNavigate(1);
+  const prevBtn = document.getElementById('wm-prev-btn');
+  const nextBtn = document.getElementById('wm-next-btn');
+  if (prevBtn) prevBtn.style.display = wmExIndex===0 ? 'none' : '';
+  if (nextBtn) {
+    nextBtn.textContent = wmExIndex===total-1 ? '✅ Fin' : 'Sig →';
+    nextBtn.onclick = wmExIndex===total-1 ? closeWorkoutMode : () => wmNavigate(1);
+  }
 }
 
 // ── WORKOUT MODE TIMER ──
@@ -4415,6 +4464,22 @@ window.wmUpdateSerie = (exId, idx, field, val) => {
     saveDraft();
     saveEx(ex);
   }
+};
+
+window.wmAddSerie = (exId) => {
+  const ex = exercises.find(e => e.id === exId);
+  if (!ex) return;
+  const lastSerie = ex.series[ex.series.length-1] || {reps:'10',kg:'0'};
+  const newSerie = ex.type==='time' ? {secs:lastSerie.secs||'30',done:false} : {reps:lastSerie.reps||'10',kg:lastSerie.kg||'0',done:false};
+  ex.series.push(newSerie);
+  saveDraft(); saveEx(ex); renderWorkoutMode();
+};
+
+window.wmRemoveSerie = (exId) => {
+  const ex = exercises.find(e => e.id === exId);
+  if (!ex || ex.series.length <= 1) return;
+  ex.series.pop();
+  saveDraft(); saveEx(ex); renderWorkoutMode();
 };
 
 window.wmToggleDone = (exId, idx) => {
