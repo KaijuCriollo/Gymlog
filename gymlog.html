@@ -999,7 +999,7 @@ const auth = getAuth(fbApp);
 const db = getFirestore(fbApp);
 
 const MOODS = ['💪 Excelente','😊 Bien','😐 Regular','😓 Cansado','🤒 Me sentí mal'];
-const MUSCLES = ['Ahora','Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Cuádriceps','Glúteos','Piernas','Core','Cardio'];
+const MUSCLES = ['Ahora','Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Cuádriceps','Glúteos','Piernas','Core','Cardio']; // Todos hidden in UI
 const BW_MUSCLES = ['Abdominales','Core'];
 const BW_LASTRE = ['Espalda']; // dominadas default
 
@@ -1452,7 +1452,7 @@ window.switchTab = (tab, btn) => {
 /* ── FILTERS ── */
 function renderFilters() {
   document.getElementById('muscle-filters').innerHTML = MUSCLES.map(m =>
-    `<div class="filter-pill ${m===currentFilter?'active':''}" onclick="setFilter('${m}',this)">${m}</div>`
+    `${m==='Todos'?'':`<div class="filter-pill ${m===currentFilter?'active':''}" onclick="setFilter('${m}',this)">${m}</div>`}`
   ).join('');
 }
 window.setFilter = (m, el) => {
@@ -2098,10 +2098,16 @@ window.saveWorkout = async () => {
   if (sessionPRs.length) {
     const todayStr = new Date().toDateString();
     const monthKey = `${new Date().getFullYear()}-${new Date().getMonth()}`;
-    // Accumulate PRs for the month
+    // Accumulate PRs for the month — deduplicate by exercise name
     const existingMonthPRs = (profile.monthlyPRs && profile.monthlyPRs.monthKey === monthKey)
       ? profile.monthlyPRs.prs : [];
-    const allMonthPRs = [...new Set([...existingMonthPRs, ...sessionPRs])];
+    // Merge: if same exercise already has a PR this month, replace with new one
+    const prMap = {};
+    [...existingMonthPRs, ...sessionPRs].forEach(pr => {
+      const exName = pr.replace('🏆 ','').split(':')[0].trim();
+      prMap[exName] = pr; // always keep latest
+    });
+    const allMonthPRs = Object.values(prMap);
     profile.monthlyPRs = { monthKey, prs: allMonthPRs };
     profile.lastSessionPRs = {
       date: new Date().toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
