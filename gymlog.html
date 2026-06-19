@@ -3041,9 +3041,38 @@ function renderCierres() {
   const el = document.getElementById('cierres-list');
   if (!el) return;
   const cierres = profile.cierresHistory || [];
-  const lastPRs = profile.lastSessionPRs;
 
   let html = '';
+
+  // ── Weekly summary (last closed week) ──
+  const today = new Date();
+  const dow = today.getDay()===0?6:today.getDay()-1;
+  const thisWeekStart = new Date(today); thisWeekStart.setDate(today.getDate()-dow); thisWeekStart.setHours(0,0,0,0);
+  const lastWeekStart = new Date(thisWeekStart); lastWeekStart.setDate(thisWeekStart.getDate()-7);
+  const lastWeekEnd = new Date(thisWeekStart); lastWeekEnd.setSeconds(-1);
+
+  const weekWorkouts = history.filter(h => !h.pesoOnly && new Date(h.date) >= lastWeekStart && new Date(h.date) <= lastWeekEnd);
+  const weekDays = new Set(weekWorkouts.map(h => new Date(h.date).toDateString())).size;
+  const weekSeries = weekWorkouts.reduce((a,h)=>a+(h.exercises||[]).reduce((b,e)=>b+(e.series||[]).length,0),0);
+  const weekVol = Math.round(weekWorkouts.reduce((a,h)=>a+(h.exercises||[]).reduce((b,e)=>b+(e.series||[]).reduce((c,s)=>c+((parseFloat(s.kg)||0)*(parseInt(s.reps)||0)),0),0),0));
+  const weekMuscles = [...new Set(weekWorkouts.flatMap(h=>(h.exercises||[]).map(e=>e.muscle)).filter(Boolean))];
+
+  const weekLabel = `${lastWeekStart.toLocaleDateString('es-AR',{day:'numeric',month:'short'})} – ${lastWeekEnd.toLocaleDateString('es-AR',{day:'numeric',month:'short'})}`;
+
+  if (weekDays > 0) {
+    const weekEmoji = weekDays >= 5 ? '🔥' : weekDays >= 3 ? '💪' : '👟';
+    html += `<div style="margin:12px 12px 0;background:linear-gradient(135deg,#1a1a1a,#222);border:1px solid #2e2e2e;border-radius:14px;padding:14px">
+      <div style="font-size:10px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:8px">📅 SEMANA ANTERIOR · ${weekLabel}</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+        <span style="font-size:28px">${weekEmoji}</span>
+        <div>
+          <div style="font-size:16px;font-weight:700;color:#fff">${weekDays} día${weekDays!==1?'s':''} entrenado${weekDays!==1?'s':''}</div>
+          <div style="font-size:11px;color:#555;margin-top:2px">${weekSeries} series · ${weekVol>0?weekVol.toLocaleString()+'kg de volumen':''}</div>
+        </div>
+      </div>
+      ${weekMuscles.length ? `<div style="display:flex;flex-wrap:wrap;gap:6px">${weekMuscles.map(m=>`<div style="background:#2a2a2a;border-radius:20px;padding:3px 10px;font-size:11px;color:#aaa;font-weight:600">${m}</div>`).join('')}</div>` : ''}
+    </div>`;
+  }
 
 
 
@@ -4249,6 +4278,8 @@ window.startWorkoutMode = () => {
   renderWorkoutMode();
 };
 window.closeWorkoutMode = () => {
+  const hasDone = wmFilteredExercises.some(e => e.series && e.series.some(s => s.done));
+  if (hasDone && !confirm('¿Salís del modo entrenamiento? Las series marcadas no se perderán.')) return;
   stopWmTimer();
   document.getElementById('workout-mode-overlay').classList.remove('open');
   wmFilteredExercises = [];
