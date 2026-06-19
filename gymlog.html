@@ -3113,7 +3113,7 @@ function renderStrengthAnalysis() {
   const keyEx = [];
   Object.entries(exByMuscleCount).sort(([a],[b])=>a.localeCompare(b)).forEach(([muscle, exMap]) => {
     const top2 = Object.entries(exMap)
-      .filter(([,n])=>n>=3)
+      .filter(([,n])=>n>=1)
       .sort((a,b)=>b[1]-a[1])
       .slice(0,2)
       .map(([n])=>n);
