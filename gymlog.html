@@ -3102,7 +3102,11 @@ function renderStrengthAnalysis() {
     (h.exercises||[]).forEach(e=>{
       const muscle = e.muscle||'Otro';
       if (SKIP_MUSCLES_STR.includes(muscle)) return;
-      if ((e.type||'normal')==='normal' && (e.series||[]).some(s=>parseFloat(s.kg)>0)) {
+      const etype = e.type||'normal';
+      // Include weighted (normal) and bodyweight+lastre exercises
+      const isWeighted = etype==='normal' && (e.series||[]).some(s=>parseFloat(s.kg)>0);
+      const isBWLastre = (etype==='bw_lastre'||etype==='bw') && (e.series||[]).some(s=>parseInt(s.reps)>0);
+      if (isWeighted || isBWLastre) {
         const name = e.name||'';
         if (!exByMuscleCount[muscle]) exByMuscleCount[muscle] = {};
         exByMuscleCount[muscle][name] = (exByMuscleCount[muscle][name]||0)+1;
