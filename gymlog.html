@@ -1134,7 +1134,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('save-bar').style.display = '';
     renderAll();
     // Detect PRs from last session retroactively
-    setTimeout(detectLastSessionPRs, 1000);
+    setTimeout(() => { rebuildMonthlyPRs(); detectLastSessionPRs(); }, 1000);
     // Check for unsaved draft from previous session
     const draft = loadDraft();
     if (draft) setTimeout(() => offerRestoreDraft(draft), 800);
@@ -2098,16 +2098,10 @@ window.saveWorkout = async () => {
   if (sessionPRs.length) {
     const todayStr = new Date().toDateString();
     const monthKey = `${new Date().getFullYear()}-${new Date().getMonth()}`;
-    // Accumulate PRs for the month — deduplicate by exercise name
+    // Accumulate ALL PRs — each broken record counts, even same exercise multiple times
     const existingMonthPRs = (profile.monthlyPRs && profile.monthlyPRs.monthKey === monthKey)
       ? profile.monthlyPRs.prs : [];
-    // Merge: if same exercise already has a PR this month, replace with new one
-    const prMap = {};
-    [...existingMonthPRs, ...sessionPRs].forEach(pr => {
-      const exName = pr.replace('🏆 ','').split(':')[0].trim();
-      prMap[exName] = pr; // always keep latest
-    });
-    const allMonthPRs = Object.values(prMap);
+    const allMonthPRs = [...existingMonthPRs, ...sessionPRs];
     profile.monthlyPRs = { monthKey, prs: allMonthPRs };
     profile.lastSessionPRs = {
       date: new Date().toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
@@ -3720,6 +3714,84 @@ window.cerrarMesManual = () => {
   showCierreDeMes(monthHistory, monthStart);
 };
 
+function rebuildMonthlyPRs() {
+  // Recalculate all PRs broken this month from history
+  const now = new Date();
+  const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  // Already have data for this month — skip
+  if (profile.monthlyPRs?.monthKey === monthKey && profile.monthlyPRs.prs.length > 1) return;
+
+  const monthSessions = history
+    .filter(h => !h.pesoOnly && new Date(h.date) >= monthStart)
+    .sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  if (monthSessions.length < 1) return;
+
+  const allMonthPRs = [];
+
+  monthSessions.forEach(session => {
+    const sessionDate = new Date(session.date).toDateString();
+    // Get history BEFORE this session
+    const prevHistory = history.filter(h => !h.pesoOnly && new Date(h.date).toDateString() !== sessionDate && new Date(h.date) < new Date(session.date));
+
+    function getPrevPR(exName) {
+      const aliases = getAliases(exName);
+      let prKg = 0, prReps = 0, prSecs = 0, bestKgReps = 0;
+      prevHistory.forEach(h => {
+        (h.exercises||[]).forEach(e => {
+          if (!aliases.includes(normalizeExName(e.name))) return;
+          (e.series||[]).forEach(s => {
+            const kg = parseFloat(s.kg)||0, reps = parseInt(s.reps)||0, secs = parseInt(s.secs)||0;
+            if (kg > prKg) { prKg = kg; bestKgReps = reps; }
+            else if (kg === prKg && reps > bestKgReps) bestKgReps = reps;
+            if (reps > prReps) prReps = reps;
+            if (secs > prSecs) prSecs = secs;
+          });
+        });
+      });
+      return { kg: prKg, reps: prReps, secs: prSecs, bestKgReps };
+    }
+
+    (session.exercises||[]).forEach(ex => {
+      const type = ex.type || 'normal';
+      const prev = getPrevPR(ex.name);
+      const series = ex.series || [];
+
+      if (type === 'time') {
+        const maxSecs = Math.max(...series.map(s=>parseInt(s.secs)||0), 0);
+        if (maxSecs > prev.secs) allMonthPRs.push(`🏆 ${ex.name}: ${maxSecs}s`);
+      } else if (type === 'bw_lastre' || type === 'bw') {
+        const maxReps = Math.max(...series.map(s=>parseInt(s.reps)||0), 0);
+        if (maxReps > prev.reps) allMonthPRs.push(`🏆 ${ex.name}: ${maxReps} reps`);
+      } else {
+        let bestSerie = null, bestOrm = 0;
+        series.forEach(s => {
+          const kg = parseFloat(s.kg)||0, reps = parseInt(s.reps)||0;
+          if (kg > 0 && reps > 0) {
+            const orm = kg * (1 + reps/30);
+            if (orm > bestOrm) { bestOrm = orm; bestSerie = s; }
+          }
+        });
+        if (!bestSerie) return;
+        const kg = parseFloat(bestSerie.kg)||0;
+        const reps = parseInt(bestSerie.reps)||0;
+        const prevOrm = prev.kg * (1 + (prev.bestKgReps||0)/30);
+        if (kg > prev.kg) allMonthPRs.push(`🏆 ${ex.name}: ${kg}kg`);
+        else if (kg === prev.kg && reps > prev.bestKgReps) allMonthPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps`);
+        else if (bestOrm > prevOrm && bestOrm > 0) allMonthPRs.push(`🏆 ${ex.name}: 1RM ~${Math.round(bestOrm*10)/10}kg`);
+      }
+    });
+  });
+
+  if (allMonthPRs.length > 0) {
+    profile.monthlyPRs = { monthKey, prs: allMonthPRs };
+    saveProfileDB();
+    console.log(`Rebuilt ${allMonthPRs.length} PRs for this month`);
+  }
+}
+
 function detectLastSessionPRs() {
   // Find the most recent real workout
   const realHistory = history.filter(h => !h.pesoOnly);
@@ -3786,17 +3858,21 @@ function detectLastSessionPRs() {
     }
   });
 
-  // Only save if different from what we already have
-  const existing = profile.lastSessionPRs;
-  if (!existing || existing.sessionDate !== lastDate || 
-      JSON.stringify(existing.prs) !== JSON.stringify(sessionPRs)) {
-    profile.lastSessionPRs = {
-      date: new Date(lastSession.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
-      sessionDate: lastDate,
-      prs: sessionPRs
-    };
-    saveProfileDB();
+  // Save last session PRs + accumulate in monthly
+  profile.lastSessionPRs = {
+    date: new Date(lastSession.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
+    sessionDate: lastDate,
+    prs: sessionPRs
+  };
+  // Accumulate in monthly PRs
+  const monthKey = `${new Date(lastSession.date).getFullYear()}-${new Date(lastSession.date).getMonth()}`;
+  const existingMonthPRs = (profile.monthlyPRs?.monthKey === monthKey) ? profile.monthlyPRs.prs : [];
+  // Avoid duplicating if same session already counted
+  const alreadyCounted = existingMonthPRs.some(p => p === sessionPRs[0] && profile.lastSessionPRs?.sessionDate === lastDate);
+  if (!alreadyCounted) {
+    profile.monthlyPRs = { monthKey, prs: [...existingMonthPRs, ...sessionPRs] };
   }
+  saveProfileDB();
 }
 
 function checkCierreDeMes() {
