@@ -3195,18 +3195,46 @@ function renderStrengthAnalysis() {
 
   // Per exercise strength trend
   keyEx.forEach(kex => {
-    const s1 = firstHalf.map(([,v])=>v.strength[kex]?.kg||0).filter(x=>x>0);
-    const s2 = secondHalf.map(([,v])=>v.strength[kex]?.kg||0).filter(x=>x>0);
-    if (!s1.length || !s2.length) return;
-    const avg1 = Math.round(s1.reduce((a,b)=>a+b,0)/s1.length*10)/10;
-    const avg2 = Math.round(s2.reduce((a,b)=>a+b,0)/s2.length*10)/10;
-    const diff = Math.round((avg2-avg1)*10)/10;
-    const pct = avg1 > 0 ? Math.round((diff/avg1)*100) : 0;
+    // Get all values across both halves
+    const allVals = [...firstHalf, ...secondHalf]
+      .map(([,v]) => {
+        const str = v.strength[kex];
+        if (!str) return null;
+        // Use 1RM if available, else kg
+        const val = str.reps > 0 && str.kg > 0 ? str.kg*(1+str.reps/30) : str.kg||str.reps||0;
+        return val > 0 ? val : null;
+      }).filter(Boolean);
+    if (allVals.length < 2) return; // need at least 2 data points
+
+    const s1 = firstHalf.map(([,v]) => {
+      const str = v.strength[kex]; if (!str) return 0;
+      return str.reps > 0 && str.kg > 0 ? str.kg*(1+str.reps/30) : str.kg||str.reps||0;
+    }).filter(x=>x>0);
+    const s2 = secondHalf.map(([,v]) => {
+      const str = v.strength[kex]; if (!str) return 0;
+      return str.reps > 0 && str.kg > 0 ? str.kg*(1+str.reps/30) : str.kg||str.reps||0;
+    }).filter(x=>x>0);
+
+    let diff = 0, pct = 0, note = '';
+    if (s1.length && s2.length) {
+      const avg1 = s1.reduce((a,b)=>a+b,0)/s1.length;
+      const avg2 = s2.reduce((a,b)=>a+b,0)/s2.length;
+      diff = Math.round((avg2-avg1)*10)/10;
+      pct = avg1 > 0 ? Math.round((diff/avg1)*100) : 0;
+    } else {
+      // Only recent data — show trend from first to last value
+      const first = allVals[0], last = allVals[allVals.length-1];
+      diff = Math.round((last-first)*10)/10;
+      pct = first > 0 ? Math.round((diff/first)*100) : 0;
+      note = ' *';
+    }
+
     const icon = diff > 0 ? '📈' : diff < 0 ? '📉' : '➡️';
     const color = diff > 0 ? '#22c97a' : diff < 0 ? '#E83535' : '#666';
+    const diffStr = diff !== 0 ? `${diff>0?'+':''}${diff} (${diff>0?'+':''}${pct}%)` : 'Sin cambio';
     html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #2a2a2a">
-      <span style="font-size:13px;color:#aaa;font-weight:600">${kex}</span>
-      <span style="font-size:13px;font-weight:700;color:${color}">${icon} ${diff>0?'+':''}${diff}kg (${diff>0?'+':''}${pct}%)</span>
+      <span style="font-size:13px;color:#aaa;font-weight:600">${kex}${note}</span>
+      <span style="font-size:13px;font-weight:700;color:${color}">${icon} ${diffStr}</span>
     </div>`;
   });
 
