@@ -608,7 +608,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <!-- CIERRES DE MES -->
     <div id="tab-cierres" class="tab">
       <div style="display:flex;justify-content:flex-end;margin:8px 12px 4px">
-        <button onclick="checkCierreDeMes(true)" style="padding:8px 16px;background:none;border:1px solid #2e2e2e;border-radius:20px;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📅 Cerrar mes ahora</button>
+        <button onclick="cerrarMesManual()" style="padding:8px 16px;background:none;border:1px solid #2e2e2e;border-radius:20px;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📅 Cerrar mes ahora</button>
       </div>
       <div id="cierres-list" style="padding-bottom:20px"></div>
     </div>
@@ -3040,6 +3040,23 @@ window.deleteNutri = async (fid,date) => { await deleteNutriDB(fid); nutricion=n
 function renderCierres() {
   const el = document.getElementById('cierres-list');
   if (!el) return;
+
+  // Show/hide cerrar button based on conditions
+  const cerrarBtn = document.querySelector('[onclick="cerrarMesManual()"]');
+  if (cerrarBtn) {
+    const today2 = new Date();
+    const lastDay2 = new Date(today2.getFullYear(), today2.getMonth()+1, 0).getDate();
+    const daysLeft2 = lastDay2 - today2.getDate();
+    const monthKey2 = `${today2.getFullYear()}-${today2.getMonth()}`;
+    const alreadyClosed2 = (profile.cierresHistory||[]).some(c => c.monthKey === monthKey2);
+    const monthSessions2 = history.filter(h => {
+      const d = new Date(h.date);
+      return !h.pesoOnly && d.getFullYear()===today2.getFullYear() && d.getMonth()===today2.getMonth();
+    }).length;
+    // Show button only in last 10 days and with 5+ sessions, not already closed
+    cerrarBtn.style.display = (!alreadyClosed2 && daysLeft2 <= 10 && monthSessions2 >= 5) ? '' : 'none';
+  }
+
   const cierres = profile.cierresHistory || [];
 
   let html = '';
@@ -3949,19 +3966,38 @@ function detectLastSessionPRs() {
   saveProfileDB();
 }
 
-function checkCierreDeMes() {
+function cerrarMesManual() { checkCierreDeMes(true); }
+
+function checkCierreDeMes(force = false) {
   if (!history.length) return;
-  const lastShown = profile.lastMesClose || null;
   const today = new Date();
+  const monthKey = `${today.getFullYear()}-${today.getMonth()}`;
 
-  // Check current month (last 5 days of month OR last day)
+  // Never show if already closed this month
+  const alreadyClosed = (profile.cierresHistory||[]).some(c => c.monthKey === monthKey);
+  if (alreadyClosed && !force) return;
+
   const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth()+1, 0).getDate();
-  const isEndOfMonth = today.getDate() >= lastDayOfMonth - 5; // Last 5 days
+  const isEndOfMonth = today.getDate() >= lastDayOfMonth - 3; // Last 3 days only
 
-  // Try current month first if near end
+  if (force) {
+    // Manual: need 5+ sessions and triple confirm
+    const curMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+    const monthSessions = history.filter(h => !h.pesoOnly && new Date(h.date) >= curMonthStart);
+    if (monthSessions.length < 5) { showToast('Necesitás al menos 5 sesiones para cerrar el mes'); return; }
+    const monthName = today.toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+    if (!confirm(`¿Cerrar ${monthName} con ${monthSessions.length} sesiones?
+Esta acción no se puede deshacer fácilmente.`)) return;
+    if (!confirm('Segunda confirmación: ¿estás seguro?')) return;
+    showCierreDeMes(monthSessions, curMonthStart);
+    return;
+  }
+
+  // Auto: only last 3 days of month
   if (isEndOfMonth) {
     const curMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
     const curKey = `${today.getFullYear()}-${today.getMonth()}-end`;
+    const lastShown = profile.lastMesClose || null;
     if (lastShown !== curKey) {
       const monthHistory = history.filter(h => {
         if (h.pesoOnly) return false;
