@@ -607,9 +607,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
     <!-- CIERRES DE MES -->
     <div id="tab-cierres" class="tab">
-      <div style="display:flex;justify-content:flex-end;margin:8px 12px 4px">
-        <button onclick="cerrarMesManual()" style="padding:8px 16px;background:none;border:1px solid #2e2e2e;border-radius:20px;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📅 Cerrar mes ahora</button>
-      </div>
+
       <div id="cierres-list" style="padding-bottom:20px"></div>
     </div>
 
@@ -3993,25 +3991,7 @@ Esta acción no se puede deshacer fácilmente.`)) return;
     return;
   }
 
-  // Auto: only last 3 days of month
-  if (isEndOfMonth) {
-    const curMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-    const curKey = `${today.getFullYear()}-${today.getMonth()}-end`;
-    const lastShown = profile.lastMesClose || null;
-    if (lastShown !== curKey) {
-      const monthHistory = history.filter(h => {
-        if (h.pesoOnly) return false;
-        const d = new Date(h.date);
-        return d >= curMonthStart && d <= today;
-      });
-      if (monthHistory.length >= 3) {
-        showCierreDeMes(monthHistory, curMonthStart);
-        profile.lastMesClose = curKey;
-        saveProfileDB();
-        return;
-      }
-    }
-  }
+  // Auto popup disabled — cierre is manual only
 
   // Also check previous month
   const prevMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
