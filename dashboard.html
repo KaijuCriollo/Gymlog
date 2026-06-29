@@ -459,7 +459,18 @@ async function renderUserDashboard(user) {
       <div style="position:relative;height:180px"><canvas id="dash-peso-chart"></canvas></div>
     </div>
 
-    <!-- Músculo y consistencia -->
+    <!-- Consistencia anual -->
+    <div class="section" style="margin-bottom:20px">
+      <div class="section-title">CONSISTENCIA — AÑO COMPLETO ${new Date().getFullYear()}</div>
+      <div id="annual-grid" style="overflow-x:auto;padding-bottom:4px"></div>
+      <div class="cons-legend" style="margin-top:8px">
+        <span><div style="width:12px;height:12px;background:${accent};border-radius:2px;opacity:0.3"></div> 1 sesión</span>
+        <span><div style="width:12px;height:12px;background:${accent};border-radius:2px;opacity:0.6"></div> 2 sesiones</span>
+        <span><div style="width:12px;height:12px;background:${accent};border-radius:2px"></div> 3+ sesiones</span>
+      </div>
+    </div>
+
+    <!-- Volumen por músculo + Consistencia 60d -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
       <div class="section">
         <div class="section-title">VOLUMEN POR MÚSCULO</div>
@@ -479,6 +490,25 @@ async function renderUserDashboard(user) {
           <span><div style="width:12px;height:12px;background:#1a1a1a;border:1px solid #2e2e2e;border-radius:2px"></div> Descanso</div></span>
         </div>
       </div>
+    </div>
+
+    <!-- Evolución volumen por músculo -->
+    <div class="section" style="margin-bottom:20px">
+      <div class="section-title">EVOLUCIÓN VOLUMEN POR MÚSCULO — ÚLTIMAS 12 SEMANAS</div>
+      <div style="position:relative;height:220px"><canvas id="dash-muscle-vol-chart"></canvas></div>
+    </div>
+
+    <!-- Calendario del mes -->
+    <div class="section" style="margin-bottom:20px">
+      <div class="section-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>📅 CALENDARIO</span>
+        <div style="display:flex;gap:6px">
+          <button onclick="changeCalMonth(-1)" style="background:#2a2a2a;border:none;border-radius:6px;color:#aaa;padding:3px 8px;cursor:pointer;font-size:12px">‹</button>
+          <span id="cal-month-label" style="font-size:11px;color:#888;line-height:1.8"></span>
+          <button onclick="changeCalMonth(1)" style="background:#2a2a2a;border:none;border-radius:6px;color:#aaa;padding:3px 8px;cursor:pointer;font-size:12px">›</button>
+        </div>
+      </div>
+      <div id="dash-calendar"></div>
     </div>
 
     <!-- Records -->
@@ -519,6 +549,183 @@ async function renderUserDashboard(user) {
   renderDashChart('dash-chart-dominadas', realWorkouts, 'Dominadas', 'reps', accent, getAliases, normalizeEx);
   renderDashChart('dash-chart-sentadillas', realWorkouts, 'Sentadillas', 'kg', accent, getAliases, normalizeEx);
   renderDashPesoChart(pesoEntries, accent);
+  renderAnnualGrid(history, accent);
+  renderMuscleVolChart(realWorkouts, accent);
+  calYear = new Date().getFullYear(); calMonth = new Date().getMonth();
+  renderCalendar(realWorkouts, accent);
+}
+
+// ── ANNUAL CONSISTENCY GRID ──
+function renderAnnualGrid(history, accent) {
+  const el = document.getElementById('annual-grid');
+  if (!el) return;
+  const year = new Date().getFullYear();
+  const start = new Date(year, 0, 1);
+  const today = new Date();
+
+  // Count sessions per day
+  const sessionsByDay = {};
+  history.filter(h => !h.pesoOnly).forEach(h => {
+    const d = new Date(h.date);
+    if (d.getFullYear() !== year) return;
+    const key = d.toDateString();
+    sessionsByDay[key] = (sessionsByDay[key] || 0) + 1;
+  });
+
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  let html = '<div style="display:flex;gap:3px;align-items:flex-start">';
+
+  // Month columns
+  for (let m = 0; m < 12; m++) {
+    const mStart = new Date(year, m, 1);
+    const mEnd = new Date(year, m+1, 0);
+    if (mStart > today) break;
+
+    html += `<div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+      <div style="font-size:8px;color:#444;margin-bottom:2px;text-align:center">${months[m]}</div>
+      <div style="display:grid;grid-template-columns:repeat(7,10px);gap:2px">`;
+
+    // Fill leading empty days
+    const firstDow = mStart.getDay(); // 0=Sun
+    for (let i = 0; i < firstDow; i++) {
+      html += '<div style="width:10px;height:10px"></div>';
+    }
+
+    for (let d = 1; d <= mEnd.getDate(); d++) {
+      const date = new Date(year, m, d);
+      if (date > today) {
+        html += '<div style="width:10px;height:10px;border-radius:2px;background:#111"></div>';
+        continue;
+      }
+      const count = sessionsByDay[date.toDateString()] || 0;
+      const opacity = count === 0 ? 0 : count === 1 ? 0.35 : count === 2 ? 0.65 : 1;
+      const bg = count === 0 ? '#1a1a1a' : accent;
+      const title = `${date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})}: ${count} sesión${count!==1?'es':''}`;
+      html += `<div style="width:10px;height:10px;border-radius:2px;background:${bg};opacity:${opacity === 0 ? 1 : 1};${count>0?`background:${accent};opacity:${opacity}`:`background:#1a1a1a`}" title="${title}"></div>`;
+    }
+    html += '</div></div>';
+  }
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ── MUSCLE VOLUME EVOLUTION ──
+function renderMuscleVolChart(history, accent) {
+  const canvas = document.getElementById('dash-muscle-vol-chart');
+  if (!canvas) return;
+
+  const today = new Date();
+  const weeks = [];
+  for (let i = 11; i >= 0; i--) {
+    const wEnd = new Date(today); wEnd.setDate(today.getDate() - i*7);
+    const wStart = new Date(wEnd); wStart.setDate(wEnd.getDate() - 6); wStart.setHours(0,0,0,0);
+    weeks.push({ start: wStart, end: wEnd, label: wStart.toLocaleDateString('es-AR',{day:'numeric',month:'short'}) });
+  }
+
+  // Get top 5 muscles by total volume
+  const muscleTotal = {};
+  history.filter(h => !h.pesoOnly).forEach(h => {
+    (h.exercises||[]).forEach(e => {
+      const m = e.muscle || 'Otro';
+      const vol = (e.series||[]).reduce((a,s)=>a+(parseInt(s.reps)||0),0);
+      muscleTotal[m] = (muscleTotal[m]||0) + vol;
+    });
+  });
+  const topMuscles = Object.entries(muscleTotal).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([m])=>m);
+
+  const COLORS = ['#22c97a','#5b9cf6','#f0a04b','#E83535','#9b5cf6'];
+
+  const datasets = topMuscles.map((muscle, idx) => {
+    const data = weeks.map(w => {
+      return history.filter(h => !h.pesoOnly && new Date(h.date) >= w.start && new Date(h.date) <= w.end)
+        .reduce((a,h) => a + (h.exercises||[]).filter(e=>e.muscle===muscle)
+          .reduce((b,e)=>b+(e.series||[]).length,0), 0);
+    });
+    return { label: muscle, data, borderColor: COLORS[idx], backgroundColor: COLORS[idx]+'22',
+      pointRadius: 3, tension: 0.35, fill: false };
+  });
+
+  new Chart(canvas, {
+    type: 'line',
+    data: { labels: weeks.map(w=>w.label), datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'top', labels: { color:'#666', font:{size:10}, boxWidth:12 } } },
+      scales: {
+        x: { ticks:{font:{size:9},color:'#444',maxRotation:30}, grid:{display:false} },
+        y: { ticks:{font:{size:9},color:'#444',callback:v=>v+' series'}, grid:{color:'rgba(255,255,255,0.04)'} }
+      }
+    }
+  });
+}
+
+// ── CALENDAR VIEW ──
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let calHistory = [];
+let calAccent = '#22c97a';
+
+window.changeCalMonth = (dir) => {
+  calMonth += dir;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendar(calHistory, calAccent);
+};
+
+function renderCalendar(history, accent) {
+  calHistory = history; calAccent = accent;
+  const el = document.getElementById('dash-calendar');
+  const label = document.getElementById('cal-month-label');
+  if (!el) return;
+
+  const monthName = new Date(calYear, calMonth, 1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+  if (label) label.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const today = new Date();
+
+  // Sessions by day
+  const byDay = {};
+  history.filter(h => !h.pesoOnly).forEach(h => {
+    const d = new Date(h.date);
+    if (d.getFullYear()===calYear && d.getMonth()===calMonth) {
+      const day = d.getDate();
+      if (!byDay[day]) byDay[day] = { count:0, muscles:new Set(), vol:0 };
+      byDay[day].count++;
+      (h.exercises||[]).forEach(e => {
+        if (e.muscle) byDay[day].muscles.add(e.muscle);
+        byDay[day].vol += (e.series||[]).reduce((a,s)=>a+(parseInt(s.reps)||0)*(parseFloat(s.kg)||1),0);
+      });
+    }
+  });
+
+  const days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  let html = `<div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:8px">`;
+  days.forEach(d => html += `<div style="text-align:center;font-size:9px;font-weight:700;color:#444;padding:4px 0">${d}</div>`);
+
+  // Empty leading cells
+  for (let i = 0; i < firstDay; i++) html += '<div></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = today.getDate()===d && today.getMonth()===calMonth && today.getFullYear()===calYear;
+    const session = byDay[d];
+    const isFuture = new Date(calYear,calMonth,d) > today;
+
+    let bg = '#1a1a1a', textColor = '#333', border = '1px solid #222';
+    if (session) { bg = accent+'33'; textColor = '#eee'; border = `1px solid ${accent}66`; }
+    if (isToday) { border = `2px solid ${accent}`; }
+    if (isFuture) { textColor = '#222'; }
+
+    html += `<div style="background:${bg};border:${border};border-radius:6px;padding:4px 2px;text-align:center;min-height:44px;cursor:${session?'pointer':'default'}"
+      ${session ? `title="${session.count} sesión${session.count!==1?'es':''} · ${[...session.muscles].join(', ')}"` : ''}>
+      <div style="font-size:10px;font-weight:700;color:${textColor}">${d}</div>
+      ${session ? `<div style="font-size:8px;color:${accent};margin-top:2px;font-weight:700">${session.count>1?session.count+'x':'✓'}</div>
+      <div style="font-size:7px;color:#555;margin-top:1px;line-height:1.2">${[...session.muscles].slice(0,2).join(' ')}</div>` : ''}
+    </div>`;
+  }
+  html += '</div>';
+  el.innerHTML = html;
 }
 
 function renderDashChart(canvasId, history, exName, type, accent, getAliases, normalizeEx) {
