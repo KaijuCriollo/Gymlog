@@ -419,7 +419,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
     <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaiju<span style="color:#E83535">GymLog</span></div>
     <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
-    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.1</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.2</div>
   </div>
 
   <script>
@@ -1016,6 +1016,78 @@ const BW_MUSCLES = ['Abdominales','Core'];
 const BW_LASTRE = ['Espalda']; // dominadas default
 
 let currentUser = null;
+
+const ACCENT_COLORS = {
+  '#E83535': { light:'rgba(232,53,53,0.18)', dark:'#ff6b6b', header:'#E83535' },
+  '#22c97a': { light:'rgba(34,201,122,0.18)', dark:'#22c97a', header:'#1aad67' },
+  '#3B7BE8': { light:'rgba(59,123,232,0.18)', dark:'#7aaeff', header:'#2d6fd4' },
+  '#f0a04b': { light:'rgba(240,160,75,0.18)', dark:'#f0a04b', header:'#d4882e' },
+  '#f5e642': { light:'rgba(245,230,66,0.18)', dark:'#f5e642', header:'#c9bb1a', textDark:true },
+  '#e84dbb': { light:'rgba(232,77,187,0.18)', dark:'#e84dbb', header:'#cc38a5' },
+  '#9b5cf6': { light:'rgba(155,92,246,0.18)', dark:'#b57eff', header:'#7c3de0' },
+  '#aaaaaa': { light:'rgba(170,170,170,0.18)', dark:'#cccccc', header:'#888888' },
+};
+
+function applyAccent(color) {
+  const palette = ACCENT_COLORS[color] || ACCENT_COLORS['#E83535'];
+  const r = document.documentElement;
+  r.style.setProperty('--accent', color);
+  r.style.setProperty('--red', color);
+  r.style.setProperty('--red-light', palette.light);
+  r.style.setProperty('--red-dark', palette.dark);
+  // Header bg
+  const header = document.querySelector('.header');
+  if (header) header.style.background = palette.header;
+  // Save btn
+  const saveBtn = document.querySelector('.save-btn');
+  if (saveBtn) saveBtn.style.background = color;
+  // Profile save btn
+  const profBtn = document.querySelector('.profile-save-btn');
+  if (profBtn) profBtn.style.background = color;
+  // Auth btn
+  const authBtn = document.getElementById('auth-btn');
+  if (authBtn) authBtn.style.background = color;
+  // Nav active color
+  const style = document.getElementById('accent-style') || (() => {
+    const s = document.createElement('style'); s.id = 'accent-style'; document.head.appendChild(s); return s;
+  })();
+  const textColor = palette.textDark ? '#111' : '#fff';
+  style.textContent = `
+    .nav-btn.active { color: ${color} !important; }
+    .nav-btn.active::after { background: ${color} !important; }
+    .filter-pill.active { background: ${palette.light} !important; border-color: ${color} !important; color: ${palette.dark} !important; }
+    .check-btn.done { background: ${palette.light} !important; border-color: ${color} !important; }
+    .check-btn.done svg { stroke: ${color} !important; }
+    .mood-chip.selected { background: ${palette.light} !important; border-color: ${color} !important; color: ${palette.dark} !important; }
+    .streak-badge { background: rgba(0,0,0,0.25) !important; }
+    .auth-btn { background: ${color} !important; }
+    .nutri-save-btn { background: ${color} !important; }
+    .btn-confirm { background: ${color} !important; }
+    .profile-save-btn { background: ${color} !important; }
+    .save-btn { background: ${color} !important; }
+    .routine-pill.active { background: ${palette.light} !important; border-color: ${color} !important; color: ${palette.dark} !important; }
+    .hist-kg { color: ${color} !important; }
+    .ex-name { color: #fff !important; }
+    .header { background: ${palette.header} !important; }
+    .summary-close { background: ${color} !important; }
+    .nutri-copy-btn { background: ${color} !important; }
+  `;
+}
+
+window.selectAccent = (color, el) => {
+  profile.accentColor = color;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  applyAccent(color);
+};
+
+window.selectObjetivo = (obj, el) => {
+  profile.objetivo = obj;
+  document.querySelectorAll('.objetivo-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+};
+
+
 let exercises = [], history = [], nutricion = [], routines = [];
 let profile = { nickname:'', objetivo:'', avatarUrl:'' };
 let currentFilter = 'Ahora', currentMood = null, authMode = 'login';
@@ -1135,7 +1207,7 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('save-bar').style.display = '';
     document.getElementById('auth-btn').disabled = false;
     document.getElementById('auth-loading').classList.remove('show');
-    setDate(); initDatePicker(); setNutriDateToday();
+    setDate(); initDatePicker(); if(document.getElementById('nutri-date-inp')) setNutriDateToday();
     await loadUserData();
     // Always start on registro tab with save bar visible
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -3332,7 +3404,7 @@ function renderNutriHistory() {
     return `<div class="nutri-hist-item"><div class="nutri-hist-header"><span style="cursor:pointer" onclick="loadNutriEntry('${n.date}')">${d}</span><button class="nutri-hist-del" onclick="deleteNutri('${n.fid}','${n.date}')">✕</button></div><div class="nutri-hist-body">${body.trim()}</div></div>`;
   }).join('');
 }
-document.getElementById('nutri-date-inp').addEventListener('change', function(){ loadNutriEntry(this.value); });
+const _nutriInp = document.getElementById('nutri-date-inp'); if(_nutriInp) _nutriInp.addEventListener('change', function(){ loadNutriEntry(this.value); });
 
 /* ── PERFIL ── */
 function renderProfile() {
@@ -4879,76 +4951,6 @@ window.runCoachAnalysis = async () => {
 };
 
 /* ── ACCENT COLOR ── */
-const ACCENT_COLORS = {
-  '#E83535': { light:'rgba(232,53,53,0.18)', dark:'#ff6b6b', header:'#E83535' },
-  '#22c97a': { light:'rgba(34,201,122,0.18)', dark:'#22c97a', header:'#1aad67' },
-  '#3B7BE8': { light:'rgba(59,123,232,0.18)', dark:'#7aaeff', header:'#2d6fd4' },
-  '#f0a04b': { light:'rgba(240,160,75,0.18)', dark:'#f0a04b', header:'#d4882e' },
-  '#f5e642': { light:'rgba(245,230,66,0.18)', dark:'#f5e642', header:'#c9bb1a', textDark:true },
-  '#e84dbb': { light:'rgba(232,77,187,0.18)', dark:'#e84dbb', header:'#cc38a5' },
-  '#9b5cf6': { light:'rgba(155,92,246,0.18)', dark:'#b57eff', header:'#7c3de0' },
-  '#aaaaaa': { light:'rgba(170,170,170,0.18)', dark:'#cccccc', header:'#888888' },
-};
-
-function applyAccent(color) {
-  const palette = ACCENT_COLORS[color] || ACCENT_COLORS['#E83535'];
-  const r = document.documentElement;
-  r.style.setProperty('--accent', color);
-  r.style.setProperty('--red', color);
-  r.style.setProperty('--red-light', palette.light);
-  r.style.setProperty('--red-dark', palette.dark);
-  // Header bg
-  const header = document.querySelector('.header');
-  if (header) header.style.background = palette.header;
-  // Save btn
-  const saveBtn = document.querySelector('.save-btn');
-  if (saveBtn) saveBtn.style.background = color;
-  // Profile save btn
-  const profBtn = document.querySelector('.profile-save-btn');
-  if (profBtn) profBtn.style.background = color;
-  // Auth btn
-  const authBtn = document.getElementById('auth-btn');
-  if (authBtn) authBtn.style.background = color;
-  // Nav active color
-  const style = document.getElementById('accent-style') || (() => {
-    const s = document.createElement('style'); s.id = 'accent-style'; document.head.appendChild(s); return s;
-  })();
-  const textColor = palette.textDark ? '#111' : '#fff';
-  style.textContent = `
-    .nav-btn.active { color: ${color} !important; }
-    .nav-btn.active::after { background: ${color} !important; }
-    .filter-pill.active { background: ${palette.light} !important; border-color: ${color} !important; color: ${palette.dark} !important; }
-    .check-btn.done { background: ${palette.light} !important; border-color: ${color} !important; }
-    .check-btn.done svg { stroke: ${color} !important; }
-    .mood-chip.selected { background: ${palette.light} !important; border-color: ${color} !important; color: ${palette.dark} !important; }
-    .streak-badge { background: rgba(0,0,0,0.25) !important; }
-    .auth-btn { background: ${color} !important; }
-    .nutri-save-btn { background: ${color} !important; }
-    .btn-confirm { background: ${color} !important; }
-    .profile-save-btn { background: ${color} !important; }
-    .save-btn { background: ${color} !important; }
-    .routine-pill.active { background: ${palette.light} !important; border-color: ${color} !important; color: ${palette.dark} !important; }
-    .hist-kg { color: ${color} !important; }
-    .ex-name { color: #fff !important; }
-    .header { background: ${palette.header} !important; }
-    .summary-close { background: ${color} !important; }
-    .nutri-copy-btn { background: ${color} !important; }
-  `;
-}
-
-window.selectAccent = (color, el) => {
-  profile.accentColor = color;
-  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
-  el.classList.add('selected');
-  applyAccent(color);
-};
-
-window.selectObjetivo = (obj, el) => {
-  profile.objetivo = obj;
-  document.querySelectorAll('.objetivo-chip').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-};
-
 window.saveProfile = async () => {
   profile.nickname = document.getElementById('profile-nickname').value.trim();
   profile.frase = document.getElementById('profile-frase').value.trim();
