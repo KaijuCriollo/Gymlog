@@ -4852,11 +4852,8 @@ window.runCoachAnalysis = async () => {
     // Render result
     const formatted = text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/
-
-/g, '</p><p>')
-      .replace(/
-/g, '<br>');
+      .split('\n\n').join('</p><p>')
+      .split('\n').join('<br>');
 
     result.innerHTML = `
       <div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:14px;padding:18px;margin-bottom:12px">
