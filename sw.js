@@ -1,4 +1,4 @@
-const CACHE_NAME = 'kaijugymlog-v1';
+const CACHE_NAME = 'kaijugymlog-v2';
 const BASE = '/Gymlog';
 
 const ASSETS = [
