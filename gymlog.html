@@ -4805,48 +4805,36 @@ window.runCoachAnalysis = async () => {
       return `${m}: ${days} días de descanso`;
     }).sort();
 
-    const prompt = `Sos un entrenador personal profesional y nutricionista deportivo con 15 años de experiencia. Analizá los datos de entrenamiento de este atleta y dále consejos específicos, accionables y personalizados.
-
-DATOS DEL ATLETA:
-- Objetivo: ${profile.objetivoCustom || profile.objetivo || 'No especificado'}
-- Total sesiones históricas: ${totalSessions}
-- Sesiones este mes: ${thisMonthSessions}
-- Peso actual: ${pesoActual ? pesoActual+'kg' : 'No registrado'}
-- Peso inicial registrado: ${pesoInicio ? pesoInicio+'kg' : 'No registrado'}
-- Cambio de peso total: ${pesoActual && pesoInicio ? Math.round((pesoActual-pesoInicio)*10)/10+'kg' : 'N/A'}
-
-RÉCORDS PRINCIPALES:
-${keyPRs.length ? keyPRs.join('
-') : 'Sin datos suficientes'}
-
-RÉCORDS ESTE MES (${monthlyPRs.length} nuevas marcas):
-${monthlyPRs.slice(0,8).map(r=>r.replace('🏆 ','')).join('
-') || 'Ninguno'}
-
-MÚSCULOS MÁS TRABAJADOS (últimas 20 sesiones):
-${muscleFreq.slice(0,6).map(([m,n])=>`${m}: ${n} sesiones`).join('
-')}
-
-DESCANSO ACTUAL POR MÚSCULO:
-${muscleRest.slice(0,8).join('
-')}
-
-ÚLTIMAS 3 SESIONES:
-${realHistory.slice(0,3).map(h => {
-  const date = new Date(h.date).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
-  const exs = (h.exercises||[]).map(e=>e.name).slice(0,5).join(', ');
-  return `${date}: ${exs}`;
-}).join('
-')}
-
-Por favor analizá estos datos y dá:
-1. **Evaluación general** (2-3 oraciones sobre el estado actual)
-2. **Puntos fuertes** (qué está haciendo bien)
-3. **Áreas de mejora** (máximo 3, específicas y accionables)
-4. **Recomendación de la semana** (una acción concreta para esta semana)
-5. **Proyección** (si sigue así, qué puede esperar en 4-6 semanas)
-
-Respondé en español, tono profesional pero motivador. Usá emojis moderadamente. Máximo 400 palabras.`;
+    const nl = '\n';
+    const prompt = 'Sos un entrenador personal profesional y nutricionista deportivo con 15 años de experiencia. Analizá los datos de entrenamiento de este atleta y dále consejos específicos, accionables y personalizados.' + nl + nl +
+      'DATOS DEL ATLETA:' + nl +
+      '- Objetivo: ' + (profile.objetivoCustom || profile.objetivo || 'No especificado') + nl +
+      '- Total sesiones históricas: ' + totalSessions + nl +
+      '- Sesiones este mes: ' + thisMonthSessions + nl +
+      '- Peso actual: ' + (pesoActual ? pesoActual+'kg' : 'No registrado') + nl +
+      '- Peso inicial registrado: ' + (pesoInicio ? pesoInicio+'kg' : 'No registrado') + nl +
+      '- Cambio de peso total: ' + (pesoActual && pesoInicio ? Math.round((pesoActual-pesoInicio)*10)/10+'kg' : 'N/A') + nl + nl +
+      'RÉCORDS PRINCIPALES:' + nl +
+      (keyPRs.length ? keyPRs.join(nl) : 'Sin datos suficientes') + nl + nl +
+      'RÉCORDS ESTE MES (' + monthlyPRs.length + ' nuevas marcas):' + nl +
+      (monthlyPRs.slice(0,8).map(r=>r.replace('🏆 ','')).join(nl) || 'Ninguno') + nl + nl +
+      'MÚSCULOS MÁS TRABAJADOS (últimas 20 sesiones):' + nl +
+      muscleFreq.slice(0,6).map(([m,n])=>m+': '+n+' sesiones').join(nl) + nl + nl +
+      'DESCANSO ACTUAL POR MÚSCULO:' + nl +
+      muscleRest.slice(0,8).join(nl) + nl + nl +
+      'ÚLTIMAS 3 SESIONES:' + nl +
+      realHistory.slice(0,3).map(h => {
+        const date = new Date(h.date).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
+        const exs = (h.exercises||[]).map(e=>e.name).slice(0,5).join(', ');
+        return date+': '+exs;
+      }).join(nl) + nl + nl +
+      'Por favor analizá estos datos y dá:' + nl +
+      '1. Evaluación general (2-3 oraciones sobre el estado actual)' + nl +
+      '2. Puntos fuertes (qué está haciendo bien)' + nl +
+      '3. Áreas de mejora (máximo 3, específicas y accionables)' + nl +
+      '4. Recomendación de la semana (una acción concreta para esta semana)' + nl +
+      '5. Proyección (si sigue así, qué puede esperar en 4-6 semanas)' + nl + nl +
+      'Respondé en español, tono profesional pero motivador. Usá emojis moderadamente. Máximo 400 palabras.';
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
