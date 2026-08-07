@@ -4008,14 +4008,14 @@ Esta acción no se puede deshacer fácilmente.`)) return;
   }
 
   // Auto: show at start of new month for the PREVIOUS month (if not already closed)
-  const prevMonth = today.getMonth() === 0 ? 11 : today.getMonth() - 1;
+  const prevMonthNum = today.getMonth() === 0 ? 11 : today.getMonth() - 1;
   const prevYear = today.getMonth() === 0 ? today.getFullYear() - 1 : today.getFullYear();
-  const prevMonthKey = `${prevYear}-${prevMonth}-end`;
+  const prevMonthKey = `${prevYear}-${prevMonthNum}-end`;
   const lastShown = profile.lastMesClose || null;
 
   if (lastShown !== prevMonthKey) {
-    const prevMonthStart = new Date(prevYear, prevMonth, 1);
-    const prevMonthEnd = new Date(prevYear, prevMonth + 1, 0, 23, 59, 59);
+    const prevMonthStart = new Date(prevYear, prevMonthNum, 1);
+    const prevMonthEnd = new Date(prevYear, prevMonthNum + 1, 0, 23, 59, 59);
     const prevMonthHistory = history.filter(h => {
       if (h.pesoOnly) return false;
       const d = new Date(h.date);
@@ -4029,22 +4029,6 @@ Esta acción no se puede deshacer fácilmente.`)) return;
     }
   }
 
-  // Also check previous month
-  const prevMonth = new Date(today.getFullYear(), today.getMonth()-1, 1);
-  const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
-  const prevKey = `${prevMonth.getFullYear()}-${prevMonth.getMonth()}`;
-  if (lastShown === prevKey) return;
-
-  const monthHistory = history.filter(h => {
-    if (h.pesoOnly) return false;
-    const d = new Date(h.date);
-    return d >= prevMonth && d <= prevMonthEnd;
-  });
-  if (monthHistory.length < 3) return;
-
-  showCierreDeMes(monthHistory, prevMonth);
-  profile.lastMesClose = prevKey;
-  saveProfileDB();
 }
 
 function showCierreDeMes(monthHistory, month) {
