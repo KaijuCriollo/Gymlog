@@ -419,7 +419,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
     <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaiju<span style="color:#E83535">GymLog</span></div>
     <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
-    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.2</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.3</div>
   </div>
 
   <script>
@@ -577,7 +577,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       </div>
       <div id="exercises-list"></div>
       <div class="add-ex-area" style="display:flex;gap:8px">
-        <button class="add-ex-btn" style="flex:1" onclick="openAddExModal()">+ Agregar ejercicio</button>
+        <button class="add-ex-btn" style="flex:1" onclick="openAddExModal()">+ Agregar</button>
+        <button onclick="openSessionPlannerPicker(false)" style="padding:12px 10px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);color:#aaa;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0" title="Planificar sesión">📋</button>
         <button onclick="toggleExSearch()" style="padding:12px 10px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);color:#aaa;font-size:16px;cursor:pointer;flex-shrink:0" title="Buscar">🔍</button>
         <button onclick="openWorkoutMode()" style="padding:12px 14px;background:var(--accent,#E83535);border:none;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">⚡ Modo</button>
       </div>
@@ -659,7 +660,6 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       </div>
       <div class="chart-title" style="margin-top:14px">MÚSCULOS</div>
       <div style="margin:6px 12px 0;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none">
-        <button onclick="openSessionPlannerPicker(false)" style="flex-shrink:0;padding:5px 12px;border-radius:20px;border:1px solid #333;background:#1e1e1e;color:#aaa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">📋 Planificar</button>
         <button id="muscle-filter-week" onclick="setMuscleFilter('week')" style="flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid #E83535;background:rgba(232,53,53,0.2);color:#ff7070;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Esta semana</button>
         <button id="muscle-filter-month" onclick="setMuscleFilter('month')" style="flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Este mes</button>
         <button id="muscle-filter-prevmonth" onclick="setMuscleFilter('prevmonth')" style="flex-shrink:0;padding:5px 14px;border-radius:20px;border:1px solid #333;background:none;color:#666;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" id="muscle-filter-prevmonth">Mes anterior</button>
@@ -4290,11 +4290,34 @@ function showCierreDeMes(monthHistory, month) {
 /* ── WORKOUT MODE ── */
 let wmExIndex = 0;
 window.openWorkoutMode = () => {
-  // If session plan active, use it directly
+  // If session plan active, use it directly — skip picker
   if (sessionPlanActive && sessionPlan.length > 0) {
-    wmFilteredExercises = sessionPlan.map(id => exercises.find(e => e.id === id)).filter(Boolean);
+    const planned = sessionPlan.map(id => exercises.find(e => e.id === id)).filter(Boolean);
+    if (!planned.length) { showToast('No hay ejercicios en el plan'); return; }
+    wmFilteredExercises = planned;
     wmExIndex = 0;
-    startWmFromPicker();
+    const overlay = document.getElementById('workout-mode-overlay');
+    overlay.classList.add('open');
+    overlay.querySelector('.wm-body').innerHTML = `
+      <div class="wm-ex-name" id="wm-ex-name">—</div>
+      <div class="wm-ex-muscle" id="wm-ex-muscle">—</div>
+      <div class="wm-info-row">
+        <div class="wm-info-box"><div class="wm-info-label">📋 ÚLTIMA VEZ</div><div class="wm-info-val" id="wm-last">—</div></div>
+        <div class="wm-info-box"><div class="wm-info-label">🏆 RÉCORD</div><div class="wm-info-val" id="wm-pr">—</div></div>
+      </div>
+      <div class="wm-series-list" id="wm-series-list"></div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button style="flex:1;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="wmRemoveCurrentSerie()">− Serie</button>
+        <button style="flex:1;padding:10px;border-radius:10px;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" onclick="wmAddCurrentSerie()">+ Serie</button>
+      </div>
+      <div style="display:flex;gap:6px;margin-top:6px">
+        <button class="wm-nav-btn" id="wm-prev-btn" onclick="wmNavigate(-1)">← Ant</button>
+        <button class="wm-nav-btn" onclick="showWorkoutModePicker()" style="flex:0.5;font-size:11px">🔄</button>
+        <button class="wm-nav-btn primary" id="wm-next-btn" onclick="wmNavigate(1)">Sig →</button>
+      </div>`;
+    document.querySelector('.wm-header').style.display = '';
+    document.querySelector('.wm-progress-bar').style.display = '';
+    renderWorkoutMode();
     return;
   }
   const exList = exercises.filter(e => e.series && e.series.length);
@@ -4715,10 +4738,9 @@ function renderSessionPlannerBar() {
   pills.innerHTML = sessionPlan.map(id => {
     const ex = exercises.find(e => e.id === id);
     if (!ex) return '';
-    return `<div style="background:#2a2a2a;border-radius:20px;padding:3px 10px;font-size:11px;color:#aaa;display:flex;align-items:center;gap:5px">
-      ${ex.name}
-      <span onclick="removeFromSession(${id})" style="color:#555;cursor:pointer;font-size:13px;line-height:1">×</span>
-    </div>`;
+    return '<div style="background:#2a2a2a;border-radius:20px;padding:3px 10px;font-size:11px;color:#aaa;display:flex;align-items:center;gap:5px">'
+      + ex.name
+      + '<span onclick="removeFromSession(' + id + ')" style="color:#555;cursor:pointer;font-size:13px;line-height:1">×</span></div>';
   }).join('');
 }
 
