@@ -419,7 +419,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
     <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaiju<span style="color:#E83535">GymLog</span></div>
     <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
-    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.4</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.5</div>
   </div>
 
   <script>
@@ -812,6 +812,14 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button class="profile-save-btn" onclick="saveProfile()">Guardar perfil</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
       </div>
+
+      <!-- FOTOS DE PROGRESO -->
+      <div style="margin:16px 12px 0">
+        <div style="font-size:11px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:12px">📸 FOTOS DE PROGRESO</div>
+        <div id="progress-photos-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px"></div>
+        <button onclick="openAddPhotoModal()" style="width:100%;padding:12px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;color:#aaa;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">+ Agregar foto</button>
+      </div>
+
       <div style="height:20px"></div>
     </div>
 
@@ -922,6 +930,29 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- ADD PHOTO MODAL -->
+<div id="modal-add-photo" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:flex-end;justify-content:center">
+  <div style="background:#1a1a1a;border-radius:20px 20px 0 0;padding:24px;width:100%;max-width:480px">
+    <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:16px">📸 Agregar foto de progreso</div>
+    <div style="margin-bottom:12px">
+      <div style="font-size:11px;color:#555;font-weight:700;margin-bottom:6px">MES Y AÑO</div>
+      <input type="month" id="photo-month-inp" style="width:100%;padding:10px 12px;background:#111;border:1px solid #2e2e2e;border-radius:10px;color:#f0ede8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box"/>
+    </div>
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:#555;font-weight:700;margin-bottom:6px">FOTO</div>
+      <input type="file" id="photo-file-inp" accept="image/*" style="display:none" onchange="previewPhoto(this)"/>
+      <div onclick="document.getElementById('photo-file-inp').click()" id="photo-preview"
+        style="width:100%;height:180px;background:#111;border:1px dashed #2e2e2e;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;overflow:hidden">
+        <span style="color:#555;font-size:13px">Tocá para elegir foto</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button onclick="closeModal('modal-add-photo')" style="flex:1;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:12px;color:#666;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif">Cancelar</button>
+      <button onclick="saveProgressPhoto()" style="flex:1;padding:12px;background:var(--accent,#E83535);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Guardar</button>
+    </div>
+  </div>
+</div>
 
 <!-- REST TIMER -->
 <div id="rest-timer-overlay" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#111;border-top:1px solid #2e2e2e;border-radius:16px 16px 0 0;z-index:10005;padding-top:4px;max-width:480px;margin:0 auto">
@@ -1370,29 +1401,37 @@ function clearDraft() {
 
 function offerRestoreDraft(draft) {
   const doneCount = draft.exercises.reduce((a,e) => a + (e.series||[]).filter(s=>s.done).length, 0);
-  const timeAgo = Math.round((Date.now() - draft.ts) / 60000);
-  const timeStr = timeAgo < 60 ? `${timeAgo} min atrás` : `${Math.round(timeAgo/60)}h atrás`;
-  if (confirm(`📋 Hay un entreno sin guardar de ${timeStr} con ${doneCount} series completadas. ¿Restaurarlo?`)) {
-    // Restore only series/done state, keep current exercises from Firebase
-    draft.exercises.forEach(draftEx => {
-      const live = exercises.find(e => e.fid === draftEx.fid || e.name === draftEx.name && e.muscle === draftEx.muscle);
-      if (live) live.series = draftEx.series;
-    });
-    currentMood = draft.mood;
-    if (draft.workoutNote && document.getElementById('workout-note')) {
-      document.getElementById('workout-note').value = draft.workoutNote;
+  if (!doneCount) { clearDraft(); return; }
+
+  const draftDay = new Date(draft.ts).toDateString();
+  const todayDay = new Date().toDateString();
+  const isOldDraft = draftDay !== todayDay;
+
+  // If draft is from another day, ask — otherwise restore silently
+  if (isOldDraft) {
+    const timeAgo = Math.round((Date.now() - draft.ts) / 60000);
+    const timeStr = timeAgo < 60 ? `${timeAgo} min atrás` : timeAgo < 1440 ? `${Math.round(timeAgo/60)}h atrás` : `${Math.round(timeAgo/1440)} días atrás`;
+    if (!confirm(`📋 Tenés un borrador de ${timeStr} con ${doneCount} series. ¿Restaurarlo?`)) {
+      clearDraft(); return;
     }
-    if (draft.workoutDate && document.getElementById('workout-date-input')) {
-      document.getElementById('workout-date-input').value = draft.workoutDate;
-    }
-    renderExercises();
-    renderMoods();
-    showToast('✅ Entreno restaurado');
-    // Update series state for existing exercises only
-    exercises.filter(ex => ex.fid).forEach(ex => saveEx(ex));
-  } else {
-    clearDraft();
   }
+
+  // Restore silently
+  draft.exercises.forEach(draftEx => {
+    const live = exercises.find(e => e.fid === draftEx.fid || (e.name === draftEx.name && e.muscle === draftEx.muscle));
+    if (live) live.series = draftEx.series;
+  });
+  currentMood = draft.mood;
+  if (draft.workoutNote && document.getElementById('workout-note')) {
+    document.getElementById('workout-note').value = draft.workoutNote;
+  }
+  if (draft.workoutDate && document.getElementById('workout-date-input')) {
+    document.getElementById('workout-date-input').value = draft.workoutDate;
+  }
+  renderExercises();
+  renderMoods();
+  if (isOldDraft) showToast('✅ Entreno restaurado');
+  exercises.filter(ex => ex.fid).forEach(ex => saveEx(ex));
 }
 
 async function initDefaults() {
@@ -3741,6 +3780,7 @@ window.setLevelMode = async (mode) => {
     }
   });
   renderLogros();
+  renderProgressPhotos();
 };
 
 window.showLogroDetail = (id) => {
@@ -4950,26 +4990,229 @@ window.runCoachAnalysis = async () => {
       .split('\n\n').join('</p><p>')
       .split('\n').join('<br>');
 
-    result.innerHTML = `
-      <div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:14px;padding:18px;margin-bottom:12px">
-        <div style="font-size:10px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:12px">📊 ANÁLISIS — ${today.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'})}</div>
-        <div style="font-size:13px;color:#ddd;line-height:1.7"><p>${formatted}</p></div>
-      </div>
-      <button onclick="document.getElementById('coach-btn').style.display='';document.getElementById('coach-result').style.display='none'"
-        style="width:100%;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:12px;color:#666;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">
-        🔄 Nuevo análisis
-      </button>
-    `;
+    // Fix markdown rendering
+    const rendered = text
+      .replace(/### (.+)/g, '<div style="font-size:13px;font-weight:700;color:#fff;margin:14px 0 6px">$1</div>')
+      .replace(/## (.+)/g, '<div style="font-size:14px;font-weight:700;color:var(--accent,#E83535);margin:16px 0 6px">$1</div>')
+      .replace(/# (.+)/g, '<div style="font-size:15px;font-weight:700;color:#fff;margin:16px 0 8px">$1</div>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^- (.+)/gm, '<div style="padding:3px 0 3px 12px;border-left:2px solid #333;margin:3px 0;font-size:12px;color:#bbb">$1</div>')
+      .replace(/^---$/gm, '<hr style="border:none;border-top:1px solid #2e2e2e;margin:10px 0">')
+      .split('\n').join('<br>');
+
+    // Store analysis context for follow-up
+    window._coachContext = text;
+
+    result.innerHTML = '<div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:14px;padding:18px;margin-bottom:12px">'
+      + '<div style="font-size:10px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:12px">📊 ANÁLISIS — ' + today.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}) + '</div>'
+      + '<div style="font-size:13px;color:#ddd;line-height:1.8">' + rendered + '</div>'
+      + '</div>'
+      + '<div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:14px;padding:14px;margin-bottom:12px">'
+      + '<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:8px">💬 HACÉ UNA PREGUNTA AL COACH</div>'
+      + '<textarea id="coach-followup-inp" placeholder="Ej: ¿Cómo estructuro la sesión de piernas? ¿Qué ejercicios de tríceps me sugerís?" '
+      + 'style="width:100%;background:#111;border:1px solid #2e2e2e;border-radius:10px;color:#f0ede8;font-size:13px;font-family:DM Sans,sans-serif;padding:10px;resize:none;outline:none;min-height:70px;box-sizing:border-box"></textarea>'
+      + '<button onclick="runCoachFollowup()" style="width:100%;margin-top:8px;padding:12px;background:var(--accent,#E83535);border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif">Preguntar →</button>'
+      + '<div id="coach-followup-result" style="margin-top:10px;font-size:13px;color:#ddd;line-height:1.7;display:none"></div>'
+      + '</div>'
+      + '<button onclick="runCoachReset()" style="width:100%;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:12px;color:#666;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif">🔄 Nuevo análisis</button>';
     result.style.display = 'block';
 
   } catch(e) {
-    result.innerHTML = `<div style="background:rgba(232,53,53,0.1);border:1px solid rgba(232,53,53,0.3);border-radius:12px;padding:16px;color:#ff7070;font-size:13px">Error al conectar con el Coach. Intentá de nuevo.</div>`;
+    result.innerHTML = '<div style="background:rgba(232,53,53,0.1);border:1px solid rgba(232,53,53,0.3);border-radius:12px;padding:16px;color:#ff7070;font-size:13px">Error al conectar con el Coach. Intentá de nuevo.</div>';
     result.style.display = 'block';
     console.error(e);
   }
 
   loading.style.display = 'none';
   btn.style.display = '';
+};
+
+window.runCoachReset = () => {
+  document.getElementById('coach-btn').style.display = '';
+  document.getElementById('coach-result').style.display = 'none';
+  window._coachContext = null;
+};
+
+window.runCoachFollowup = async () => {
+  const inp = document.getElementById('coach-followup-inp');
+  const res = document.getElementById('coach-followup-result');
+  if (!inp || !res) return;
+  const question = inp.value.trim();
+  if (!question) { showToast('Escribí una pregunta primero'); return; }
+
+  inp.disabled = true;
+  res.style.display = 'block';
+  res.innerHTML = '<div style="color:#555;font-size:12px">Consultando al Coach...</div>';
+
+  try {
+    const response = await fetch('https://red-breeze-da1d.alexisruffa0.workers.dev', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 600,
+        messages: [
+          { role: 'user', content: window._coachContext ? 'Contexto del análisis previo:\n' + window._coachContext : '' },
+          { role: 'assistant', content: 'Entendido, tengo el análisis completo de tu entrenamiento.' },
+          { role: 'user', content: question }
+        ]
+      })
+    });
+    const data = await response.json();
+    const text = data.content?.[0]?.text || 'Sin respuesta.';
+    const rendered = text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .split('\n').join('<br>');
+    res.innerHTML = '<div style="background:#111;border-radius:10px;padding:12px;border:1px solid #2e2e2e">'
+      + '<div style="font-size:10px;color:#555;font-weight:700;margin-bottom:8px">💬 RESPUESTA DEL COACH</div>'
+      + rendered + '</div>';
+    inp.value = '';
+  } catch(e) {
+    res.innerHTML = '<div style="color:#ff7070;font-size:12px">Error al consultar. Intentá de nuevo.</div>';
+  }
+  inp.disabled = false;
+};
+
+/* ── PROGRESS PHOTOS ── */
+window.openAddPhotoModal = () => {
+  // Set default month to current
+  const now = new Date();
+  const monthVal = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+  const inp = document.getElementById('photo-month-inp');
+  if (inp) inp.value = monthVal;
+  // Reset preview
+  const preview = document.getElementById('photo-preview');
+  if (preview) preview.innerHTML = '<span style="color:#555;font-size:13px">Tocá para elegir foto</span>';
+  document.getElementById('modal-add-photo').style.display = 'flex';
+};
+
+window.previewPhoto = (input) => {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const preview = document.getElementById('photo-preview');
+    if (preview) preview.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover"/>';
+  };
+  reader.readAsDataURL(file);
+};
+
+window.saveProgressPhoto = async () => {
+  const monthInp = document.getElementById('photo-month-inp');
+  const fileInp = document.getElementById('photo-file-inp');
+  if (!monthInp?.value) { showToast('Elegí un mes'); return; }
+  if (!fileInp?.files?.length) { showToast('Elegí una foto'); return; }
+
+  const file = fileInp.files[0];
+  // Compress image
+  const compressed = await compressImage(file, 800, 0.75);
+
+  // Save to profile.progressPhotos
+  if (!profile.progressPhotos) profile.progressPhotos = [];
+  // Replace if same month already exists
+  profile.progressPhotos = profile.progressPhotos.filter(p => p.month !== monthInp.value);
+  profile.progressPhotos.push({ month: monthInp.value, url: compressed, addedAt: Date.now() });
+  profile.progressPhotos.sort((a,b) => b.month.localeCompare(a.month));
+
+  await saveProfileDB();
+  closeModal('modal-add-photo');
+  renderProgressPhotos();
+  showToast('✅ Foto guardada');
+};
+
+function compressImage(file, maxSize, quality) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > maxSize || h > maxSize) {
+          if (w > h) { h = Math.round(h * maxSize/w); w = maxSize; }
+          else { w = Math.round(w * maxSize/h); h = maxSize; }
+        }
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderProgressPhotos() {
+  const grid = document.getElementById('progress-photos-grid');
+  if (!grid) return;
+  const photos = profile.progressPhotos || [];
+  if (!photos.length) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#333;font-size:12px;padding:20px">No hay fotos aún. ¡Agregá tu primera foto!</div>';
+    return;
+  }
+  let html = '';
+  photos.forEach(p => {
+    const yr = parseInt(p.month.split('-')[0]);
+    const mo = parseInt(p.month.split('-')[1]) - 1;
+    const label = new Date(yr, mo, 1).toLocaleDateString('es-AR',{month:'short',year:'numeric'});
+    html += '<div style="position:relative;aspect-ratio:3/4;border-radius:10px;overflow:hidden;background:#1a1a1a;cursor:pointer" '
+          + 'onclick="viewPhoto(this.dataset.month)" data-month="' + p.month + '">'
+          + '<img src="' + p.url + '" style="width:100%;height:100%;object-fit:cover"/>'
+          + '<div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.8));padding:8px 6px 6px">'
+          + '<div style="font-size:10px;font-weight:700;color:#fff;text-align:center">' + label + '</div>'
+          + '</div></div>';
+  });
+  grid.innerHTML = html;
+}
+
+
+window.viewPhoto = (month) => {
+  const photo = (profile.progressPhotos||[]).find(p => p.month === month);
+  if (!photo) return;
+  const yr = parseInt(month.split('-')[0]);
+  const mo = parseInt(month.split('-')[1]) - 1;
+  const label = new Date(yr, mo, 1).toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px';
+
+  const title = document.createElement('div');
+  title.style.cssText = 'font-size:14px;font-weight:700;color:#fff;margin-bottom:12px;text-transform:capitalize';
+  title.textContent = label;
+
+  const img = document.createElement('img');
+  img.src = photo.url;
+  img.style.cssText = 'max-width:100%;max-height:70vh;border-radius:12px;object-fit:contain';
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:12px;margin-top:16px';
+
+  const delBtn = document.createElement('button');
+  delBtn.textContent = '🗑 Eliminar';
+  delBtn.style.cssText = 'padding:10px 20px;background:rgba(232,53,53,0.2);border:1px solid rgba(232,53,53,0.4);border-radius:10px;color:#ff7070;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+  delBtn.onclick = () => { deletePhoto(month); overlay.remove(); };
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = 'Cerrar';
+  closeBtn.style.cssText = 'padding:10px 20px;background:none;border:1px solid #333;border-radius:10px;color:#aaa;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif';
+  closeBtn.onclick = () => overlay.remove();
+
+  btnRow.appendChild(delBtn);
+  btnRow.appendChild(closeBtn);
+  overlay.appendChild(title);
+  overlay.appendChild(img);
+  overlay.appendChild(btnRow);
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+};
+
+
+window.deletePhoto = async (month) => {
+  if (!confirm('¿Eliminar esta foto?')) return;
+  profile.progressPhotos = (profile.progressPhotos||[]).filter(p => p.month !== month);
+  await saveProfileDB();
+  renderProgressPhotos();
+  showToast('Foto eliminada');
 };
 
 /* ── ACCENT COLOR ── */
