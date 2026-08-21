@@ -419,7 +419,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
     <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaiju<span style="color:#E83535">GymLog</span></div>
     <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
-    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.5</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.6</div>
   </div>
 
   <script>
@@ -1403,20 +1403,11 @@ function offerRestoreDraft(draft) {
   const doneCount = draft.exercises.reduce((a,e) => a + (e.series||[]).filter(s=>s.done).length, 0);
   if (!doneCount) { clearDraft(); return; }
 
-  const draftDay = new Date(draft.ts).toDateString();
-  const todayDay = new Date().toDateString();
-  const isOldDraft = draftDay !== todayDay;
+  // If draft is older than 2 days, discard silently
+  const ageHours = (Date.now() - draft.ts) / 3600000;
+  if (ageHours > 48) { clearDraft(); return; }
 
-  // If draft is from another day, ask — otherwise restore silently
-  if (isOldDraft) {
-    const timeAgo = Math.round((Date.now() - draft.ts) / 60000);
-    const timeStr = timeAgo < 60 ? `${timeAgo} min atrás` : timeAgo < 1440 ? `${Math.round(timeAgo/60)}h atrás` : `${Math.round(timeAgo/1440)} días atrás`;
-    if (!confirm(`📋 Tenés un borrador de ${timeStr} con ${doneCount} series. ¿Restaurarlo?`)) {
-      clearDraft(); return;
-    }
-  }
-
-  // Restore silently
+  // Always restore silently — no popup
   draft.exercises.forEach(draftEx => {
     const live = exercises.find(e => e.fid === draftEx.fid || (e.name === draftEx.name && e.muscle === draftEx.muscle));
     if (live) live.series = draftEx.series;
@@ -1430,7 +1421,6 @@ function offerRestoreDraft(draft) {
   }
   renderExercises();
   renderMoods();
-  if (isOldDraft) showToast('✅ Entreno restaurado');
   exercises.filter(ex => ex.fid).forEach(ex => saveEx(ex));
 }
 
@@ -5036,7 +5026,7 @@ window.runCoachReset = () => {
 window.runCoachFollowup = async () => {
   const inp = document.getElementById('coach-followup-inp');
   const res = document.getElementById('coach-followup-result');
-  if (!inp || !res) return;
+  if (!inp || !res) { showToast('Primero analizá tu progreso'); return; }
   const question = inp.value.trim();
   if (!question) { showToast('Escribí una pregunta primero'); return; }
 
