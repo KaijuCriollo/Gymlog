@@ -423,7 +423,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
     <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaiju<span style="color:#E83535">GymLog</span></div>
     <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
-    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.6</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.7</div>
   </div>
 
   <script>
@@ -589,7 +589,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <!-- Session planner bar -->
       <div id="session-planner-bar" style="display:none;margin:8px 12px 0;background:rgba(232,53,53,0.08);border:1px solid rgba(232,53,53,0.25);border-radius:12px;padding:10px 14px;display:none">
         <div style="display:flex;align-items:center;justify-content:space-between">
-          <div style="font-size:12px;font-weight:700;color:#E83535">📋 SESIÓN PLANIFICADA</div>
+          <div id="session-plan-label" style="font-size:12px;font-weight:700;color:#E83535">📋 SESIÓN PLANIFICADA</div>
           <div style="display:flex;gap:8px">
             <button onclick="addMoreToSession()" style="background:none;border:1px solid #333;border-radius:8px;color:#aaa;padding:4px 10px;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">+ Agregar</button>
             <button onclick="clearSessionPlan()" style="background:none;border:none;color:#555;font-size:16px;cursor:pointer">✕</button>
@@ -815,6 +815,14 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
         <button class="profile-save-btn" onclick="saveProfile()">Guardar perfil</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaijuGymLog v1.7</div>
+      </div>
+
+      <!-- MIS RUTINAS -->
+      <div class="profile-section" style="margin-top:14px">
+        <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px;margin-bottom:12px">🗂 MIS RUTINAS</div>
+        <div id="routines-list"></div>
+        <button class="new-routine-btn" onclick="openNewRoutineModal()">+ Nueva rutina</button>
       </div>
 
       <!-- FOTOS DE PROGRESO -->
@@ -1540,7 +1548,8 @@ function updateQuickPesoLast() {
 function renderAll() {
   // Apply accent color and profile settings immediately on load
   if (profile.accentColor) applyAccent(profile.accentColor);
-  renderFilters(); renderExercises(); renderMoods();
+  restoreSessionPlanState();
+  renderFilters(); renderExercises(); renderMoods(); renderSessionPlannerBar(); renderRoutinePillsSelector(); renderRoutines();
   updatePesoLast(); updateQuickPesoLast(); calcStreak(); updateDaysSince();
   // Apply header avatar without full profile render (faster)
   if (profile.avatarUrl) {
@@ -1735,7 +1744,10 @@ function getLastBodyWeight() {
 function renderExercises() {
   const list = document.getElementById('exercises-list');
   let items;
-  if (sessionPlanActive && sessionPlan.length > 0 && currentFilter !== 'Ahora') {
+  if (activeRoutineId && sessionPlanActive && sessionPlan.length > 0) {
+    // Training mode from a saved routine: show ONLY that routine's exercises, nothing else.
+    items = sessionPlan.map(id => exercises.find(e => e.id === id)).filter(Boolean);
+  } else if (sessionPlanActive && sessionPlan.length > 0 && currentFilter !== 'Ahora') {
     const planned = sessionPlan.map(id => exercises.find(e => e.id === id)).filter(Boolean);
     const rest = exercises.filter(e => !sessionPlan.includes(e.id) &&
       (currentFilter === 'Todos' || e.muscle === currentFilter));
@@ -2291,11 +2303,14 @@ window.closeSummary = () => { document.getElementById('summary-overlay').classLi
 function renderRoutinePillsSelector() {
   const wrap = document.getElementById('routine-pills-selector');
   wrap.innerHTML = routines.map(r =>
-    `<div class="routine-pill" onclick="loadRoutine('${r.fid}')">${r.name}</div>`
+    `<div class="routine-pill ${activeRoutineId===r.fid?'active':''}" onclick="loadRoutine('${r.fid}')">${r.name}</div>`
   ).join('') + '';
 }
 
 window.loadRoutine = (fid) => {
+  // Tapping the routine that's already active exits training mode
+  if (activeRoutineId === fid) { clearSessionPlan(); return; }
+
   const r = routines.find(x => x.fid === fid); if (!r) return;
   // Add routine exercises to today if not already there
   let added = 0;
@@ -2305,9 +2320,18 @@ window.loadRoutine = (fid) => {
       saveEx(newEx); exercises.push(newEx); added++;
     }
   });
-  currentFilter = 'Todos';
-  renderFilters(); renderExercises();
-  showToast(added > 0 ? `Rutina "${r.name}" cargada (${added} ejercicios) ✓` : `Ya tenés todos los ejercicios de "${r.name}"`);
+  // Activate training mode: filter today's view down to only this routine's exercises
+  const routineExIds = (r.exercises||[])
+    .map(re => exercises.find(e => e.name === re.name))
+    .filter(Boolean)
+    .map(e => e.id);
+  sessionPlan = routineExIds;
+  sessionPlanActive = routineExIds.length > 0;
+  activeRoutineId = fid;
+  activeRoutineName = r.name;
+  renderExercises(); renderSessionPlannerBar(); renderRoutinePillsSelector();
+  saveSessionPlanState();
+  showToast(added > 0 ? `Rutina "${r.name}" cargada (${added} ejercicios) ✓ · Modo entrenamiento activo` : `Modo entrenamiento: "${r.name}" ✓`);
 };
 
 function renderRoutines() {
@@ -4759,16 +4783,51 @@ window.setRestDuration = (secs) => {
 /* ── SESSION PLANNER ── */
 let sessionPlan = []; // array of exercise IDs planned for today
 let sessionPlanActive = false;
+let activeRoutineId = null;   // fid of the routine that's driving the current session plan (if any)
+let activeRoutineName = '';
+
+const SESSION_PLAN_KEY = () => 'gymlog_sessionplan_' + (currentUser?.uid||'anon');
+const todayKey = () => new Date().toISOString().slice(0,10);
+
+function saveSessionPlanState() {
+  try {
+    localStorage.setItem(SESSION_PLAN_KEY(), JSON.stringify({
+      day: todayKey(),
+      sessionPlan,
+      sessionPlanActive,
+      activeRoutineId,
+      activeRoutineName
+    }));
+  } catch(e) {}
+}
+
+function restoreSessionPlanState() {
+  try {
+    const raw = localStorage.getItem(SESSION_PLAN_KEY());
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    // Only restore if it's from today — a new day starts fresh
+    if (data.day !== todayKey()) { localStorage.removeItem(SESSION_PLAN_KEY()); return; }
+    // Keep only ids that still exist as exercises today
+    const validIds = new Set(exercises.map(e => e.id));
+    sessionPlan = (data.sessionPlan||[]).filter(id => validIds.has(id));
+    sessionPlanActive = !!data.sessionPlanActive && sessionPlan.length > 0;
+    activeRoutineId = sessionPlanActive ? (data.activeRoutineId||null) : null;
+    activeRoutineName = sessionPlanActive ? (data.activeRoutineName||'') : '';
+  } catch(e) {}
+}
 
 function renderSessionPlannerBar() {
   const bar = document.getElementById('session-planner-bar');
   const pills = document.getElementById('session-plan-pills');
+  const label = document.getElementById('session-plan-label');
   if (!bar || !pills) return;
   if (!sessionPlanActive || sessionPlan.length === 0) {
     bar.style.display = 'none';
     return;
   }
   bar.style.display = 'block';
+  if (label) label.textContent = activeRoutineName ? `⚡ MODO ENTRENAMIENTO — ${activeRoutineName.toUpperCase()}` : '📋 SESIÓN PLANIFICADA';
   pills.innerHTML = sessionPlan.map(id => {
     const ex = exercises.find(e => e.id === id);
     if (!ex) return '';
@@ -4780,16 +4839,22 @@ function renderSessionPlannerBar() {
 
 window.removeFromSession = (id) => {
   sessionPlan = sessionPlan.filter(i => i !== id);
-  if (sessionPlan.length === 0) { sessionPlanActive = false; }
+  if (sessionPlan.length === 0) { sessionPlanActive = false; activeRoutineId = null; activeRoutineName = ''; }
   renderExercises();
   renderSessionPlannerBar();
+  renderRoutinePillsSelector();
+  saveSessionPlanState();
 };
 
 window.clearSessionPlan = () => {
   sessionPlan = [];
   sessionPlanActive = false;
+  activeRoutineId = null;
+  activeRoutineName = '';
   renderExercises();
   renderSessionPlannerBar();
+  renderRoutinePillsSelector();
+  saveSessionPlanState();
 };
 
 window.addMoreToSession = () => {
@@ -4866,9 +4931,13 @@ window.openSessionPlannerPicker = (addingMore = false) => {
       .map(e => e.id);
     sessionPlan = orderedIds;
     sessionPlanActive = true;
+    activeRoutineId = null; // manual pick — no longer tied to a saved routine
+    activeRoutineName = '';
     document.getElementById('session-picker-modal').remove();
     renderExercises();
     renderSessionPlannerBar();
+    renderRoutinePillsSelector();
+    saveSessionPlanState();
     showToast(`✅ Sesión planificada: ${sessionPlan.length} ejercicios`);
   };
 
