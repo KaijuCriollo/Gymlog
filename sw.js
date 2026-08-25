@@ -1,8 +1,11 @@
-const CACHE_NAME = 'kaijugymlog-v2';
+const CACHE_NAME = 'kaijugymlog-v3';
 const BASE = '/Gymlog';
 
 const ASSETS = [
   BASE + '/gymlog.html',
+  BASE + '/manifest.json',
+  BASE + '/icons/icon-192x192.png',
+  BASE + '/icons/icon-512x512.png',
   'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
 ];
