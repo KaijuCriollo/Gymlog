@@ -423,7 +423,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
     <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaiju<span style="color:#E83535">GymLog</span></div>
     <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
-    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.7</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.8</div>
   </div>
 
   <script>
@@ -571,6 +571,11 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
     <!-- HOY -->
     <div id="tab-registro" class="tab active">
+
+      <div class="routine-selector">
+        <div class="routine-selector-label">⚡ MI RUTINA DE HOY</div>
+        <div class="routine-pills" id="routine-pills-selector"></div>
+      </div>
 
       <div class="filter-row" id="muscle-filters"></div>
       <div id="ex-search-wrap" style="margin:6px 12px 0;display:none;position:relative">
@@ -815,7 +820,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
         <button class="profile-save-btn" onclick="saveProfile()">Guardar perfil</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaijuGymLog v1.7</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaijuGymLog v1.8</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -1132,6 +1137,11 @@ window.selectObjetivo = (obj, el) => {
 
 
 let exercises = [], history = [], nutricion = [], routines = [];
+// Local (not UTC) YYYY-MM-DD — toISOString() uses UTC, which rolls to the "wrong" day
+// in the last hours of the local day for negative UTC offsets (e.g. Argentina, UTC-3).
+function localDateStr(d = new Date()) {
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
 let profile = { nickname:'', objetivo:'', avatarUrl:'' };
 let currentFilter = 'Ahora', currentMood = null, authMode = 'login';
 let editingEntryId = null, editMood = null, currentRoutineTarget = null;
@@ -2086,7 +2096,7 @@ window.selectMood = (m, el) => {
   saveDraft();
 };
 
-window.setDateToday = () => { document.getElementById('workout-date-input').value = new Date().toISOString().slice(0,10); };
+window.setDateToday = () => { document.getElementById('workout-date-input').value = localDateStr(); };
 function initDatePicker() { setDateToday(); }
 function updatePesoLast() {
   const el = document.getElementById('peso-last');
@@ -2302,6 +2312,7 @@ window.closeSummary = () => { document.getElementById('summary-overlay').classLi
 /* ── ROUTINES ── */
 function renderRoutinePillsSelector() {
   const wrap = document.getElementById('routine-pills-selector');
+  if (!wrap) return;
   wrap.innerHTML = routines.map(r =>
     `<div class="routine-pill ${activeRoutineId===r.fid?'active':''}" onclick="loadRoutine('${r.fid}')">${r.name}</div>`
   ).join('') + '';
@@ -3132,7 +3143,7 @@ window.renderProgressChart = () => {
 };
 
 /* ── NUTRICIÓN ── */
-window.setNutriDateToday = () => { document.getElementById('nutri-date-inp').value = new Date().toISOString().slice(0,10); };
+window.setNutriDateToday = () => { document.getElementById('nutri-date-inp').value = localDateStr(); };
 
 // Feature 9: connectivity monitor
 function updateConnectivity() {
@@ -4787,7 +4798,7 @@ let activeRoutineId = null;   // fid of the routine that's driving the current s
 let activeRoutineName = '';
 
 const SESSION_PLAN_KEY = () => 'gymlog_sessionplan_' + (currentUser?.uid||'anon');
-const todayKey = () => new Date().toISOString().slice(0,10);
+const todayKey = () => localDateStr();
 
 function saveSessionPlanState() {
   try {
