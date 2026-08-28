@@ -423,7 +423,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
     <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaishu<span style="color:#E83535">GymLog</span></div>
     <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
-    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.12</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.13</div>
   </div>
 
   <script>
@@ -580,21 +580,23 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button onclick="clearExSearch()" id="ex-search-clear" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:16px;cursor:pointer">✕</button>
       </div>
       <div id="exercises-list"></div>
+      <div class="routine-selector">
+        <div class="routine-selector-label">🏋️ MI RUTINA DE HOY</div>
+        <div class="routine-pills" id="routine-pills-selector"></div>
+      </div>
       <div class="add-ex-area" style="display:flex;gap:8px">
         <button class="add-ex-btn" style="flex:1" onclick="openAddExModal()">+ Agregar</button>
         <button onclick="toggleExSearch()" style="padding:12px 10px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);color:#aaa;font-size:16px;cursor:pointer;flex-shrink:0" title="Buscar">🔍</button>
-        <button onclick="openWorkoutMode()" style="padding:12px 14px;background:var(--accent,#E83535);border:none;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">⚡ Modo</button>
       </div>
 
-      <!-- Discoverable action row: planificar sesión + rutina de hoy, grouped right under "+ Agregar" -->
+      <!-- Discoverable action row: planificar sesión + modo entrenamiento, grouped right under "+ Agregar" -->
       <div style="display:flex;gap:8px;margin:8px 12px 0">
         <button onclick="openSessionPlannerPicker(false)" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 8px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);color:#aaa;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" title="Planificar sesión">
-          <span style="font-size:16px">📋</span>Planificar
+          <span style="font-size:16px">📋</span>Planificar sesión
         </button>
-      </div>
-      <div class="routine-selector" style="margin-top:8px">
-        <div class="routine-selector-label">🏋️ MI RUTINA DE HOY</div>
-        <div class="routine-pills" id="routine-pills-selector"></div>
+        <button onclick="openWorkoutMode()" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 8px;background:var(--accent,#E83535);border:none;border-radius:var(--radius);color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" title="Modo entrenamiento">
+          <span style="font-size:16px">⚡</span>Modo entrenamiento
+        </button>
       </div>
       <!-- Session planner bar -->
       <div id="session-planner-bar" style="display:none;margin:8px 12px 0;background:rgba(232,53,53,0.08);border:1px solid rgba(232,53,53,0.25);border-radius:12px;padding:10px 14px;display:none">
