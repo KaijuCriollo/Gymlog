@@ -1,15 +1,44 @@
-const CACHE_NAME = 'kaijugymlog-v4';
+const CACHE_NAME = 'kaijugymlog-v6';
 const BASE = '/Gymlog';
- 
+
+/* ── FIREBASE CLOUD MESSAGING (push real, funciona con la app cerrada) ──
+   Mismo service worker que ya cachea la app: le sumamos el manejo de
+   notificaciones push que llegan del backend (Cloud Function
+   checkMuscleReminders). Cuando el navegador recibe el mensaje con la app
+   cerrada o en segundo plano, dispara onBackgroundMessage acá. */
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js');
+
+firebase.initializeApp({
+  apiKey: 'AIzaSyCgPk8QisGhFz7z4ow2AaTzDwx3ddc2rng',
+  authDomain: 'kaijugymlog.firebaseapp.com',
+  projectId: 'kaijugymlog',
+  storageBucket: 'kaijugymlog.firebasestorage.app',
+  messagingSenderId: '1037263046321',
+  appId: '1:1037263046321:web:149f37ea6a5c30d3e38490',
+});
+
+const messaging = firebase.messaging();
+messaging.onBackgroundMessage((payload) => {
+  const n = payload.notification || {};
+  self.registration.showNotification(n.title || 'KaishuGymLog', {
+    body: n.body || '',
+    icon: BASE + '/icons/icon-192x192.png',
+    badge: BASE + '/icons/icon-192x192.png',
+    tag: 'muscle-reminder',
+  });
+});
+
 const ASSETS = [
   BASE + '/gymlog.html',
   BASE + '/manifest.json',
   BASE + '/icons/icon-192x192.png',
   BASE + '/icons/icon-512x512.png',
+  BASE + '/kaishu-login-bg.jpg',
   'https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js',
 ];
- 
+
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -17,7 +46,7 @@ self.addEventListener('install', e => {
     }).then(() => self.skipWaiting())
   );
 });
- 
+
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -25,16 +54,16 @@ self.addEventListener('activate', e => {
     ).then(() => self.clients.claim())
   );
 });
- 
+
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
- 
+
   if (url.hostname.includes('firebase') ||
       url.hostname.includes('googleapis.com') && url.pathname.includes('firestore') ||
       url.hostname.includes('identitytoolkit')) {
     return;
   }
- 
+
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
@@ -52,7 +81,7 @@ self.addEventListener('fetch', e => {
     })
   );
 });
- 
+
 /* ── RECORDATORIOS DE MÚSCULOS ──
    La página nos manda por postMessage un "snapshot" (lista de músculos hace cuántos
    días que no se entrenan) cada vez que se abre o vuelve a foreground. Lo guardamos en
@@ -62,7 +91,7 @@ self.addEventListener('fetch', e => {
    no de esta app), lo usamos para volver a mostrar una notificación con el último dato
    que tengamos guardado. */
 const DB_NAME = 'kaijugymlog-reminders';
- 
+
 function idbSet(key, value) {
   return new Promise((resolve) => {
     const req = indexedDB.open(DB_NAME, 1);
@@ -76,7 +105,7 @@ function idbSet(key, value) {
     req.onerror = () => resolve();
   });
 }
- 
+
 function idbGet(key) {
   return new Promise((resolve) => {
     const req = indexedDB.open(DB_NAME, 1);
@@ -90,13 +119,13 @@ function idbGet(key) {
     req.onerror = () => resolve(null);
   });
 }
- 
+
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'muscle-snapshot') {
     event.waitUntil(idbSet('snapshot', event.data.payload));
   }
 });
- 
+
 self.addEventListener('periodicsync', (event) => {
   if (event.tag !== 'muscle-reminder-check') return;
   event.waitUntil((async () => {
@@ -116,7 +145,7 @@ self.addEventListener('periodicsync', (event) => {
     });
   })());
 });
- 
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
@@ -128,4 +157,3 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
- 
