@@ -572,6 +572,10 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <!-- HOY -->
     <div id="tab-registro" class="tab active">
 
+      <div class="routine-selector">
+        <div class="routine-selector-label">🏋️ MI RUTINA DE HOY</div>
+        <div class="routine-pills" id="routine-pills-selector"></div>
+      </div>
       <div class="filter-row" id="muscle-filters"></div>
       <div id="ex-search-wrap" style="margin:6px 12px 0;display:none;position:relative">
         <input type="text" id="ex-search-inp" placeholder="Buscar ejercicio..."
@@ -580,12 +584,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button onclick="clearExSearch()" id="ex-search-clear" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:16px;cursor:pointer">✕</button>
       </div>
       <div id="exercises-list"></div>
-      <div class="routine-selector">
-        <div class="routine-selector-label">🏋️ MI RUTINA DE HOY</div>
-        <div class="routine-pills" id="routine-pills-selector"></div>
-      </div>
       <div class="add-ex-area" style="display:flex;gap:8px">
-        <button class="add-ex-btn" style="flex:1" onclick="openAddExModal()">+ Agregar</button>
+        <button class="add-ex-btn" style="flex:1" onclick="openAddExModal()">+ Agregar ejercicio</button>
         <button onclick="toggleExSearch()" style="padding:12px 10px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);color:#aaa;font-size:16px;cursor:pointer;flex-shrink:0" title="Buscar">🔍</button>
       </div>
 
