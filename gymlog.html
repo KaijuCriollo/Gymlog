@@ -6,12 +6,12 @@
 <meta name="theme-color" content="#0d0d0d"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
-<meta name="apple-mobile-web-app-title" content="KaijuGymLog"/>
+<meta name="apple-mobile-web-app-title" content="KaishuGymLog"/>
   <link rel="apple-touch-icon" href="/Gymlog/icons/icon-192x192.png"/>
   <meta name="msapplication-TileImage" content="/Gymlog/icons/icon-144x144.png"/>
   <meta name="msapplication-TileColor" content="#E83535"/>
 <meta name="mobile-web-app-capable" content="yes"/>
-<title>KaijuGymLog</title>
+<title>KaishuGymLog</title>
   <link rel="manifest" href="/Gymlog/manifest.json"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
@@ -30,8 +30,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 }
 
 /* ── AUTH ── */
-.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100vh;height:100dvh;padding:24px;padding-bottom:40px;background:#0d0d0d;position:relative;overflow:hidden}
-.auth-screen::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,transparent 38%,rgba(232,53,53,0.18) 38%,rgba(232,53,53,0.18) 50%,transparent 50%);pointer-events:none;z-index:0}
+.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100vh;height:100dvh;padding:24px;padding-bottom:40px;background-color:#0d0d0d;background-image:linear-gradient(rgba(13,13,13,0.55),rgba(13,13,13,0.8)),url('/Gymlog/kaishu-login-bg.jpg');background-size:cover;background-position:center;position:relative;overflow:hidden}
+.auth-screen::before{content:"";position:fixed;inset:0;background:linear-gradient(135deg,transparent 38%,rgba(232,53,53,0.12) 38%,rgba(232,53,53,0.12) 50%,transparent 50%);pointer-events:none;z-index:0}
 .auth-box{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);padding:28px 24px;width:100%;max-width:360px;position:relative;z-index:1;box-shadow:0 4px 32px rgba(0,0,0,0.5)}
 .auth-logo{font-size:26px;font-weight:700;letter-spacing:-0.5px;color:#fff;text-align:center;margin-bottom:4px}
 .auth-logo span{color:var(--red)}
@@ -421,9 +421,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
   <!-- Default logo (new user) -->
   <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center">
-    <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaiju<span style="color:#E83535">GymLog</span></div>
+    <div style="font-size:36px;font-weight:700;letter-spacing:-1px;color:#fff;margin-bottom:6px">Kaishu<span style="color:#E83535">GymLog</span></div>
     <div style="font-size:13px;color:rgba(255,255,255,0.5)">Registrá tu progreso en el gym</div>
-    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.11</div>
+    <div style="font-size:10px;color:rgba(255,255,255,0.2);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:1px">v1.12</div>
   </div>
 
   <script>
@@ -462,7 +462,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   })();
   </script>
   <div class="auth-box" style="position:relative;z-index:1;background:rgba(15,15,15,0.88);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.07);border-radius:20px 20px 0 0;margin:0 -24px -40px;padding:24px 24px calc(24px + env(safe-area-inset-bottom,0px));width:calc(100% + 48px);max-width:none">
-    <div class="auth-logo" id="auth-logo-text" style="display:none">Kaiju<span>GymLog</span></div>
+    <div class="auth-logo" id="auth-logo-text" style="display:none">Kaishu<span>GymLog</span></div>
     <div class="auth-tagline" id="auth-tagline" style="display:none">Registrá tu progreso en el gym</div>
     <script>
     // Immediate sync preview — runs before Firebase loads
@@ -515,7 +515,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     </div>
     <div class="auth-field" id="auth-name-field" style="display:none">
       <label class="auth-label">Tu apodo (opcional)</label>
-      <input class="auth-input" type="text" id="auth-name" placeholder="Ej: Kaiju"/>
+      <input class="auth-input" type="text" id="auth-name" placeholder="Ej: Kaishu"/>
     </div>
     <button class="auth-btn" id="auth-btn" onclick="this.style.background='#2d6fd4';doAuth()">Entrar</button>
     <div class="auth-loading" id="auth-loading">Cargando...</div>
@@ -528,7 +528,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
   <div class="header">
     <div class="header-inner">
-      <div class="app-title">Kaiju<span>GymLog</span> <span class="sync-dot" id="sync-dot"></span></div>
+      <div class="app-title">Kaishu<span>GymLog</span> <span class="sync-dot" id="sync-dot"></span></div>
       <div class="header-right">
         <div class="streak-badge" id="streak-badge">🔥 0 días</div>
         <div class="avatar-btn" id="avatar-btn" onclick="switchTab('perfil',document.querySelector('[data-tab=perfil]'))">🏋️</div>
@@ -572,14 +572,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <!-- HOY -->
     <div id="tab-registro" class="tab active">
 
-      <div class="routine-selector">
-        <div class="routine-selector-label">⚡ MI RUTINA DE HOY</div>
-        <div class="routine-pills" id="routine-pills-selector"></div>
-      </div>
-
       <div class="filter-row" id="muscle-filters"></div>
       <div id="ex-search-wrap" style="margin:6px 12px 0;display:none;position:relative">
-        <input type="text" id="ex-search-inp" placeholder="Buscar ejercicio..." 
+        <input type="text" id="ex-search-inp" placeholder="Buscar ejercicio..."
           oninput="filterExSearch(this.value)"
           style="width:100%;padding:9px 36px 9px 12px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:10px;color:#f0ede8;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box"/>
         <button onclick="clearExSearch()" id="ex-search-clear" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#555;font-size:16px;cursor:pointer">✕</button>
@@ -587,9 +582,19 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <div id="exercises-list"></div>
       <div class="add-ex-area" style="display:flex;gap:8px">
         <button class="add-ex-btn" style="flex:1" onclick="openAddExModal()">+ Agregar</button>
-        <button onclick="openSessionPlannerPicker(false)" style="padding:12px 10px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);color:#aaa;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;flex-shrink:0" title="Planificar sesión">📋</button>
         <button onclick="toggleExSearch()" style="padding:12px 10px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);color:#aaa;font-size:16px;cursor:pointer;flex-shrink:0" title="Buscar">🔍</button>
         <button onclick="openWorkoutMode()" style="padding:12px 14px;background:var(--accent,#E83535);border:none;border-radius:var(--radius);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap">⚡ Modo</button>
+      </div>
+
+      <!-- Discoverable action row: planificar sesión + rutina de hoy, grouped right under "+ Agregar" -->
+      <div style="display:flex;gap:8px;margin:8px 12px 0">
+        <button onclick="openSessionPlannerPicker(false)" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 8px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);color:#aaa;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif" title="Planificar sesión">
+          <span style="font-size:16px">📋</span>Planificar
+        </button>
+      </div>
+      <div class="routine-selector" style="margin-top:8px">
+        <div class="routine-selector-label">🏋️ MI RUTINA DE HOY</div>
+        <div class="routine-pills" id="routine-pills-selector"></div>
       </div>
       <!-- Session planner bar -->
       <div id="session-planner-bar" style="display:none;margin:8px 12px 0;background:rgba(232,53,53,0.08);border:1px solid rgba(232,53,53,0.25);border-radius:12px;padding:10px 14px;display:none">
@@ -698,6 +703,14 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </select>
       </div>
       <div id="pr-banner" style="margin:6px 12px 0"></div>
+      <div id="chart-toggle-row" style="margin:6px 12px 0;display:none;position:relative;text-align:right">
+        <button onclick="event.stopPropagation();toggleChartMenu()" style="background:#1e1e1e;border:1px solid #2e2e2e;border-radius:8px;color:#aaa;font-size:14px;padding:5px 9px;cursor:pointer" title="Curvas del gráfico">⚙️</button>
+        <div id="chart-menu" style="display:none;position:absolute;right:0;top:34px;z-index:20;background:#1e1e1e;border:1px solid #333;border-radius:10px;padding:10px 12px;box-shadow:0 6px 18px rgba(0,0,0,0.4);text-align:left;min-width:150px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#ddd;padding:4px 0;cursor:pointer"><input type="checkbox" id="chart-toggle-peso" checked onchange="toggleChartLine(0,this.checked)"/><span style="width:9px;height:9px;border-radius:50%;background:#E24B4A;display:inline-block"></span>Peso</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#ddd;padding:4px 0;cursor:pointer"><input type="checkbox" id="chart-toggle-1rm" onchange="toggleChartLine(1,this.checked)"/><span style="width:9px;height:9px;border-radius:50%;background:#3B7BE8;display:inline-block"></span>1RM estimado</label>
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#ddd;padding:4px 0;cursor:pointer"><input type="checkbox" id="chart-toggle-reps" onchange="toggleChartLine(2,this.checked)"/><span style="width:9px;height:9px;border-radius:50%;background:#E8A23B;display:inline-block"></span>Reps</label>
+        </div>
+      </div>
       <div class="chart-wrap" style="overflow-x:auto;-webkit-overflow-scrolling:touch">
         <div id="progressChart-inner" style="height:100%;min-width:100%">
           <canvas id="progressChart">Gráfico progreso</canvas>
@@ -798,7 +811,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="handleAvatarChange(this)"/>
         <div class="profile-field">
           <div class="profile-label">Apodo</div>
-          <input class="profile-input" type="text" id="profile-nickname" placeholder="Ej: Kaiju"/>
+          <input class="profile-input" type="text" id="profile-nickname" placeholder="Ej: Kaishu"/>
         </div>
         <div class="profile-field">
           <div class="profile-label">Frase motivacional</div>
@@ -815,7 +828,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
           </div>
         </div>
         <div class="profile-field">
-          <div class="profile-label">Color de acento</div>
+          <div class="profile-label">🎨 Personalización</div>
+          <div style="font-size:11px;color:#666;margin:-2px 0 8px">Color de la app</div>
           <div id="color-palette" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px">
             <div class="color-swatch" data-color="#E83535" style="background:#E83535" onclick="selectAccent('#E83535',this)"></div>
             <div class="color-swatch" data-color="#22c97a" style="background:#22c97a" onclick="selectAccent('#22c97a',this)"></div>
@@ -833,6 +847,25 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
             <div class="color-swatch" data-color="#06d6a0" style="background:#06d6a0" onclick="selectAccent('#06d6a0',this)"></div>
             <div class="color-swatch" data-color="#c77dff" style="background:#c77dff" onclick="selectAccent('#c77dff',this)"></div>
             <div class="color-swatch" data-color="#118ab2" style="background:#118ab2" onclick="selectAccent('#118ab2',this)"></div>
+          </div>
+          <div style="font-size:11px;color:#666;margin:12px 0 8px">Color de gráficos <span style="color:#444">(independiente del color de la app)</span></div>
+          <div id="chart-color-palette" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px">
+            <div class="color-swatch chart-color-swatch" data-color="#E83535" style="background:#E83535" onclick="selectChartColor('#E83535',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#22c97a" style="background:#22c97a" onclick="selectChartColor('#22c97a',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#3B7BE8" style="background:#3B7BE8" onclick="selectChartColor('#3B7BE8',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#f0a04b" style="background:#f0a04b" onclick="selectChartColor('#f0a04b',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#f5e642" style="background:#f5e642" onclick="selectChartColor('#f5e642',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#e84dbb" style="background:#e84dbb" onclick="selectChartColor('#e84dbb',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#9b5cf6" style="background:#9b5cf6" onclick="selectChartColor('#9b5cf6',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#aaaaaa" style="background:#aaaaaa" onclick="selectChartColor('#aaaaaa',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#2ec4b6" style="background:#2ec4b6" onclick="selectChartColor('#2ec4b6',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#4361ee" style="background:#4361ee" onclick="selectChartColor('#4361ee',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#ff5d8f" style="background:#ff5d8f" onclick="selectChartColor('#ff5d8f',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#ff8c42" style="background:#ff8c42" onclick="selectChartColor('#ff8c42',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#8ac926" style="background:#8ac926" onclick="selectChartColor('#8ac926',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#06d6a0" style="background:#06d6a0" onclick="selectChartColor('#06d6a0',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#c77dff" style="background:#c77dff" onclick="selectChartColor('#c77dff',this)"></div>
+            <div class="color-swatch chart-color-swatch" data-color="#118ab2" style="background:#118ab2" onclick="selectChartColor('#118ab2',this)"></div>
           </div>
         </div>
         <div class="profile-field">
@@ -860,7 +893,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
         <button class="profile-save-btn" onclick="saveProfile()">Guardar perfil</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaijuGymLog v1.11</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.13</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -1100,6 +1133,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, updateDoc, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getMessaging, getToken } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCgPk8QisGhFz7z4ow2AaTzDwx3ddc2rng",
@@ -1113,6 +1147,14 @@ const firebaseConfig = {
 const fbApp = initializeApp(firebaseConfig);
 const auth = getAuth(fbApp);
 const db = getFirestore(fbApp);
+
+// Push real (Firebase Cloud Messaging) para los recordatorios de músculos.
+// La VAPID_KEY es pública (no es un secreto) — se genera una sola vez en
+// Firebase Console → ⚙️ Configuración del proyecto → Cloud Messaging →
+// "Certificados push web" → Generar par de claves, y se pega acá.
+const VAPID_KEY = 'PEGAR_ACA_LA_VAPID_KEY';
+let messaging = null;
+try { messaging = getMessaging(fbApp); } catch(e) { /* no soportado en este navegador */ }
 
 const MOODS = ['💪 Excelente','😊 Bien','😐 Regular','😓 Cansado','🤒 Me sentí mal'];
 const MUSCLES = ['Ahora','Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Cuádriceps','Glúteos','Piernas','Core','Cardio']; // Todos hidden in UI
@@ -1188,9 +1230,23 @@ function applyAccent(color) {
 
 window.selectAccent = (color, el) => {
   profile.accentColor = color;
-  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  document.querySelectorAll('#color-palette .color-swatch').forEach(s => s.classList.remove('selected'));
   el.classList.add('selected');
   applyAccent(color);
+};
+
+// Independent chart color (Peso line + peso/weekly stats charts) — separate from the
+// UI accent color so users can tell them apart in Perfil.
+function applyChartColor(color) {
+  window._chartColor = color || '#E24B4A';
+  if (window.renderProgressChart && document.getElementById('progress-ex-sel')?.value) renderProgressChart();
+}
+window.selectChartColor = (color, el) => {
+  profile.chartColor = color;
+  document.querySelectorAll('#chart-color-palette .color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  applyChartColor(color);
+  if (typeof renderProgress === 'function') { try { renderProgress(); } catch(e) {} }
 };
 
 window.selectObjetivo = (obj, el) => {
@@ -1631,6 +1687,7 @@ function updateQuickPesoLast() {
 function renderAll() {
   // Apply accent color and profile settings immediately on load
   if (profile.accentColor) applyAccent(profile.accentColor);
+  applyChartColor(profile.chartColor || profile.accentColor || '#E24B4A');
   restoreSessionPlanState();
   renderFilters(); renderExercises(); renderMoods(); renderSessionPlannerBar(); renderRoutinePillsSelector(); renderRoutines(); renderProgressPhotos();
   updatePesoLast(); updateQuickPesoLast(); calcStreak(); updateDaysSince();
@@ -1989,13 +2046,7 @@ function buildExCard(ex) {
   const exTotal = filteredList.length;
   return `<div class="card" id="card-${ex.id}">
     <div class="card-header" onclick="toggleCard(${ex.id})">
-      <div class="drag-handle" data-ex-id="${ex.id}" onclick="event.stopPropagation()" style="flex-shrink:0;width:22px;height:36px;display:flex;align-items:center;justify-content:center;color:#3a3a3a;font-size:18px;cursor:grab;touch-action:none;letter-spacing:-2px;line-height:1">⠿</div>
-      <div onclick="event.stopPropagation()" style="flex-shrink:0;display:flex;align-items:center;justify-content:center">
-        <input type="number" value="${exIdx+1}" min="1" max="${exTotal}"
-          onchange="event.stopPropagation();moveExToPos(${ex.id},parseInt(this.value)-1)"
-          onclick="event.stopPropagation()"
-          style="width:36px;padding:4px 2px;background:#2a2a2a;border:1px solid #333;border-radius:8px;color:#888;font-size:13px;font-family:'DM Mono',monospace;text-align:center;-webkit-appearance:none;outline:none"/>
-      </div>
+      <div class="drag-handle" data-ex-id="${ex.id}" data-ex-idx="${exIdx}" data-ex-total="${exTotal}" onclick="event.stopPropagation()" style="flex-shrink:0;width:30px;height:36px;display:flex;align-items:center;justify-content:center;color:#3a3a3a;font-size:20px;cursor:grab;touch-action:none;letter-spacing:-2px;line-height:1">⠿</div>
       <div class="card-header-left">
         <div class="ex-name">${ex.name}</div>
         <div class="ex-muscle">${ex.muscle}</div>
@@ -2013,8 +2064,11 @@ function buildExCard(ex) {
       <button class="add-series-btn" onclick="addSeries(${ex.id})">+ Agregar serie</button>
       ${ex.series.length > 1 ? `<button class="add-series-btn" style="border-color:#E83535;color:#E83535;margin-top:4px" onclick="removeSerie(${ex.id})">− Quitar última serie</button>` : ''}
       <div class="ex-note-wrap">
-        <div style="font-size:11px;color:var(--subtle);margin-bottom:4px">✏️ Nota</div>
-        <textarea class="note-textarea" placeholder="Opcional…" onchange="updateExNote(${ex.id},this.value)">${ex.note||''}</textarea>
+        <div style="display:flex;align-items:center;gap:8px">
+          <button onclick="event.stopPropagation();toggleExNoteBox(${ex.id})" id="note-toggle-${ex.id}" title="Comentario" style="flex-shrink:0;width:28px;height:28px;border-radius:50%;border:1px solid ${ex.note ? 'var(--accent,#E83535)' : '#333'};background:${ex.note ? 'rgba(232,53,53,0.12)' : '#1e1e1e'};color:${ex.note ? 'var(--accent,#E83535)' : '#777'};font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">💬</button>
+          ${ex.note ? `<div id="note-preview-${ex.id}" onclick="event.stopPropagation();toggleExNoteBox(${ex.id})" style="font-size:11px;color:var(--subtle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;flex:1">${ex.note}</div>` : `<div id="note-preview-${ex.id}" style="font-size:11px;color:#555">Comentario</div>`}
+        </div>
+        <textarea class="note-textarea" id="note-box-${ex.id}" placeholder="Opcional…" onchange="updateExNote(${ex.id},this.value)" style="display:none;margin-top:6px">${ex.note||''}</textarea>
       </div>
       <div class="clearfix"><button class="del-btn" onclick="deleteEx(${ex.id})">🗑 Eliminar</button></div>
     </div>
@@ -2196,7 +2250,30 @@ window.addSeries = (id) => {
   if (body) { body.classList.add('open'); document.getElementById('chev-'+id).classList.add('open'); }
 };
 
-window.updateExNote = (id, val) => { const ex = exercises.find(e => e.id === id); if (ex) { ex.note = val; saveDraft(); saveEx(ex); } };
+window.updateExNote = (id, val) => {
+  const ex = exercises.find(e => e.id === id);
+  if (ex) {
+    ex.note = val; saveDraft(); saveEx(ex);
+    const btn = document.getElementById('note-toggle-'+id);
+    const prev = document.getElementById('note-preview-'+id);
+    if (btn) {
+      btn.style.borderColor = val ? 'var(--accent,#E83535)' : '#333';
+      btn.style.background = val ? 'rgba(232,53,53,0.12)' : '#1e1e1e';
+      btn.style.color = val ? 'var(--accent,#E83535)' : '#777';
+    }
+    if (prev) {
+      prev.textContent = val || 'Comentario';
+      prev.style.color = val ? 'var(--subtle)' : '#555';
+    }
+  }
+};
+window.toggleExNoteBox = (id) => {
+  const box = document.getElementById('note-box-'+id);
+  if (!box) return;
+  const show = box.style.display === 'none';
+  box.style.display = show ? 'block' : 'none';
+  if (show) box.focus();
+};
 
 window.deleteEx = async (id) => {
   if (!confirm('¿Eliminar este ejercicio?')) return;
@@ -2654,6 +2731,27 @@ window.offerMergeEntry = async (fid) => {
     }
   });
 
+  // Detect records broken by the combine itself: a session-total volume (kg*reps summed
+  // across sets) for an exercise that only surpasses the previous best once both entries'
+  // sets are counted together — invisible while the sets were split across two entries.
+  const sessionVolume = (ex) => (ex.series||[]).reduce((s,se)=> s + ((parseFloat(se.kg)||0)*(parseInt(se.reps)||0)), 0);
+  const maxSessionVolumeExcluding = (exName, excludeFids) => {
+    const aliases = getAliases(exName);
+    let best = 0;
+    history.forEach(h => {
+      if (excludeFids.includes(h.fid)) return;
+      (h.exercises||[]).forEach(e => { if (aliases.includes(normalizeExName(e.name))) { const v = sessionVolume(e); if (v > best) best = v; } });
+    });
+    return best;
+  };
+  const brokenRecords = [];
+  merged.forEach(ex => {
+    const newVol = sessionVolume(ex);
+    if (newVol <= 0) return;
+    const prevBest = maxSessionVolumeExcluding(ex.name, [target.fid, fid]);
+    if (newVol > prevBest) brokenRecords.push({ name: ex.name, oldVal: prevBest, newVal: newVol });
+  });
+
   showSync(true);
   try {
     // Update target with merged exercises
@@ -2665,12 +2763,41 @@ window.offerMergeEntry = async (fid) => {
     history = history.filter(h => h.fid !== fid);
     showSync(false);
     renderHistory();
-    showToast('✅ Entrenos unificados');
+    if (brokenRecords.length > 0) {
+      showMergeSummary(brokenRecords);
+    } else {
+      showToast('✅ Entrenos unificados');
+    }
   } catch(e) {
     showSync(false);
     showToast('Error al unificar');
     console.error(e);
   }
+};
+
+// Screenshot-friendly full-screen summary shown after a same-day "combinar entrenos"
+// merge, only when the combine itself surfaced at least one broken record.
+window.showMergeSummary = (brokenRecords) => {
+  let el = document.getElementById('merge-summary-overlay');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'merge-summary-overlay';
+    document.body.appendChild(el);
+  }
+  el.style.cssText = 'position:fixed;inset:0;z-index:99998;background:radial-gradient(circle at 50% 20%,#1a1a1a,#0d0d0d 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-sizing:border-box';
+  const rows = brokenRecords.map(r => `
+    <div style="background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:14px 16px;margin-bottom:10px;width:100%;max-width:360px;box-sizing:border-box">
+      <div style="font-size:13px;font-weight:700;color:#fff">${r.name}</div>
+      <div style="font-size:13px;color:#888;margin-top:4px">${Math.round(r.oldVal).toLocaleString()}kg <span style="color:#444">→</span> <span style="color:var(--accent,#E83535);font-weight:700">${Math.round(r.newVal).toLocaleString()}kg</span> vol.</div>
+    </div>`).join('');
+  el.innerHTML = `
+    <div style="font-size:44px;line-height:1">🏆</div>
+    <div style="font-size:22px;font-weight:700;color:#fff;margin-top:10px;text-align:center">${brokenRecords.length} récord${brokenRecords.length>1?'s':''} roto${brokenRecords.length>1?'s':''} hoy</div>
+    <div style="font-size:12px;color:#666;margin-top:4px;margin-bottom:18px;text-align:center">Al unificar el entreno, estos ejercicios superaron su volumen total anterior</div>
+    <div style="width:100%;display:flex;flex-direction:column;align-items:center;max-height:50vh;overflow-y:auto">${rows}</div>
+    <button class="summary-close" onclick="document.getElementById('merge-summary-overlay').remove()" style="margin-top:22px;padding:12px 28px;background:var(--accent,#E83535);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Cerrar</button>
+  `;
+  if (typeof fireConfetti === 'function') fireConfetti();
 };
 
 window.deleteHistEntry = async (fid) => {
@@ -3029,7 +3156,7 @@ let _periodicSyncAttempted = false;
 async function checkAndNotifyReminders(force) {
   if (!profile || !profile.reminders || !profile.reminders.enabled) return;
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
-  if (!_periodicSyncAttempted) { _periodicSyncAttempted = true; registerPeriodicSyncBestEffort(); }
+  if (!_periodicSyncAttempted) { _periodicSyncAttempted = true; registerPeriodicSyncBestEffort(); registerFcmToken(); }
   const days = profile.reminders.days || 4;
   const neglected = computeNeglectedMuscles(days);
 
@@ -3056,6 +3183,23 @@ async function checkAndNotifyReminders(force) {
     reg.showNotification(title, { body, icon: '/Gymlog/icons/icon-192x192.png', badge: '/Gymlog/icons/icon-192x192.png', tag: 'muscle-reminder' });
   } catch(e) {
     try { new Notification(title, { body }); } catch(e2) {}
+  }
+}
+
+// Real push notifications (Firebase Cloud Messaging) — these work even with the app
+// fully closed, sent by the checkMuscleReminders Cloud Function on the backend.
+async function registerFcmToken() {
+  if (!messaging) return;
+  if (!VAPID_KEY || VAPID_KEY === 'PEGAR_ACA_LA_VAPID_KEY') return; // not configured yet
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if (token && profile && profile.fcmToken !== token) {
+      profile.fcmToken = token;
+      await saveProfileDB();
+    }
+  } catch (e) {
+    console.error('No se pudo obtener el token de notificaciones push:', e);
   }
 }
 
@@ -3313,11 +3457,12 @@ function renderBig3Charts() {
     if (existingChart) existingChart.destroy();
 
     if (!sessions.length) return;
+    const _bc = window._chartColor || '#E83535';
     new Chart(canvasEl, {
       type: 'line',
       data: {
         labels: sessions.map(s => s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
-        datasets: [{ data: sessions.map(s => s.val), borderColor:'#E83535', backgroundColor:'rgba(232,53,53,0.08)', pointBackgroundColor:'#E83535', pointRadius:4, tension:0.35, fill:true }]
+        datasets: [{ data: sessions.map(s => s.val), borderColor:_bc, backgroundColor:_bc+'14', pointBackgroundColor:_bc, pointRadius:4, tension:0.35, fill:true }]
       },
       options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
         scales:{
@@ -3341,9 +3486,10 @@ function renderWeeklyChart() {
       .reduce((a,h) => a + h.exercises.reduce((b,e) => b + e.series.reduce((c,s) => c+(s.reps*s.kg),0),0), 0);
     weeks.push({ label: weekStart.toLocaleDateString('es-AR',{day:'numeric',month:'short'}), vol: Math.round(vol) });
   }
+  const _wc = window._chartColor || '#E24B4A';
   weeklyChart = new Chart(document.getElementById('weeklyChart'), {
     type:'bar',
-    data:{ labels: weeks.map(w=>w.label), datasets:[{ data: weeks.map(w=>w.vol), backgroundColor:'rgba(226,75,74,0.7)', borderRadius:6, borderSkipped:false }]},
+    data:{ labels: weeks.map(w=>w.label), datasets:[{ data: weeks.map(w=>w.vol), backgroundColor:_wc+'B3', borderRadius:6, borderSkipped:false }]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
       scales:{ x:{ticks:{font:{size:10},color:'#7a7870'},grid:{display:false}}, y:{ticks:{font:{size:10},color:'#7a7870',callback:v=>Math.round(v).toLocaleString()+'kg'},grid:{color:'rgba(0,0,0,0.04)'}} } }
   });
@@ -3352,10 +3498,11 @@ function renderWeeklyChart() {
 function renderPesoChart(entries) {
   if (pesoChart) { try { pesoChart.destroy(); } catch(e) {} pesoChart = null; }
   if (!entries||!entries.length) return;
+  const _pc = window._chartColor || '#3B7BE8';
   pesoChart = new Chart(document.getElementById('pesoChart'), {
     type:'line',
     data:{ labels: entries.map(e=>new Date(e.date).toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
-      datasets:[{data:entries.map(e=>Math.round((e.peso||0)*10)/10),borderColor:'#3B7BE8',backgroundColor:'rgba(59,123,232,0.08)',pointBackgroundColor:'#3B7BE8',pointRadius:4,tension:0.35,fill:true}]},
+      datasets:[{data:entries.map(e=>Math.round((e.peso||0)*10)/10),borderColor:_pc,backgroundColor:_pc+'14',pointBackgroundColor:_pc,pointRadius:4,tension:0.35,fill:true}]},
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
       scales:{ x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false,color:'rgba(255,255,255,0.04)'}}, y:{ticks:{font:{size:10},color:'#555',precision:1,callback:v=>parseFloat(v.toFixed(1))+'kg'},grid:{color:'rgba(255,255,255,0.06)'},grace:'5%'} } }
   });
@@ -3389,11 +3536,16 @@ window.renderProgressChart = () => {
     .filter(h => (h.exercises||[]).some(e => getAliases(exName).includes(normalizeExName(e.name))))
     .map(h => {
       const ex = h.exercises.find(e => getAliases(exName).includes(normalizeExName(e.name)));
-      let val;
+      let val, repsAtVal = 0;
       if (isTime) val = Math.max(...ex.series.map(s=>parseInt(s.secs)||0), 0);
       else if (isBW) val = Math.max(...ex.series.map(s=>parseInt(s.reps)||0), 0);
-      else val = Math.max(...ex.series.map(s=>parseFloat(s.kg)||0), 0);
-      return { date: new Date(h.date), val };
+      else {
+        // Take the heaviest set of the session and its reps (used for 1RM estimate too)
+        let bestKg = 0, bestReps = 0;
+        ex.series.forEach(s => { const kg=parseFloat(s.kg)||0, reps=parseInt(s.reps)||0; if (kg>=bestKg) { bestKg=kg; bestReps=reps; } });
+        val = bestKg; repsAtVal = bestReps;
+      }
+      return { date: new Date(h.date), val, reps: repsAtVal };
     })
     .sort((a,b) => a.date-b.date);
 
@@ -3431,21 +3583,51 @@ window.renderProgressChart = () => {
   const hint = document.getElementById('progressChart-hint');
   if (hint) hint.style.display = neededWidth > containerWidth ? 'block' : 'none';
 
+  const toggleRow = document.getElementById('chart-toggle-row');
+  const canWeighted = !isTime && !isBW;
+  const chartColor = (window._chartColor) || '#E24B4A';
+  const datasets = [
+    { label:'Peso', data:sessions.map(s=>s.val), borderColor:chartColor, backgroundColor:chartColor+'14', pointBackgroundColor:chartColor, pointRadius:4, tension:0.35, fill:true, yAxisID:'y', hidden:false }
+  ];
+  if (canWeighted) {
+    const oneRmChecked = document.getElementById('chart-toggle-1rm')?.checked;
+    const repsChecked = document.getElementById('chart-toggle-reps')?.checked;
+    datasets.push({ label:'1RM estimado', data:sessions.map(s=>Math.round(s.val*(1+(s.reps||0)/30)*10)/10), borderColor:'#3B7BE8', backgroundColor:'rgba(59,123,232,0.08)', pointBackgroundColor:'#3B7BE8', pointRadius:3, tension:0.35, fill:false, yAxisID:'y', hidden: !oneRmChecked });
+    datasets.push({ label:'Reps', data:sessions.map(s=>s.reps||0), borderColor:'#E8A23B', backgroundColor:'rgba(232,162,59,0.08)', pointBackgroundColor:'#E8A23B', pointRadius:3, tension:0.35, fill:false, yAxisID:'y1', hidden: !repsChecked });
+    if (toggleRow) toggleRow.style.display = 'block';
+  } else if (toggleRow) toggleRow.style.display = 'none';
+
   progressChart = new Chart(document.getElementById('progressChart'), {
     type:'line',
     data:{
       labels: sessions.map(s=>s.date.toLocaleDateString('es-AR',{day:'numeric',month:'short'})),
-      datasets:[{data:sessions.map(s=>s.val),borderColor:'#E24B4A',backgroundColor:'rgba(226,75,74,0.08)',pointBackgroundColor:'#E24B4A',pointRadius:4,tension:0.35,fill:true}]
+      datasets
     },
     options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
       scales:{
         x:{ticks:{font:{size:10},color:'#555',maxRotation:30},grid:{display:false}},
-        y:{ticks:{font:{size:10},color:'#555',callback:v=>Math.round(v)+unit},grid:{color:'rgba(255,255,255,0.06)'}}
+        y:{ticks:{font:{size:10},color:'#555',callback:v=>Math.round(v)+unit},grid:{color:'rgba(255,255,255,0.06)'}},
+        y1:{display:false,position:'right',grid:{display:false}}
       }
     }
   });
   // Jump the scroll to the most recent (right-hand) data by default
   if (wrap) wrap.scrollLeft = wrap.scrollWidth;
+};
+
+window.toggleChartMenu = () => {
+  const m = document.getElementById('chart-menu');
+  if (!m) return;
+  m.style.display = m.style.display === 'none' ? 'block' : 'none';
+};
+document.addEventListener('click', (e) => {
+  const m = document.getElementById('chart-menu');
+  if (m && m.style.display !== 'none' && !m.contains(e.target) && e.target.id !== 'chart-menu-btn') m.style.display = 'none';
+});
+window.toggleChartLine = (idx, checked) => {
+  if (!progressChart || !progressChart.data.datasets[idx]) return;
+  progressChart.data.datasets[idx].hidden = !checked;
+  progressChart.update();
 };
 
 /* ── NUTRICIÓN ── */
@@ -3797,8 +3979,13 @@ function renderProfile() {
   }
   const accent = profile.accentColor || '#E83535';
   applyAccent(accent);
-  document.querySelectorAll('.color-swatch').forEach(s => {
+  document.querySelectorAll('#color-palette .color-swatch').forEach(s => {
     s.classList.toggle('selected', s.dataset.color === accent);
+  });
+  const chartCol = profile.chartColor || accent;
+  applyChartColor(chartCol);
+  document.querySelectorAll('#chart-color-palette .color-swatch').forEach(s => {
+    s.classList.toggle('selected', s.dataset.color === chartCol);
   });
   // Init level mode buttons
   const savedMode = profile.levelMode || 'classic';
