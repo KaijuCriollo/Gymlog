@@ -23,14 +23,14 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   --red:#E83535;--red-light:rgba(232,53,53,0.18);--red-dark:#ff6b6b;
   --green:#22c97a;--green-light:rgba(34,201,122,0.15);--green-dark:#22c97a;
   --blue:#5b9cf6;--blue-light:rgba(91,156,246,0.15);--blue-dark:#93bfff;
-  --orange:#f0a04b;--orange-light:rgba(240,160,75,0.15);
+  --orange:#2c241b;--orange-light:rgba(240,160,75,0.15);
   --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--border:#2e2e2e;
   --text:#f0ede8;--muted:#9a9790;--subtle:#555250;
   --radius:14px;--radius-sm:10px;
 }
 
 /* ── AUTH ── */
-.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100vh;height:100dvh;padding:24px;padding-bottom:40px;background-color:#0d0d0d;background-image:linear-gradient(transparent 0,transparent min(38vh,320px),#0d0d0d calc(min(38vh,320px) + 36px),#0d0d0d 100%),url('/Gymlog/kaishu-login-bg.jpg');background-size:auto min(38vh,320px);background-repeat:no-repeat;background-position:top center;position:relative;overflow:hidden}
+.auth-screen{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100vh;height:100dvh;padding:24px;padding-bottom:40px;background-color:#0d0d0d;background-image:linear-gradient(transparent 0,transparent min(56vh,460px),#0d0d0d calc(min(56vh,460px) + 36px),#0d0d0d 100%),url('/Gymlog/kaishu-login-bg.jpg');background-size:auto min(56vh,460px);background-repeat:no-repeat;background-position:top center;position:relative;overflow:hidden}
 .auth-box{background:#1e1e1e;border:1px solid #2e2e2e;border-radius:var(--radius);padding:28px 24px;width:100%;max-width:360px;position:relative;z-index:1;box-shadow:0 4px 32px rgba(0,0,0,0.5)}
 .auth-logo{font-size:26px;font-weight:700;letter-spacing:-0.5px;color:#fff;text-align:center;margin-bottom:4px}
 .auth-logo span{color:var(--red)}
@@ -396,7 +396,6 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
   <!-- Default state (new user): logo/tagline text removed, they're baked into the background photo already -->
   <div id="auth-logo-wrap" style="position:relative;z-index:1;flex:1"></div>
-  <div style="position:relative;z-index:1;font-size:9px;color:rgba(255,255,255,0.25);font-family:'DM Mono',monospace;letter-spacing:1px;text-align:center;margin-bottom:4px">v1.14</div>
 
   <script>
   // Auth preview — runs immediately before module loads
