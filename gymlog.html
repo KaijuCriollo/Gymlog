@@ -23,7 +23,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   --red:#E83535;--red-light:rgba(232,53,53,0.18);--red-dark:#ff6b6b;
   --green:#22c97a;--green-light:rgba(34,201,122,0.15);--green-dark:#22c97a;
   --blue:#5b9cf6;--blue-light:rgba(91,156,246,0.15);--blue-dark:#93bfff;
-  --orange:#2c241b;--orange-light:rgba(240,160,75,0.15);
+  --orange:#f0a04b;--orange-light:rgba(240,160,75,0.15);
   --bg:#0d0d0d;--surface:#161616;--surface2:#1e1e1e;--border:#2e2e2e;
   --text:#f0ede8;--muted:#9a9790;--subtle:#555250;
   --radius:14px;--radius-sm:10px;
@@ -866,7 +866,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
         <button class="profile-save-btn" onclick="saveProfile()">Guardar perfil</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.14</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.15</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -1527,11 +1527,26 @@ function offerRestoreDraft(draft) {
   const ageHours = (Date.now() - draft.ts) / 3600000;
   if (ageHours > 48) { clearDraft(); return; }
 
-  // Always restore silently — no popup
+  // Always restore silently — no popup.
+  // Match by id first (most stable — survives a Firestore re-fetch reordering fids),
+  // then fid, then name+muscle as a last resort.
+  // Merge rule: only pull the draft's series over the live ones when the LIVE copy has
+  // fewer completed sets than the draft — this is what recovers a set that got wiped by
+  // Android killing the backgrounded tab (forcing a full reload from Firestore before the
+  // last saveEx() write landed) without ever clobbering real newer progress.
+  let restoredAny = false;
   draft.exercises.forEach(draftEx => {
-    const live = exercises.find(e => e.fid === draftEx.fid || (e.name === draftEx.name && e.muscle === draftEx.muscle));
-    if (live) live.series = draftEx.series;
+    const live = exercises.find(e =>
+      (draftEx.id != null && e.id === draftEx.id) ||
+      (draftEx.fid && e.fid === draftEx.fid) ||
+      (e.name === draftEx.name && e.muscle === draftEx.muscle)
+    );
+    if (!live) return;
+    const draftDone = (draftEx.series||[]).filter(s=>s.done).length;
+    const liveDone = (live.series||[]).filter(s=>s.done).length;
+    if (draftDone > liveDone) { live.series = draftEx.series; restoredAny = true; }
   });
+  if (!restoredAny) return;
   currentMood = draft.mood;
   if (draft.workoutNote && document.getElementById('workout-note')) {
     document.getElementById('workout-note').value = draft.workoutNote;
@@ -1543,6 +1558,20 @@ function offerRestoreDraft(draft) {
   renderMoods();
   exercises.filter(ex => ex.fid).forEach(ex => saveEx(ex));
 }
+
+// Re-check the local draft whenever the app is (re)shown — not just at boot. Covers the
+// case where Android killed the backgrounded tab for memory and the "reopen" is actually a
+// full page reload that happens while the app is hidden: visibilitychange never fires
+// "visible" on the dead page, but pageshow/visibilitychange on the NEW page load does.
+function checkAndRestoreDraft() {
+  if (!currentUser || !exercises.length) return;
+  const draft = loadDraft();
+  if (draft) offerRestoreDraft(draft);
+}
+window.addEventListener('pageshow', () => setTimeout(checkAndRestoreDraft, 400));
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') setTimeout(checkAndRestoreDraft, 400);
+});
 
 async function initDefaults() {
   const defs = [
@@ -2384,7 +2413,11 @@ window.saveWorkout = async () => {
       if (kg > prs.kg) {
         sessionPRs.push(`🏆 ${ex.name}: ${kg}kg (nuevo máximo)`);
       } else if (kg === prs.kg && reps > (prs.bestKgReps||0)) {
-        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps (+${reps-(prs.bestKgReps||0)} reps)`);
+        // Only show a "+N reps" delta when there's a real previous best set at this same
+        // weight to compare against — otherwise (prs.bestKgReps === 0) the subtraction was
+        // showing the set's TOTAL reps disguised as an increase, which is misleading.
+        const deltaTxt = prs.bestKgReps > 0 ? ` (+${reps-prs.bestKgReps} reps)` : '';
+        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps${deltaTxt}`);
       } else if (bestOrm > prevOrm) {
         sessionPRs.push(`🏆 ${ex.name}: 1RM ~${Math.round(bestOrm*10)/10}kg`);
       }
@@ -4567,7 +4600,8 @@ function detectLastSessionPRs() {
       if (kg > (prevPR.kg||0)) {
         sessionPRs.push(`🏆 ${ex.name}: ${kg}kg (nuevo máximo)`);
       } else if (kg === prevPR.kg && reps > (prevPR.bestKgReps||0)) {
-        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps (+${reps-(prevPR.bestKgReps||0)} reps)`);
+        const deltaTxt = prevPR.bestKgReps > 0 ? ` (+${reps-prevPR.bestKgReps} reps)` : '';
+        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps${deltaTxt}`);
       } else if (bestOrm > prevOrm) {
         sessionPRs.push(`🏆 ${ex.name}: 1RM ~${Math.round(bestOrm*10)/10}kg`);
       }
@@ -5189,6 +5223,27 @@ window.wmToggleDone = (exId, idx) => {
     renderWorkoutMode();
     // Start timer when marking done
     if (!wasDone) startWmTimer(90);
+    // Same PR-detection + confetti as the regular Hoy screen (toggleDone) — was missing here.
+    if (!wasDone && ex.series[idx].done) {
+      const serie = ex.series[idx];
+      const prs = getAllPRs(ex.name);
+      const type = ex.type || 'normal';
+      let isPR = false;
+      if (type === 'time' && (parseInt(serie.secs)||0) > prs.secs) isPR = true;
+      else if ((type==='bw_lastre'||type==='bw') && (parseInt(serie.reps)||0) > prs.reps) isPR = true;
+      else if (type==='normal') {
+        const kg = parseFloat(serie.kg)||0;
+        const reps = parseInt(serie.reps)||0;
+        if (kg > prs.kg) isPR = true;
+        else if (kg === prs.kg && reps > (prs.bestKgReps||0)) isPR = true;
+        else if (kg > 0 && reps > 0 && prs.kg > 0) {
+          const newOrm = kg * (1 + reps/30);
+          const prevOrm = prs.kg * (1 + (prs.bestKgReps||0)/30);
+          if (newOrm > prevOrm) isPR = true;
+        }
+      }
+      if (isPR) setTimeout(fireConfetti, 150);
+    }
   }
 };
 
