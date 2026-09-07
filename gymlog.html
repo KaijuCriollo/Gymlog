@@ -56,6 +56,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;position:relative;z-index:1}
 .app-title{font-size:20px;font-weight:700;letter-spacing:-0.5px;color:#fff}
 .app-title span{color:#fff;opacity:0.85}
+.app-title .app-title-gym{color:#000;opacity:1}
 .header-right{display:flex;align-items:center;gap:8px}
 .streak-badge{background:rgba(0,0,0,0.25);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px}
 .avatar-btn{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,0.4);background:rgba(0,0,0,0.2);cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:14px}
@@ -102,9 +103,6 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .check-btn.done{background:rgba(34,201,122,0.2);border-color:#22c97a}
 .check-btn.done svg{stroke:#22c97a}
 .bw-note{font-size:11px;color:#93bfff;background:rgba(91,156,246,0.12);border-radius:6px;padding:4px 8px;margin-bottom:8px;display:flex;align-items:center;gap:4px;font-weight:600}
-.ex-note-wrap{margin-top:10px;border-top:1px solid var(--border);padding-top:10px}
-.note-textarea{width:100%;padding:8px 10px;border:1px solid #333;border-radius:var(--radius-sm);font-size:13px;font-family:'DM Sans',sans-serif;color:#f0ede8;background:#111;resize:none;outline:none;min-height:56px}
-.note-textarea::placeholder{color:var(--subtle)}
 .add-series-btn{width:100%;margin-top:6px;padding:7px;background:none;border:1.5px dashed #333;border-radius:var(--radius-sm);font-size:13px;color:#666;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'DM Sans',sans-serif;font-weight:600}
 .del-btn{margin-top:8px;float:right;background:none;border:none;font-size:12px;color:var(--subtle);cursor:pointer;font-family:'DM Sans',sans-serif}
 .clearfix::after{content:'';display:table;clear:both}
@@ -499,7 +497,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
   <div class="header">
     <div class="header-inner">
-      <div class="app-title">Kaishu<span>GymLog</span> <span class="sync-dot" id="sync-dot"></span></div>
+      <div class="app-title">Kaishu<span class="app-title-gym">Gym</span><span>Log</span> <span class="sync-dot" id="sync-dot"></span></div>
       <div class="header-right">
         <div class="streak-badge" id="streak-badge">🔥 0 días</div>
         <div class="avatar-btn" id="avatar-btn" onclick="switchTab('perfil',document.querySelector('[data-tab=perfil]'))">🏋️</div>
@@ -866,7 +864,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
         <button class="profile-save-btn" onclick="saveProfile()">Guardar perfil</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.15</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.17</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -911,7 +909,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <option value="Hombros">Hombros</option><option value="Bíceps">Bíceps</option>
       <option value="Tríceps">Tríceps</option><option value="Cuádriceps">Cuádriceps</option>
       <option value="Glúteos">Glúteos</option><option value="Piernas">Piernas</option>
-      <option value="Abdominales">Abdominales</option><option value="Core">Core</option>
+      <option value="Core">Core</option>
       <option value="Cardio">Cardio</option>
     </select>
     <div class="field-label">Tipo</div>
@@ -952,7 +950,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <option value="Hombros">Hombros</option><option value="Bíceps">Bíceps</option>
       <option value="Tríceps">Tríceps</option><option value="Cuádriceps">Cuádriceps</option>
       <option value="Glúteos">Glúteos</option><option value="Piernas">Piernas</option>
-      <option value="Abdominales">Abdominales</option><option value="Core">Core</option>
+      <option value="Core">Core</option>
       <option value="Cardio">Cardio</option>
     </select>
     <div class="field-label">Tipo</div>
@@ -1130,7 +1128,29 @@ let messaging = null;
 try { messaging = getMessaging(fbApp); } catch(e) { /* no soportado en este navegador */ }
 
 const MOODS = ['💪 Excelente','😊 Bien','😐 Regular','😓 Cansado','🤒 Me sentí mal'];
-const MUSCLES = ['Ahora','Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Cuádriceps','Glúteos','Piernas','Core','Cardio']; // Todos hidden in UI
+// Top-level filter pills. "Cuádriceps"/"Glúteos"/"Abdominales" are intentionally NOT
+// separate pills — they're sub-muscles nested under "Piernas"/"Core" (see MUSCLE_GROUPS
+// below): you can still tag a new exercise with the specific sub-muscle in the "Agregar
+// ejercicio" modal, but browsing/filtering groups them under their parent.
+const MUSCLES = ['Ahora','Todos','Pecho','Espalda','Hombros','Bíceps','Tríceps','Piernas','Core','Cardio']; // Todos hidden in UI
+// Parent muscle -> sub-muscles it absorbs when filtering/matching. A parent always
+// matches itself too (handled by muscleMatchesFilter below).
+const MUSCLE_GROUPS = {
+  'Piernas': ['Piernas','Cuádriceps','Glúteos'],
+  'Core': ['Core','Abdominales'],
+};
+// True if an exercise tagged `exMuscle` should show up under filter pill `filterMuscle`.
+function muscleMatchesFilter(exMuscle, filterMuscle) {
+  if (exMuscle === filterMuscle) return true;
+  const group = MUSCLE_GROUPS[filterMuscle];
+  return !!(group && group.includes(exMuscle));
+}
+// Canonical parent group for a stored muscle value (used for dedup/analysis so
+// "Cuádriceps" and "Piernas" count as the same bucket even though the specific tag differs).
+function muscleGroupOf(m) {
+  for (const parent in MUSCLE_GROUPS) { if (MUSCLE_GROUPS[parent].includes(m)) return parent; }
+  return m;
+}
 const BW_MUSCLES = ['Abdominales','Core'];
 const BW_LASTRE = ['Espalda']; // dominadas default
 
@@ -1422,11 +1442,15 @@ async function loadUserData() {
     // Progress photos live in their own subcollection — never in the profile doc itself
     profile.progressPhotos = photosSnap.docs.map(d => d.data()).sort((a,b) => (b.month||'').localeCompare(a.month||''));
     if (exercises.length === 0) await initDefaults();
-    // Auto-deduplicate exercises (keep first occurrence by name+muscle)
+    // Auto-deduplicate exercises (keep first occurrence by canonical name+muscle group).
+    // Uses the same normalizeExName()/getAliases() canonicalization as PR/stat matching
+    // and groups sub-muscles (Cuádriceps/Glúteos under Piernas, Abdominales under Core) so
+    // "Silla cuadriceps" tagged Piernas and "Silla Cuádriceps" tagged Cuádriceps collapse
+    // into one catalog entry instead of showing as two separate cards.
     const seen = {};
     const toDelete = [];
     exercises.forEach(ex => {
-      const key = (ex.name||'').toLowerCase().trim() + '_' + (ex.muscle||'');
+      const key = getAliases(ex.name)[0] + '_' + muscleGroupOf(ex.muscle||'');
       if (seen[key]) { toDelete.push(ex); }
       else seen[key] = true;
     });
@@ -1607,12 +1631,42 @@ async function initDefaults() {
   exercises = [...defs];
 }
 
+// ── Write queue: serializes Firestore writes per exercise doc ──
+// saveEx() is called fire-and-forget from every set toggle / input change, often several
+// times per second while logging a workout. Two overlapping setDoc() calls to the SAME
+// document race on the network — there is no guarantee the request sent first arrives
+// first. Since each write is a full overwrite (not merge), an older/staler snapshot that
+// happens to land AFTER a newer one silently reverts completed sets to an earlier state,
+// with no reload, no error, nothing visible in the tab that caused it (the local
+// `exercises` array is untouched — only the remote copy gets corrupted, so it only shows
+// up next time that exercise is fetched from Firestore). This queue guarantees writes to
+// the same fid are strictly serialized and always converge to the LATEST local snapshot,
+// coalescing away any stale intermediate state instead of letting it race to the server.
+const _saveExInFlight = {};   // fid -> true while a write is in progress
+const _saveExQueued = {};     // fid -> latest pending snapshot to send next
 async function saveEx(ex) {
   // ONLY update existing exercises — never create new ones
-  // New exercises are only created via addExercise() or initDefaults()
+  // New exercises are only created via addExercise(), loadRoutine() or initDefaults()
   if (!ex.fid) return; // no fid = not saved yet, skip
-  const {fid,...data} = ex;
-  await setDoc(doc(db,'users',uid(),'exercises',fid), data);
+  const fid = ex.fid;
+  const {fid: _omit, ...data} = ex;
+  _saveExQueued[fid] = data;
+  if (_saveExInFlight[fid]) return; // a write is already in flight; it will pick up the latest queued snapshot when done
+  _saveExInFlight[fid] = true;
+  try {
+    while (_saveExQueued[fid]) {
+      const toSend = _saveExQueued[fid];
+      delete _saveExQueued[fid];
+      try {
+        await setDoc(doc(db,'users',uid(),'exercises',fid), toSend);
+      } catch(e) {
+        console.warn('saveEx: write failed, will retry on next change', e);
+        break;
+      }
+    }
+  } finally {
+    _saveExInFlight[fid] = false;
+  }
 }
 async function deleteExDB(ex) { if (ex.fid) await deleteDoc(doc(db,'users',uid(),'exercises',ex.fid)); }
 async function addHistEntry(entry) { const {fid,...d} = entry; const r = await addDoc(collection(db,'users',uid(),'history'), d); entry.fid = r.id; }
@@ -1736,7 +1790,14 @@ window.setFilter = (m, el) => {
 /* ── PR HELPER ── */
 function normalizeExName(name) {
   if (!name) return '';
-  const n = name.toLowerCase().trim();
+  // Lowercase, strip accents, collapse whitespace, trim stray trailing punctuation —
+  // catches the common data-entry variants ("Silla Cuádriceps" vs "silla cuadriceps",
+  // "Plancha" vs "Plancha-") without needing a hardcoded pair for every case.
+  let n = name.toLowerCase().trim()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // strip accents
+    .replace(/\s+/g, ' ')
+    .replace(/[-_.]+$/, '')
+    .trim();
   if (n === 'press banca' || n === 'press de banca' || n === 'press banca plano') return 'press de banca';
   return n;
 }
@@ -1893,14 +1954,14 @@ function renderExercises() {
   } else if (sessionPlanActive && sessionPlan.length > 0 && currentFilter !== 'Ahora') {
     const planned = sessionPlan.map(id => exercises.find(e => e.id === id)).filter(Boolean);
     const rest = exercises.filter(e => !sessionPlan.includes(e.id) &&
-      (currentFilter === 'Todos' || e.muscle === currentFilter));
+      (currentFilter === 'Todos' || muscleMatchesFilter(e.muscle, currentFilter)));
     items = [...planned, ...rest];
   } else if (currentFilter === 'Ahora') {
     items = exercises.filter(e => e.series.some(s => s.done));
   } else if (currentFilter === 'Todos') {
     items = [...exercises];
   } else {
-    items = exercises.filter(e => e.muscle === currentFilter);
+    items = exercises.filter(e => muscleMatchesFilter(e.muscle, currentFilter));
   }
   // Sort by user-defined order first, then by completion status
   if (currentFilter !== 'Ahora') {
@@ -2043,7 +2104,7 @@ function buildExCard(ex) {
     ? exercises.filter(e => e.series && e.series.some(s => s.done))
     : currentFilter === 'Todos'
     ? exercises
-    : exercises.filter(e => e.muscle === currentFilter);
+    : exercises.filter(e => muscleMatchesFilter(e.muscle, currentFilter));
   const exIdx = filteredList.findIndex(e => e.id === ex.id);
   const exTotal = filteredList.length;
   return `<div class="card" id="card-${ex.id}">
@@ -2065,13 +2126,6 @@ function buildExCard(ex) {
       ${bodyContent}
       <button class="add-series-btn" onclick="addSeries(${ex.id})">+ Agregar serie</button>
       ${ex.series.length > 1 ? `<button class="add-series-btn" style="border-color:#E83535;color:#E83535;margin-top:4px" onclick="removeSerie(${ex.id})">− Quitar última serie</button>` : ''}
-      <div class="ex-note-wrap">
-        <div style="display:flex;align-items:center;gap:8px">
-          <button onclick="event.stopPropagation();toggleExNoteBox(${ex.id})" id="note-toggle-${ex.id}" title="Comentario" style="flex-shrink:0;width:28px;height:28px;border-radius:50%;border:1px solid ${ex.note ? 'var(--accent,#E83535)' : '#333'};background:${ex.note ? 'rgba(232,53,53,0.12)' : '#1e1e1e'};color:${ex.note ? 'var(--accent,#E83535)' : '#777'};font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center">💬</button>
-          ${ex.note ? `<div id="note-preview-${ex.id}" onclick="event.stopPropagation();toggleExNoteBox(${ex.id})" style="font-size:11px;color:var(--subtle);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;flex:1">${ex.note}</div>` : `<div id="note-preview-${ex.id}" style="font-size:11px;color:#555">Comentario</div>`}
-        </div>
-        <textarea class="note-textarea" id="note-box-${ex.id}" placeholder="Opcional…" onchange="updateExNote(${ex.id},this.value)" style="display:none;margin-top:6px">${ex.note||''}</textarea>
-      </div>
       <div class="clearfix"><button class="del-btn" onclick="deleteEx(${ex.id})">🗑 Eliminar</button></div>
     </div>
   </div>`;
@@ -2143,7 +2197,7 @@ window.moveExToPos = (id, newIdx) => {
   // Get the filtered group this exercise belongs to
   const muscle = ex.muscle;
   const groupFilter = currentFilter === 'Todos' || currentFilter === 'Ahora' ? muscle : currentFilter;
-  const group = exercises.filter(e => e.muscle === groupFilter);
+  const group = exercises.filter(e => muscleMatchesFilter(e.muscle, groupFilter));
   const curGroupIdx = group.findIndex(e => e.id === id);
   const clamped = Math.max(0, Math.min(group.length-1, newIdx));
   if (curGroupIdx === clamped) return;
@@ -2153,10 +2207,14 @@ window.moveExToPos = (id, newIdx) => {
   group.splice(clamped, 0, moved);
 
   // Apply group order back to exercises array
-  // Keep non-group exercises in place, reorder group exercises
+  // Keep non-group exercises in place, reorder group exercises. Must use the same
+  // muscleMatchesFilter() grouping used to build `group` above (not strict equality) —
+  // otherwise a sub-muscle like Cuádriceps/Glúteos never matches groupFilter='Piernas',
+  // `gi` and the slots being overwritten fall out of sync, and exercises get scrambled
+  // into the wrong positions.
   let gi = 0;
   exercises.forEach((e, i) => {
-    if (e.muscle === groupFilter) {
+    if (muscleMatchesFilter(e.muscle, groupFilter)) {
       exercises[i] = group[gi++];
     }
   });
@@ -2175,7 +2233,11 @@ window.moveExToPos = (id, newIdx) => {
   function cardsSnapshot() {
     return [...list.querySelectorAll('.card')].map(el => {
       const r = el.getBoundingClientRect();
-      return { el, id: parseInt(el.id.replace('card-',''),10), top: r.top, height: r.height };
+      // parseFloat, not parseInt: exercises added from a routine get id = Date.now() +
+      // Math.random() (a non-integer). parseInt truncates at the decimal point, so the id
+      // read back from the DOM never matched the original float in `exercises` — every
+      // drag on a routine-loaded exercise silently failed to find it and did nothing.
+      return { el, id: parseFloat(el.id.replace('card-','')), top: r.top, height: r.height };
     });
   }
 
@@ -2252,30 +2314,6 @@ window.addSeries = (id) => {
   if (body) { body.classList.add('open'); document.getElementById('chev-'+id).classList.add('open'); }
 };
 
-window.updateExNote = (id, val) => {
-  const ex = exercises.find(e => e.id === id);
-  if (ex) {
-    ex.note = val; saveDraft(); saveEx(ex);
-    const btn = document.getElementById('note-toggle-'+id);
-    const prev = document.getElementById('note-preview-'+id);
-    if (btn) {
-      btn.style.borderColor = val ? 'var(--accent,#E83535)' : '#333';
-      btn.style.background = val ? 'rgba(232,53,53,0.12)' : '#1e1e1e';
-      btn.style.color = val ? 'var(--accent,#E83535)' : '#777';
-    }
-    if (prev) {
-      prev.textContent = val || 'Comentario';
-      prev.style.color = val ? 'var(--subtle)' : '#555';
-    }
-  }
-};
-window.toggleExNoteBox = (id) => {
-  const box = document.getElementById('note-box-'+id);
-  if (!box) return;
-  const show = box.style.display === 'none';
-  box.style.display = show ? 'block' : 'none';
-  if (show) box.focus();
-};
 
 window.deleteEx = async (id) => {
   if (!confirm('¿Eliminar este ejercicio?')) return;
@@ -2294,14 +2332,23 @@ window.addExercise = async () => {
   if (!name) return;
   const muscle = document.getElementById('ex-muscle-inp').value;
   const type = document.getElementById('ex-type-inp').value;
-  // Block duplicate: same name + same muscle
+  // Block duplicate: same canonical name + same muscle group (catches accent/casing/
+  // wording variants like "Press banca" vs "Press de banca", or the same exercise tagged
+  // under a different sub-muscle of the same group, e.g. Piernas vs Cuádriceps)
   const dup = exercises.find(e =>
-    e.name.toLowerCase().trim() === name.toLowerCase().trim() && e.muscle === muscle
+    getAliases(e.name)[0] === getAliases(name)[0] && muscleGroupOf(e.muscle) === muscleGroupOf(muscle)
   );
-  if (dup) { showToast(`Ya existe "${name}" en ${muscle}`); return; }
+  if (dup) { showToast(`Ya existe "${dup.name}" en ${dup.muscle}`); return; }
   const s0 = type === 'time' ? {secs:'30',done:false} : {reps:'10',kg:'0',done:false};
   const newEx = { id: Date.now(), name, muscle, type, note:'', series:[s0] };
-  await saveEx(newEx); exercises.push(newEx);
+  // Create the Firestore doc now — saveEx() only UPDATES existing docs (it no-ops without
+  // a fid), so without this the exercise lived only in memory/localStorage and vanished
+  // the next time exercises were fetched fresh from Firestore.
+  try {
+    const ref = await addDoc(collection(db,'users',uid(),'exercises'), newEx);
+    newEx.fid = ref.id;
+  } catch(e) { console.warn('No se pudo guardar el ejercicio nuevo', e); }
+  exercises.push(newEx);
   closeModal('modal-add-ex'); renderExercises(); showToast('Ejercicio agregado ✓');
 };
 document.getElementById('modal-add-ex').addEventListener('click', function(e){ if(e.target===this) closeModal('modal-add-ex'); });
@@ -2555,7 +2602,14 @@ window.loadRoutine = (fid) => {
   (r.exercises||[]).forEach(re => {
     if (!exercises.find(e => e.name === re.name)) {
       const newEx = { id: Date.now() + Math.random(), name: re.name, muscle: re.muscle, type: re.type||'normal', note:'', series:[re.type==='time'?{secs:'30',done:false}:{reps:'10',kg:'0',done:false}] };
-      saveEx(newEx); exercises.push(newEx); added++;
+      exercises.push(newEx); added++;
+      // Same fix as addExercise(): saveEx() only updates existing docs, so a routine
+      // exercise that isn't already in the catalog needs its Firestore doc created here —
+      // otherwise every set logged against it lives only in memory/localStorage and is
+      // gone the next time exercises are fetched fresh from Firestore.
+      addDoc(collection(db,'users',uid(),'exercises'), newEx)
+        .then(ref => { newEx.fid = ref.id; })
+        .catch(e => console.warn('No se pudo guardar el ejercicio de la rutina', e));
     }
   });
   // Activate training mode: filter today's view down to only this routine's exercises
@@ -5536,6 +5590,30 @@ window.runCoachAnalysis = async () => {
       return `${m}: ${days} días de descanso`;
     }).sort();
 
+    // Raw export data (same shape as "Exportar datos" in Perfil) — gives the coach full
+    // visibility into every session instead of just the curated highlights below, so it
+    // can do its own muscle-by-muscle analysis instead of relying on a fixed hardcoded
+    // exercise list. Strips `fid` (internal DB ids, meaningless for analysis) and caps the
+    // size defensively: if the export is huge (years of daily logs), sending it uncapped
+    // risks a request that's slow/expensive for no benefit, so we keep the most recent
+    // chunk and say so explicitly rather than silently truncating mid-JSON.
+    const stripFid = (arr) => (arr||[]).map(({fid, ...rest}) => rest);
+    let rawHistory = stripFid(history);
+    let rawNutricion = stripFid(nutricion);
+    let truncatedNote = '';
+    const RAW_DATA_CHAR_CAP = 180000;
+    let rawJson = JSON.stringify({ history: rawHistory, nutricion: rawNutricion });
+    if (rawJson.length > RAW_DATA_CHAR_CAP) {
+      // Keep trimming from the oldest end until it fits, most recent sessions first
+      let keep = rawHistory.length;
+      while (keep > 10 && JSON.stringify({ history: rawHistory.slice(0, keep), nutricion: rawNutricion }).length > RAW_DATA_CHAR_CAP) {
+        keep = Math.floor(keep * 0.8);
+      }
+      rawHistory = rawHistory.slice(0, keep);
+      rawJson = JSON.stringify({ history: rawHistory, nutricion: rawNutricion });
+      truncatedNote = ` (mostrando las ${keep} sesiones más recientes de ${history.length} totales — se recortó por tamaño)`;
+    }
+
     const nl = '\n';
     const prompt = 'Sos un entrenador personal profesional y nutricionista deportivo con 15 años de experiencia. Analizá los datos de entrenamiento de este atleta y dále consejos específicos, accionables y personalizados.' + nl + nl +
       'DATOS DEL ATLETA:' + nl +
@@ -5559,26 +5637,32 @@ window.runCoachAnalysis = async () => {
         const exs = (h.exercises||[]).map(e=>e.name).slice(0,5).join(', ');
         return date+': '+exs;
       }).join(nl) + nl + nl +
+      'DATOS CRUDOS COMPLETOS' + truncatedNote + ' (JSON de todas las sesiones — usalo para verificar/profundizar lo de arriba y para el punto 6, NO lo repitas ni lo transcribas en tu respuesta):' + nl +
+      rawJson + nl + nl +
       'Por favor analizá estos datos y dá:' + nl +
       '1. Evaluación general (2-3 oraciones sobre el estado actual)' + nl +
       '2. Puntos fuertes (qué está haciendo bien)' + nl +
       '3. Áreas de mejora (máximo 3, específicas y accionables)' + nl +
       '4. Recomendación de la semana (una acción concreta para esta semana)' + nl +
-      '5. Proyección (si sigue así, qué puede esperar en 4-6 semanas)' + nl + nl +
-      'Respondé en español, tono profesional pero motivador. Usá emojis moderadamente. Máximo 400 palabras.';
+      '5. Proyección (si sigue así, qué puede esperar en 4-6 semanas)' + nl +
+      '6. Nivel por grupo muscular: para Pecho, Espalda, Piernas y Hombros, elegí vos (en base a los datos crudos) 1-2 ejercicios representativos de cada grupo, mirá el peso más pesado levantado, y clasificá cada grupo como principiante / intermedio / avanzado según estándares de fuerza relativos al peso corporal del atleta. Una línea por grupo, formato "Grupo: Nivel (ejercicio de referencia, Xkg)".' + nl + nl +
+      'Respondé en español, tono profesional pero motivador. Usá emojis moderadamente. Sé breve y ceñite estrictamente a los 6 puntos pedidos, sin listar ni citar las sesiones una por una — máximo 450 palabras en total, sin importar cuántos datos crudos recibiste arriba.';
 
     const response = await fetch('https://red-breeze-da1d.alexisruffa0.workers.dev', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 1000,
+        max_tokens: 1600,
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
     const data = await response.json();
     const text = data.content?.[0]?.text || 'No se pudo obtener el análisis.';
+    // If the model ran out of room mid-answer, say so instead of silently showing a
+    // response that just stops — this is the failure mode sending the full raw data risks.
+    const cutOff = data.stop_reason === 'max_tokens';
 
     // Render result
     const formatted = text
@@ -5602,6 +5686,7 @@ window.runCoachAnalysis = async () => {
     result.innerHTML = '<div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:14px;padding:18px;margin-bottom:12px">'
       + '<div style="font-size:10px;font-weight:700;color:#555;letter-spacing:0.5px;margin-bottom:12px">📊 ANÁLISIS — ' + today.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'}) + '</div>'
       + '<div style="font-size:13px;color:#ddd;line-height:1.8">' + rendered + '</div>'
+      + (cutOff ? '<div style="margin-top:10px;font-size:11px;color:#f0a04b">⚠️ La respuesta se cortó por longitud — probá de nuevo, o preguntale al coach lo que falta abajo.</div>' : '')
       + '</div>'
       + '<div style="background:#1a1a1a;border:1px solid #2e2e2e;border-radius:14px;padding:14px;margin-bottom:12px">'
       + '<div style="font-size:11px;font-weight:700;color:#555;margin-bottom:8px">💬 HACÉ UNA PREGUNTA AL COACH</div>'
