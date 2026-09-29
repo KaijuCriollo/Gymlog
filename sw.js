@@ -1,4 +1,9 @@
-const CACHE_NAME = 'kaijugymlog-v6';
+// v7 (con gymlog v1.18): el HTML de la app pasa a "network-first". Hasta v6 todo era
+// cache-first y CACHE_NAME no se tocaba desde el 28/08, así que el teléfono podía seguir
+// sirviendo la versión de gymlog.html cacheada ese día aunque se subieran versiones nuevas.
+// Desde ahora cada deploy de gymlog.html llega solo en la próxima apertura (con señal);
+// solo hace falta subir CACHE_NAME si cambian íconos/fuentes/imágenes.
+const CACHE_NAME = 'kaijugymlog-v7';
 const BASE = '/Gymlog';
 
 /* ── FIREBASE CLOUD MESSAGING (push real, funciona con la app cerrada) ──
@@ -64,6 +69,29 @@ self.addEventListener('fetch', e => {
     return;
   }
 
+  if (e.request.method !== 'GET') return;
+
+  // The app page itself: network-first with a short timeout, cached copy as fallback
+  // (bad gym signal / offline still opens instantly-ish).
+  const isAppPage = url.origin === self.location.origin &&
+    (url.pathname === BASE + '/gymlog.html' || url.pathname === BASE + '/');
+  if (isAppPage) {
+    const key = BASE + '/gymlog.html';
+    e.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const net = fetch(url.href, { cache: 'no-store' })
+        .then(r => { if (r && r.ok && !r.redirected) cache.put(key, r.clone()); return r; })
+        .catch(() => null);
+      const first = await Promise.race([net, new Promise(res => setTimeout(() => res(null), 4000))]);
+      if (first && first.ok && !first.redirected) return first;
+      const cached = await cache.match(key);
+      if (cached) return cached;
+      return (await net) || Response.error();
+    })());
+    return;
+  }
+
+  // Everything else (icons, fonts, Chart.js, login image): cache-first as before.
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
