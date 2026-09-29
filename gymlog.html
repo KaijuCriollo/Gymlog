@@ -57,6 +57,12 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .app-title{font-size:20px;font-weight:700;letter-spacing:-0.5px;color:#fff}
 .app-title span{color:#fff;opacity:0.85}
 .app-title .app-title-gym{color:#000;opacity:1}
+.save-status{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;margin-left:6px;vertical-align:middle;border:none;border-radius:50%;background:rgba(0,0,0,0.22);color:#fff;cursor:pointer;padding:0;transition:background .2s,color .2s}
+.save-status[data-state="saved"]{color:rgba(255,255,255,0.85)}
+.save-status[data-state="pending"]{animation:saveBlink 1s ease-in-out infinite}
+.save-status[data-state="stuck"]{background:rgba(0,0,0,0.55);color:#FFD166}
+.save-status[data-state="error"]{background:#111;color:#ff7070}
+@keyframes saveBlink{0%,100%{opacity:1}50%{opacity:.45}}
 .header-right{display:flex;align-items:center;gap:8px}
 .streak-badge{background:rgba(0,0,0,0.25);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px}
 .avatar-btn{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,0.4);background:rgba(0,0,0,0.2);cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:14px}
@@ -497,7 +503,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 
   <div class="header">
     <div class="header-inner">
-      <div class="app-title">Kaishu<span class="app-title-gym">Gym</span><span>Log</span> <span class="sync-dot" id="sync-dot"></span></div>
+      <div class="app-title">Kaishu<span class="app-title-gym">Gym</span><span>Log</span> <span class="sync-dot" id="sync-dot"></span><button class="save-status" data-state="" onclick="explainSaveStatus()" aria-label="Estado de guardado"></button></div>
       <div class="header-right">
         <div class="streak-badge" id="streak-badge">🔥 0 días</div>
         <div class="avatar-btn" id="avatar-btn" onclick="switchTab('perfil',document.querySelector('[data-tab=perfil]'))">🏋️</div>
@@ -864,7 +870,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
         <button class="profile-save-btn" onclick="saveProfile()">Guardar perfil</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.17</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.18</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -943,7 +949,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <div class="modal-handle"></div>
     <div class="modal-title" id="modal-add-to-routine-title">Agregar a rutina</div>
     <div class="field-label">Nombre del ejercicio</div>
-    <input class="modal-input" id="rout-ex-name-inp" type="text" placeholder="Ej: Dominadas" autocomplete="off"/>
+    <input class="modal-input" id="rout-ex-name-inp" type="text" placeholder="Ej: Dominadas" autocomplete="off" list="rout-ex-suggestions" oninput="fillRoutineExFromCatalog(this.value)"/>
+    <datalist id="rout-ex-suggestions"></datalist>
     <div class="field-label">Grupo muscular</div>
     <select class="modal-select" id="rout-ex-muscle-inp">
       <option value="Pecho">Pecho</option><option value="Espalda">Espalda</option>
@@ -1041,7 +1048,25 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <button class="rest-timer-btn" onclick="setRestDuration(60)">1 min</button>
     <button class="rest-timer-btn" onclick="setRestDuration(90)">1:30</button>
     <button class="rest-timer-btn" onclick="setRestDuration(120)">2 min</button>
+    <button class="rest-timer-btn" onclick="openRestGame()" title="Minijuego" style="flex:0 0 46px">🎮</button>
     <button class="rest-timer-btn primary" onclick="stopRestTimer()">✓ Listo</button>
+  </div>
+</div>
+
+<!-- MINIJUEGO DE DESCANSO (v1.18) -->
+<div id="rest-game" style="display:none;position:fixed;inset:0;z-index:10010;background:rgba(8,8,8,0.95);flex-direction:column;align-items:center;justify-content:center;padding:16px;touch-action:none;user-select:none;-webkit-user-select:none">
+  <div style="width:100%;max-width:520px;display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px">
+    <div id="rest-game-timer" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:#22c97a;white-space:nowrap">⏸ 1:30</div>
+    <div id="rest-game-score" style="font-family:'DM Mono',monospace;font-size:12px;color:#888;white-space:nowrap">0 · récord 0</div>
+    <button onclick="closeRestGame()" style="white-space:nowrap;background:#222;border:1px solid #333;color:#aaa;border-radius:20px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">✕ Salir</button>
+  </div>
+  <canvas id="rest-game-canvas" style="border-radius:14px;border:1px solid #2a2a2a;display:block"></canvas>
+  <div style="margin-top:10px;font-size:11px;color:#555;font-family:'DM Sans',sans-serif">Tocá la pantalla para saltar</div>
+  <div id="rest-game-done" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.82);flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px">
+    <div style="font-size:40px">⏱️</div>
+    <div style="font-size:18px;font-weight:700;color:#fff;font-family:'DM Sans',sans-serif">¡Terminó el descanso!</div>
+    <button onclick="closeRestGame()" style="width:100%;max-width:280px;padding:14px;border:none;border-radius:12px;background:var(--accent,#E83535);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Volver al entreno 💪</button>
+    <button onclick="resumeRestGame()" style="width:100%;max-width:280px;padding:12px;border:1px solid #333;border-radius:12px;background:none;color:#888;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Seguir jugando</button>
   </div>
 </div>
 
@@ -1052,7 +1077,10 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <div class="wm-title">MODO ENTRENAMIENTO</div>
       <div id="wm-progress-text" style="font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px"></div>
     </div>
-    <button class="wm-close" onclick="closeWorkoutMode()">✕ Salir</button>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="save-status" data-state="" onclick="explainSaveStatus()" aria-label="Estado de guardado"></button>
+      <button class="wm-close" onclick="closeWorkoutMode()">✕ Salir</button>
+    </div>
   </div>
   <div class="wm-progress-bar"><div class="wm-progress-fill" id="wm-progress-fill"></div></div>
   <!-- Timer bar inside workout mode -->
@@ -1065,6 +1093,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <button onclick="setWmTimer(60)" style="padding:4px 8px;background:#2a2a2a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">1'</button>
       <button onclick="setWmTimer(90)" style="padding:4px 8px;background:#2a2a2a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">1:30</button>
       <button onclick="setWmTimer(120)" style="padding:4px 8px;background:#2a2a2a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">2'</button>
+      <button onclick="openRestGame()" title="Minijuego" style="padding:4px 8px;background:#2a2a2a;border:1px solid #333;border-radius:6px;color:#aaa;font-size:12px;cursor:pointer">🎮</button>
       <button onclick="stopWmTimer()" style="padding:4px 10px;background:#22c97a;border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">✓</button>
     </div>
   </div>
@@ -1103,8 +1132,64 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-import { getFirestore, doc, setDoc, collection, addDoc, getDocs, deleteDoc, updateDoc, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { getFirestore, doc, setDoc as fsSetDoc, collection, addDoc as fsAddDoc, getDocs, deleteDoc as fsDeleteDoc, updateDoc as fsUpdateDoc, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 import { getMessaging, getToken } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js';
+
+/* ── SAVE STATUS (v1.18) ──
+   Every Firestore write in the app goes through these wrappers, so the header indicator
+   knows exactly how many writes are still waiting for the server. A Firestore write
+   promise only resolves once the server confirms it — with no signal it just waits —
+   so "pending for a while" is a reliable "no está subiendo" signal. */
+let _pendingWrites = 0, _lastWriteProgress = 0, _writeError = null, _saveStatusTimer = null;
+function trackWrite(p) {
+  if (_pendingWrites === 0) _lastWriteProgress = Date.now();
+  _pendingWrites++;
+  if (!_saveStatusTimer) _saveStatusTimer = setInterval(renderSaveStatus, 1000);
+  renderSaveStatus();
+  return p.then(
+    r => { _writeError = null; return r; },
+    err => { _writeError = err; throw err; }
+  ).finally(() => {
+    _pendingWrites = Math.max(0, _pendingWrites - 1);
+    _lastWriteProgress = Date.now();
+    if (_pendingWrites === 0 && _saveStatusTimer) { clearInterval(_saveStatusTimer); _saveStatusTimer = null; }
+    renderSaveStatus();
+  });
+}
+const setDoc = (...a) => trackWrite(fsSetDoc(...a));
+const addDoc = (...a) => trackWrite(fsAddDoc(...a));
+const deleteDoc = (...a) => trackWrite(fsDeleteDoc(...a));
+const updateDoc = (...a) => trackWrite(fsUpdateDoc(...a));
+
+const SAVE_ICONS = {
+  saved:   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.2 4.4 4.4 0 0 0 7 18z"/><path d="M9.5 13.2l1.9 1.9 3.3-3.4"/></svg>',
+  pending: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.2 4.4 4.4 0 0 0 7 18z"/><path d="M12 16v-5M9.8 13l2.2-2.2 2.2 2.2"/></svg>',
+  stuck:   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.2 4.4 4.4 0 0 0 7 18z"/><path d="M12 10.5v3"/><path d="M12 16h.01"/></svg>',
+  error:   '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18h10a4 4 0 0 0 .6-7.96A6 6 0 0 0 6.2 9.2 4.4 4.4 0 0 0 7 18z"/><path d="M10 11l4 4M14 11l-4 4"/></svg>',
+};
+function saveStatusState() {
+  if (_pendingWrites > 0 && (!navigator.onLine || Date.now() - _lastWriteProgress > 6000)) return 'stuck';
+  if (_pendingWrites > 0) return 'pending';
+  if (_writeError) return 'error';
+  return 'saved';
+}
+function renderSaveStatus() {
+  const state = saveStatusState();
+  document.querySelectorAll('.save-status').forEach(el => {
+    if (el.dataset.state !== state) { el.dataset.state = state; el.innerHTML = SAVE_ICONS[state]; }
+    el.setAttribute('aria-label', saveStatusText(state));
+  });
+}
+function saveStatusText(state) {
+  const n = _pendingWrites;
+  if (state === 'stuck') return `📡 Sin señal · ${n} cambio${n>1?'s':''} esperando`;
+  if (state === 'pending') return '⏳ Guardando…';
+  if (state === 'error') return '⚠️ Algo no se guardó — reintentá';
+  return '☁️ Todo guardado';
+}
+window.explainSaveStatus = () => showToast(saveStatusText(saveStatusState()));
+window.addEventListener('online', renderSaveStatus);
+window.addEventListener('offline', renderSaveStatus);
 
 const firebaseConfig = {
   apiKey: "AIzaSyCgPk8QisGhFz7z4ow2AaTzDwx3ddc2rng",
@@ -1155,6 +1240,8 @@ const BW_MUSCLES = ['Abdominales','Core'];
 const BW_LASTRE = ['Espalda']; // dominadas default
 
 let currentUser = null;
+let _dataReady = false;      // true once loadUserData() finished (Firestore or offline fallback)
+const _exIdRemap = {};       // deleted duplicate exercise id -> id of the copy that was kept
 
 const ACCENT_COLORS = {
   '#E83535': { light:'rgba(232,53,53,0.18)', dark:'#ff6b6b', header:'#E83535' },
@@ -1370,6 +1457,7 @@ onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     document.getElementById('auth-screen').style.display = 'none';
     document.getElementById('app').style.display = 'flex';
+    renderSaveStatus();
     document.getElementById('save-bar').style.display = '';
     document.getElementById('auth-btn').disabled = false;
     document.getElementById('auth-loading').classList.remove('show');
@@ -1400,6 +1488,7 @@ onAuthStateChanged(auth, async (user) => {
 function uid() { return currentUser.uid; }
 
 async function loadUserData() {
+  _dataReady = false;
   showSync(true);
 
   // ── STEP 1: Show cached data instantly ──
@@ -1447,12 +1536,32 @@ async function loadUserData() {
     // and groups sub-muscles (Cuádriceps/Glúteos under Piernas, Abdominales under Core) so
     // "Silla cuadriceps" tagged Piernas and "Silla Cuádriceps" tagged Cuádriceps collapse
     // into one catalog entry instead of showing as two separate cards.
-    const seen = {};
-    const toDelete = [];
+    //
+    // v1.18: this used to keep "whichever copy came first" — an arbitrary order (Firestore
+    // doc ids are random). If the app got reloaded mid-workout (Android killing it on
+    // minimize) and a routine had created a duplicate ("Press inclinado" vs the catalog's
+    // "Press Inclinado"), it could delete precisely the copy holding today's sets. Now the
+    // keeper is the copy with the most sets logged, any sets logged on the others are
+    // carried over before deleting, and old id -> keeper id is remembered so the routine
+    // plan and the local draft can follow it.
+    const dupGroups = {};
     exercises.forEach(ex => {
       const key = getAliases(ex.name)[0] + '_' + muscleGroupOf(ex.muscle||'');
-      if (seen[key]) { toDelete.push(ex); }
-      else seen[key] = true;
+      (dupGroups[key] = dupGroups[key] || []).push(ex);
+    });
+    const toDelete = [];
+    const keepersChanged = new Set();
+    const doneOf = e => (e.series||[]).filter(s => s.done).length;
+    Object.values(dupGroups).forEach(group => {
+      if (group.length < 2) return;
+      const keeper = group.reduce((best, e) => doneOf(e) > doneOf(best) ? e : best, group[0]);
+      group.forEach(e => {
+        if (e === keeper) return;
+        const logged = (e.series||[]).filter(s => s.done);
+        if (logged.length) { keeper.series = [...(keeper.series||[]), ...logged]; keepersChanged.add(keeper); }
+        _exIdRemap[e.id] = keeper.id;
+        toDelete.push(e);
+      });
     });
     if (toDelete.length > 0) {
       console.log(`Deduplicando ${toDelete.length} ejercicios...`);
@@ -1460,14 +1569,17 @@ async function loadUserData() {
         if (ex.fid) await deleteDoc(doc(db,'users',uid(),'exercises',ex.fid));
       }
       exercises = exercises.filter(ex => !toDelete.includes(ex));
+      keepersChanged.forEach(k => saveEx(k));
       console.log('Deduplicación completa');
     }
     if (profile.accentColor) applyAccent(profile.accentColor);
     saveAppCache();
+    _dataReady = true;
     renderAll();
   } catch(e) {
     // Offline — already showing cached data
     console.warn('Offline, using cache');
+    _dataReady = true; // cached data is all we'll get — let the draft safety net run on it
     if (!hasCached) {
       const el = document.getElementById('exercises-list');
       if (el) el.innerHTML = '<div style="padding:20px;text-align:center;color:#555;font-size:13px">📡 Sin conexión — abrí la app con internet para cachear los datos</div>';
@@ -1490,6 +1602,15 @@ function saveDraft() {
       ts: Date.now()
     }));
   } catch(e) {}
+  saveAppCacheSoon();
+}
+// The instant-render cache used to be written only at app open, so after a reload with no
+// signal the app showed the exercise list as it was at the START of the workout. Keep it
+// in sync with what's being logged (debounced — it serializes history too).
+let _appCacheTimer = null;
+function saveAppCacheSoon() {
+  clearTimeout(_appCacheTimer);
+  _appCacheTimer = setTimeout(saveAppCache, 1500);
 }
 
 // ── FULL APP CACHE (exercises + profile + history) ──
@@ -1558,15 +1679,32 @@ function offerRestoreDraft(draft) {
   // fewer completed sets than the draft — this is what recovers a set that got wiped by
   // Android killing the backgrounded tab (forcing a full reload from Firestore before the
   // last saveEx() write landed) without ever clobbering real newer progress.
+  //
+  // v1.18: matching now also follows dedup merges (_exIdRemap) and tolerates name variants
+  // (findExMatch: "Press banca" == "Press de banca", casing/accents). And if the exercise
+  // doesn't exist at all anymore — typically one a routine created mid-workout whose
+  // Firestore doc never landed before Android killed the app — it's re-created from the
+  // draft instead of being skipped. That skip is what made whole exercises vanish.
   let restoredAny = false;
   draft.exercises.forEach(draftEx => {
-    const live = exercises.find(e =>
-      (draftEx.id != null && e.id === draftEx.id) ||
-      (draftEx.fid && e.fid === draftEx.fid) ||
-      (e.name === draftEx.name && e.muscle === draftEx.muscle)
-    );
-    if (!live) return;
     const draftDone = (draftEx.series||[]).filter(s=>s.done).length;
+    const remapped = _exIdRemap[draftEx.id];
+    let live = exercises.find(e =>
+      (draftEx.id != null && e.id === draftEx.id) ||
+      (remapped != null && e.id === remapped) ||
+      (draftEx.fid && e.fid === draftEx.fid)
+    ) || findExMatch(draftEx.name, draftEx.muscle);
+    if (!live) {
+      if (!draftDone) return;
+      const { fid: _staleFid, ...clean } = draftEx;
+      live = clean;
+      exercises.push(live);
+      addDoc(collection(db,'users',uid(),'exercises'), live)
+        .then(ref => { live.fid = ref.id; saveEx(live); })
+        .catch(e => console.warn('No se pudo recrear el ejercicio del borrador', e));
+      restoredAny = true;
+      return;
+    }
     const liveDone = (live.series||[]).filter(s=>s.done).length;
     if (draftDone > liveDone) { live.series = draftEx.series; restoredAny = true; }
   });
@@ -1578,9 +1716,13 @@ function offerRestoreDraft(draft) {
   if (draft.workoutDate && document.getElementById('workout-date-input')) {
     document.getElementById('workout-date-input').value = draft.workoutDate;
   }
+  restoreSessionPlanState(); // re-created exercises keep their id, so they drop back into the routine view
   renderExercises();
   renderMoods();
+  renderSessionPlannerBar();
   exercises.filter(ex => ex.fid).forEach(ex => saveEx(ex));
+  saveDraft();
+  showToast('♻️ Recuperé series que no se habían guardado');
 }
 
 // Re-check the local draft whenever the app is (re)shown — not just at boot. Covers the
@@ -1588,7 +1730,9 @@ function offerRestoreDraft(draft) {
 // full page reload that happens while the app is hidden: visibilitychange never fires
 // "visible" on the dead page, but pageshow/visibilitychange on the NEW page load does.
 function checkAndRestoreDraft() {
-  if (!currentUser || !exercises.length) return;
+  // Wait until loadUserData() finished — running against the instant-render cache (which
+  // doesn't know about exercises created after it was saved) would re-create duplicates.
+  if (!currentUser || !exercises.length || !_dataReady) return;
   const draft = loadDraft();
   if (draft) offerRestoreDraft(draft);
 }
@@ -1813,6 +1957,26 @@ function getAliases(exName) {
   if (planchaGroup.includes(n)) return planchaGroup;
   return [n];
 }
+
+// Finds the catalog exercise a routine/draft entry refers to, tolerating the naming
+// variants that crept into the data ("Press banca" vs "Press de banca", "Press inclinado"
+// vs "Press Inclinado"). Exact name first (old behaviour), then same canonical name + same
+// muscle group, then same canonical name alone.
+function findExMatch(name, muscle, pool) {
+  const list = pool || exercises;
+  if (!name) return null;
+  const exact = list.find(e => e.name === name);
+  if (exact) return exact;
+  const key = getAliases(name)[0];
+  const grp = muscleGroupOf(muscle || '');
+  return list.find(e => getAliases(e.name)[0] === key && muscleGroupOf(e.muscle || '') === grp)
+      || list.find(e => getAliases(e.name)[0] === key)
+      || null;
+}
+let _exIdSeq = 0;
+// Integer ids (Date.now()*1000 + seq) — the old Date.now()+Math.random() produced floats,
+// which is what broke drag-to-reorder for routine exercises (fixed in v1.17 with parseFloat).
+function newExId() { return Date.now() * 1000 + (_exIdSeq++ % 1000); }
 
 // Returns { kg, reps, secs, bestKgReps, bestRepsKg } PRs for an exercise
 // bestKgReps = reps done in the serie with the highest kg
@@ -2320,6 +2484,7 @@ window.deleteEx = async (id) => {
   const ex = exercises.find(e => e.id === id);
   if (ex) await deleteExDB(ex);
   exercises = exercises.filter(e => e.id !== id);
+  saveDraft(); // otherwise the draft safety net would bring a deleted exercise back
   renderExercises();
 };
 
@@ -2597,33 +2762,48 @@ window.loadRoutine = (fid) => {
   if (activeRoutineId === fid) { clearSessionPlan(); return; }
 
   const r = routines.find(x => x.fid === fid); if (!r) return;
-  // Add routine exercises to today if not already there
-  let added = 0;
+  // v1.18 — ROOT CAUSE of "the chest routine loses sets when I minimize": routine
+  // exercises were matched to the catalog by EXACT name. Routines are typed by hand, so a
+  // routine saying "Press inclinado" never matched the catalog's "Press Inclinado" and a
+  // brand-new duplicate exercise was created every time the routine was loaded. Sets were
+  // logged on that duplicate; on the next reload (Android killing the app on minimize) it
+  // either hadn't reached Firestore yet, or the dedup deleted it — and the plan/draft
+  // couldn't find it again by name. Routines whose names matched exactly never hit this.
+  // Now: tolerant match (findExMatch), and the routine heals itself to the catalog's exact
+  // name so it can't diverge again.
+  let added = 0, healed = 0;
+  const routineExIds = [];
   (r.exercises||[]).forEach(re => {
-    if (!exercises.find(e => e.name === re.name)) {
-      const newEx = { id: Date.now() + Math.random(), name: re.name, muscle: re.muscle, type: re.type||'normal', note:'', series:[re.type==='time'?{secs:'30',done:false}:{reps:'10',kg:'0',done:false}] };
-      exercises.push(newEx); added++;
-      // Same fix as addExercise(): saveEx() only updates existing docs, so a routine
-      // exercise that isn't already in the catalog needs its Firestore doc created here —
-      // otherwise every set logged against it lives only in memory/localStorage and is
-      // gone the next time exercises are fetched fresh from Firestore.
-      addDoc(collection(db,'users',uid(),'exercises'), newEx)
-        .then(ref => { newEx.fid = ref.id; })
-        .catch(e => console.warn('No se pudo guardar el ejercicio de la rutina', e));
+    let ex = findExMatch(re.name, re.muscle);
+    if (ex && ex.name !== re.name) {
+      re.name = ex.name; re.muscle = ex.muscle; if (ex.type) re.type = ex.type;
+      healed++;
     }
+    if (!ex) {
+      const newEx = { id: newExId(), name: re.name, muscle: re.muscle, type: re.type||'normal', note:'', series:[re.type==='time'?{secs:'30',done:false}:{reps:'10',kg:'0',done:false}] };
+      exercises.push(newEx); added++;
+      // saveEx() only updates existing docs, so the doc is created here; once it exists,
+      // push whatever was logged on it in the meantime.
+      addDoc(collection(db,'users',uid(),'exercises'), newEx)
+        .then(ref => { newEx.fid = ref.id; saveEx(newEx); })
+        .catch(e => console.warn('No se pudo guardar el ejercicio de la rutina', e));
+      ex = newEx;
+    }
+    if (!routineExIds.includes(ex.id)) routineExIds.push(ex.id);
   });
+  if (healed) saveRoutineDB(r).catch(e => console.warn('No se pudo actualizar la rutina', e));
   // Activate training mode: filter today's view down to only this routine's exercises
-  const routineExIds = (r.exercises||[])
-    .map(re => exercises.find(e => e.name === re.name))
-    .filter(Boolean)
-    .map(e => e.id);
   sessionPlan = routineExIds;
   sessionPlanActive = routineExIds.length > 0;
   activeRoutineId = fid;
   activeRoutineName = r.name;
   renderExercises(); renderSessionPlannerBar(); renderRoutinePillsSelector();
   saveSessionPlanState();
-  showToast(added > 0 ? `Rutina "${r.name}" cargada (${added} ejercicios) ✓ · Modo entrenamiento activo` : `Modo entrenamiento: "${r.name}" ✓`);
+  saveDraft();
+  if (healed) renderRoutines();
+  showToast(healed > 0
+    ? `🔧 "${r.name}": ${healed} nombre${healed>1?'s':''} unificado${healed>1?'s':''} con tu lista · Modo entrenamiento ✓`
+    : added > 0 ? `Rutina "${r.name}" cargada (${added} ejercicios) ✓ · Modo entrenamiento activo` : `Modo entrenamiento: "${r.name}" ✓`);
 };
 
 function renderRoutines() {
@@ -2668,7 +2848,20 @@ window.openAddToRoutine = (fid) => {
   currentRoutineTarget = fid;
   document.getElementById('modal-add-to-routine-title').textContent = 'Agregar ejercicio a ' + (routines.find(r=>r.fid===fid)||{}).name;
   document.getElementById('rout-ex-name-inp').value = '';
+  // Suggest the exercises you already have, so routines reuse the exact same names
+  const esc = t => String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+  const dl = document.getElementById('rout-ex-suggestions');
+  if (dl) dl.innerHTML = [...new Set(exercises.map(e => e.name).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es')).map(n => `<option value="${esc(n)}">`).join('');
   document.getElementById('modal-add-to-routine').classList.add('open');
+};
+// Picking a suggestion also sets that exercise's muscle and type
+window.fillRoutineExFromCatalog = (val) => {
+  const m = exercises.find(e => e.name === val);
+  if (!m) return;
+  const ms = document.getElementById('rout-ex-muscle-inp');
+  const ts = document.getElementById('rout-ex-type-inp');
+  if (ms && [...ms.options].some(o => o.value === m.muscle)) ms.value = m.muscle;
+  if (ts && m.type) ts.value = m.type;
 };
 document.getElementById('modal-add-to-routine').addEventListener('click', function(e){ if(e.target===this) closeModal('modal-add-to-routine'); });
 
@@ -2677,7 +2870,14 @@ window.addExToRoutine = async () => {
   if (!name || !currentRoutineTarget) return;
   const r = routines.find(x => x.fid === currentRoutineTarget); if (!r) return;
   if (!r.exercises) r.exercises = [];
-  r.exercises.push({ name, muscle: document.getElementById('rout-ex-muscle-inp').value, type: document.getElementById('rout-ex-type-inp').value });
+  let muscle = document.getElementById('rout-ex-muscle-inp').value;
+  let type = document.getElementById('rout-ex-type-inp').value;
+  // Same exercise as one already in your list (different casing/wording)? Store the list's
+  // exact name so the routine can't drift from the catalog — the root of the chest bug.
+  const match = findExMatch(name, muscle);
+  let finalName = name;
+  if (match) { finalName = match.name; muscle = match.muscle; type = match.type || type; }
+  r.exercises.push({ name: finalName, muscle, type });
   await saveRoutineDB(r); closeModal('modal-add-to-routine'); renderRoutines(); showToast('Ejercicio agregado ✓');
 };
 
@@ -5367,6 +5567,197 @@ window.setRestDuration = (secs) => {
   startRestTimer(secs);
 };
 
+/* ── MINIJUEGO DE DESCANSO (v1.18) ──
+   Endless runner original: un kaiju verde que salta mancuernas, pesas rusas y discos
+   mientras corre el descanso. Lee el timer activo (el normal o el de Modo entrenamiento),
+   lo muestra arriba y, cuando el descanso termina, pausa el juego y vibra. */
+const _rg = { open:false, raf:0, last:0, state:'ready', src:'none', hadRest:false, restDone:false,
+  W:320, H:200, ground:172, ctx:null, dpr:1, accent:'#E83535',
+  p:{ x:36, y:0, vy:0, w:26, h:30, onGround:true, anim:0, frame:0 },
+  obs:[], nextGap:0, speed:320, dist:0, score:0, best:0, pressed:false, buffer:0, overAt:0, dash:0 };
+const RG_TYPES = [ { k:'dumbbell', w:34, h:16 }, { k:'kettlebell', w:22, h:26 }, { k:'plate', w:14, h:34 } ];
+
+function rgRestRemaining() {
+  if (_rg.src === 'wm') return _wmTimerInterval ? _wmTimerRemaining : 0;
+  if (_rg.src === 'rest') return _restInterval ? _restRemaining : 0;
+  return null;
+}
+function rgLoadBest() { try { return parseInt(localStorage.getItem('kaishu_restgame_best')) || 0; } catch(e) { return 0; } }
+function rgSaveBest(v) { try { localStorage.setItem('kaishu_restgame_best', String(v)); } catch(e) {} }
+function rgReset() {
+  _rg.p.y = _rg.ground - _rg.p.h; _rg.p.vy = 0; _rg.p.onGround = true;
+  _rg.obs = []; _rg.speed = 320; _rg.dist = 0; _rg.score = 0; _rg.nextGap = 260; _rg.buffer = 0;
+}
+function rgDoneVisible() { const d = document.getElementById('rest-game-done'); return !!d && d.style.display !== 'none'; }
+
+window.openRestGame = () => {
+  const el = document.getElementById('rest-game'), cv = document.getElementById('rest-game-canvas');
+  if (!el || !cv) return;
+  _rg.src = _wmTimerInterval ? 'wm' : (_restInterval ? 'rest' : 'none');
+  const rem = rgRestRemaining();
+  _rg.hadRest = rem !== null && rem > 0; _rg.restDone = false;
+  _rg.W = Math.min(window.innerWidth - 32, 520); _rg.H = 200; _rg.ground = _rg.H - 28;
+  _rg.dpr = window.devicePixelRatio || 1;
+  cv.style.width = _rg.W + 'px'; cv.style.height = _rg.H + 'px';
+  cv.width = Math.round(_rg.W * _rg.dpr); cv.height = Math.round(_rg.H * _rg.dpr);
+  _rg.ctx = cv.getContext('2d'); _rg.ctx.setTransform(_rg.dpr, 0, 0, _rg.dpr, 0, 0);
+  _rg.accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#E83535';
+  _rg.best = rgLoadBest(); rgReset(); _rg.state = 'ready';
+  document.getElementById('rest-game-done').style.display = 'none';
+  el.style.display = 'flex'; _rg.open = true; _rg.last = 0;
+  cancelAnimationFrame(_rg.raf); _rg.raf = requestAnimationFrame(rgLoop);
+};
+window.closeRestGame = () => {
+  _rg.open = false; cancelAnimationFrame(_rg.raf);
+  const el = document.getElementById('rest-game'); if (el) el.style.display = 'none';
+};
+window.resumeRestGame = () => { document.getElementById('rest-game-done').style.display = 'none'; _rg.last = 0; };
+
+function rgPress() {
+  if (!_rg.open || rgDoneVisible()) return;
+  _rg.pressed = true;
+  if (_rg.state === 'ready') _rg.state = 'running';
+  else if (_rg.state === 'over') { if (Date.now() - _rg.overAt < 400) return; rgReset(); _rg.state = 'running'; }
+  if (_rg.p.onGround) { _rg.p.vy = -680; _rg.p.onGround = false; }
+  else _rg.buffer = 0.12; // tapped just before landing: jump as soon as it touches ground
+}
+function rgRelease() {
+  _rg.pressed = false;
+  if (_rg.p.vy < -260) _rg.p.vy = -260; // quick tap = short hop, hold = full jump
+}
+
+function rgSpawn() {
+  const pool = _rg.score > 250 ? [...RG_TYPES, { k:'double', w:34, h:30 }] : RG_TYPES;
+  const t = pool[Math.floor(Math.random() * pool.length)];
+  _rg.obs.push({ k:t.k, w:t.w, h:t.h, x:_rg.W + 10, y:_rg.ground - t.h });
+  _rg.nextGap = _rg.speed * (0.75 + Math.random() * 0.75) + 60; // always leaves room to land and jump again
+}
+function rgUpdate(dt) {
+  const p = _rg.p;
+  _rg.speed = Math.min(720, _rg.speed + 9 * dt);
+  const dx = _rg.speed * dt;
+  _rg.dist += dx; _rg.score = Math.floor(_rg.dist / 12); _rg.dash = (_rg.dash + dx) % 24;
+  p.vy += 2300 * dt; p.y += p.vy * dt;
+  const floor = _rg.ground - p.h;
+  if (p.y >= floor) {
+    p.y = floor; p.vy = 0;
+    if (!p.onGround) {
+      p.onGround = true;
+      if (_rg.buffer > 0) { p.vy = _rg.pressed ? -680 : -420; p.onGround = false; _rg.buffer = 0; }
+    }
+  }
+  _rg.buffer = Math.max(0, _rg.buffer - dt);
+  p.anim += dt; if (p.anim > 0.09) { p.anim = 0; p.frame ^= 1; }
+  _rg.nextGap -= dx;
+  if (_rg.nextGap <= 0) rgSpawn();
+  _rg.obs.forEach(o => { o.x -= dx; });
+  _rg.obs = _rg.obs.filter(o => o.x + o.w > -10);
+  const ix = 5, iy = 4; // small inset so near-misses feel fair
+  for (const o of _rg.obs) {
+    if (p.x + ix < o.x + o.w - ix && p.x + p.w - ix > o.x + ix && p.y + iy < o.y + o.h && p.y + p.h - iy > o.y + iy) {
+      _rg.state = 'over'; _rg.overAt = Date.now();
+      if (_rg.score > _rg.best) { _rg.best = _rg.score; rgSaveBest(_rg.best); }
+      try { navigator.vibrate && navigator.vibrate(60); } catch(e) {}
+      break;
+    }
+  }
+}
+
+function rgRoundRect(c, x, y, w, h, r) {
+  c.beginPath(); c.moveTo(x + r, y);
+  c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+}
+function rgDrawKaiju(c, x, y, frame, running) {
+  c.fillStyle = '#22c97a'; // tail
+  c.beginPath(); c.moveTo(x + 2, y + 11); c.lineTo(x - 8, y + 20); c.lineTo(x + 3, y + 21); c.closePath(); c.fill();
+  c.fillStyle = '#138a52'; // back spikes
+  for (let i = 0; i < 3; i++) { const sx = x + 2 + i * 6; c.beginPath(); c.moveTo(sx, y + 8); c.lineTo(sx + 3, y + 1); c.lineTo(sx + 6, y + 8); c.closePath(); c.fill(); }
+  c.fillStyle = '#22c97a'; // body + head
+  rgRoundRect(c, x, y + 6, 22, 18, 6); c.fill();
+  rgRoundRect(c, x + 13, y + 1, 14, 13, 5); c.fill();
+  c.fillStyle = '#7de3b4'; rgRoundRect(c, x + 11, y + 14, 9, 8, 3); c.fill(); // belly
+  c.fillStyle = '#fff'; c.beginPath(); c.arc(x + 22, y + 6, 2.4, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#111'; c.beginPath(); c.arc(x + 22.8, y + 6.2, 1.1, 0, Math.PI * 2); c.fill();
+  c.fillStyle = '#1aa866'; c.fillRect(x + 19, y + 16, 5, 3); // arm
+  const a = running && frame, b = running && !frame; // alternate legs while running
+  c.fillRect(x + 4, y + 23, 6, a ? 5 : 7);
+  c.fillRect(x + 13, y + 23, 6, b ? 5 : 7);
+}
+function rgDrawObstacle(c, o, accent) {
+  const x = o.x, y = o.y, w = o.w, h = o.h;
+  if (o.k === 'dumbbell' || o.k === 'double') {
+    const rows = o.k === 'double' ? 2 : 1, rh = h / rows;
+    for (let r = 0; r < rows; r++) {
+      const ry = y + r * rh;
+      c.fillStyle = '#bbb'; c.fillRect(x + 6, ry + rh / 2 - 1.5, w - 12, 3);
+      c.fillStyle = accent;
+      rgRoundRect(c, x, ry + 1, 7, rh - 2, 2); c.fill();
+      rgRoundRect(c, x + w - 7, ry + 1, 7, rh - 2, 2); c.fill();
+    }
+  } else if (o.k === 'kettlebell') {
+    c.strokeStyle = '#bbb'; c.lineWidth = 3;
+    c.beginPath(); c.arc(x + w / 2, y + 9, 7, Math.PI, 0); c.stroke();
+    c.fillStyle = accent; c.beginPath(); c.arc(x + w / 2, y + h - 10, 10.5, 0, Math.PI * 2); c.fill();
+  } else { // plate standing on its edge
+    c.fillStyle = accent; rgRoundRect(c, x, y, w, h, 4); c.fill();
+    c.fillStyle = '#151515'; c.fillRect(x + w / 2 - 1.5, y + h / 2 - 4, 3, 8);
+  }
+}
+function rgDraw() {
+  const c = _rg.ctx, W = _rg.W, H = _rg.H, G = _rg.ground;
+  c.fillStyle = '#151515'; c.fillRect(0, 0, W, H);
+  c.fillStyle = '#2e2e2e'; c.fillRect(0, G, W, 2);
+  c.fillStyle = '#242424'; for (let x = -_rg.dash; x < W; x += 24) c.fillRect(x, G + 9, 10, 2);
+  _rg.obs.forEach(o => rgDrawObstacle(c, o, _rg.accent));
+  rgDrawKaiju(c, _rg.p.x, _rg.p.y, _rg.p.frame, _rg.p.onGround && _rg.state === 'running');
+  c.textAlign = 'center';
+  if (_rg.state === 'ready') {
+    c.fillStyle = '#ddd'; c.font = "700 15px 'DM Sans',sans-serif"; c.fillText('Tocá para arrancar', W / 2, 60);
+    c.fillStyle = '#777'; c.font = "12px 'DM Sans',sans-serif"; c.fillText('Saltá las pesas · mantené para saltar más alto', W / 2, 82);
+  } else if (_rg.state === 'over') {
+    c.fillStyle = '#ddd'; c.font = "700 18px 'DM Sans',sans-serif"; c.fillText('💥 ' + _rg.score, W / 2, 62);
+    c.fillStyle = '#777'; c.font = "12px 'DM Sans',sans-serif"; c.fillText('Tocá para reintentar', W / 2, 84);
+  }
+  c.textAlign = 'start';
+}
+function rgLoop(ts) {
+  if (!_rg.open) return;
+  _rg.raf = requestAnimationFrame(rgLoop);
+  if (document.hidden) { _rg.last = 0; return; }
+  const dt = _rg.last ? Math.min(0.05, (ts - _rg.last) / 1000) : 0;
+  _rg.last = ts;
+  if (_rg.state === 'running' && !rgDoneVisible()) rgUpdate(dt);
+  const rem = rgRestRemaining(), tEl = document.getElementById('rest-game-timer');
+  if (_rg.restDone) { tEl.textContent = '✅ Terminó'; tEl.style.color = '#22c97a'; }
+  else if (rem === null) { tEl.textContent = '🎮 Sin descanso activo'; tEl.style.color = '#777'; }
+  else {
+    const r = Math.max(0, rem);
+    tEl.textContent = '⏸ ' + Math.floor(r / 60) + ':' + String(r % 60).padStart(2, '0');
+    tEl.style.color = r <= 10 ? '#ff7070' : '#22c97a';
+  }
+  if (_rg.hadRest && !_rg.restDone && rem !== null && rem <= 0) {
+    _rg.restDone = true;
+    document.getElementById('rest-game-done').style.display = 'flex';
+    try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch(e) {}
+  }
+  document.getElementById('rest-game-score').textContent = _rg.score + ' · récord ' + Math.max(_rg.best, _rg.score);
+  rgDraw();
+}
+(function setupRestGameInput() {
+  const el = document.getElementById('rest-game');
+  if (!el) return;
+  el.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; e.preventDefault(); rgPress(); });
+  el.addEventListener('pointerup', rgRelease);
+  el.addEventListener('pointercancel', rgRelease);
+  window.addEventListener('keydown', e => {
+    if (!_rg.open) return;
+    if (e.code === 'Space' || e.code === 'ArrowUp') { e.preventDefault(); if (!e.repeat) rgPress(); }
+    if (e.code === 'Escape') closeRestGame();
+  });
+  window.addEventListener('keyup', e => { if (_rg.open && (e.code === 'Space' || e.code === 'ArrowUp')) rgRelease(); });
+})();
+
 /* ── SESSION PLANNER ── */
 let sessionPlan = []; // array of exercise IDs planned for today
 let sessionPlanActive = false;
@@ -5395,9 +5786,22 @@ function restoreSessionPlanState() {
     const data = JSON.parse(raw);
     // Only restore if it's from today — a new day starts fresh
     if (data.day !== todayKey()) { localStorage.removeItem(SESSION_PLAN_KEY()); return; }
-    // Keep only ids that still exist as exercises today
+    // Keep only ids that still exist as exercises today — following dedup merges first.
     const validIds = new Set(exercises.map(e => e.id));
-    sessionPlan = (data.sessionPlan||[]).filter(id => validIds.has(id));
+    const wanted = (data.sessionPlan||[]).map(id => _exIdRemap[id] != null ? _exIdRemap[id] : id);
+    let plan = [...new Set(wanted.filter(id => validIds.has(id)))];
+    // v1.18: if a routine drives the plan and some of its exercises can't be found by id
+    // anymore, rebuild the plan from the routine by (tolerant) name instead of silently
+    // dropping them — that drop is what made exercises disappear from the training view.
+    if (data.activeRoutineId && plan.length < wanted.length) {
+      const r = routines.find(x => x.fid === data.activeRoutineId);
+      if (r) {
+        const rebuilt = [];
+        (r.exercises||[]).forEach(re => { const m = findExMatch(re.name, re.muscle); if (m && !rebuilt.includes(m.id)) rebuilt.push(m.id); });
+        if (rebuilt.length >= plan.length) plan = rebuilt;
+      }
+    }
+    sessionPlan = plan;
     sessionPlanActive = !!data.sessionPlanActive && sessionPlan.length > 0;
     activeRoutineId = sessionPlanActive ? (data.activeRoutineId||null) : null;
     activeRoutineName = sessionPlanActive ? (data.activeRoutineName||'') : '';
