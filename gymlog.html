@@ -53,8 +53,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 #app{display:none;flex-direction:column;height:100vh;height:100dvh;max-width:480px;margin:0 auto;background:var(--bg);position:relative}
 #app::before{display:none}
 .header{padding:env(safe-area-inset-top,0) 0 0;background:#E83535;border-bottom:none;position:relative;overflow:hidden}
-.header-inner{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;position:relative;z-index:1}
-.app-title{font-size:20px;font-weight:700;letter-spacing:-0.5px;color:#fff}
+.header-main{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px 16px 10px;position:relative;z-index:1}
+.header-left{flex:1;min-width:0}
+.app-title{font-size:20px;font-weight:700;letter-spacing:-0.5px;color:#fff;white-space:nowrap;margin:2px 0 8px}
 .app-title span{color:#fff;opacity:0.85}
 .app-title .app-title-gym{color:#000;opacity:1}
 .save-status{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;margin-left:6px;vertical-align:middle;border:none;border-radius:50%;background:rgba(0,0,0,0.22);color:#fff;cursor:pointer;padding:0;transition:background .2s,color .2s}
@@ -63,12 +64,13 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .save-status[data-state="stuck"]{background:rgba(0,0,0,0.55);color:#FFD166}
 .save-status[data-state="error"]{background:#111;color:#ff7070}
 @keyframes saveBlink{0%,100%{opacity:1}50%{opacity:.45}}
-.header-right{display:flex;align-items:center;gap:8px}
-.streak-badge{background:rgba(0,0,0,0.25);color:#fff;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.streak-badge{background:rgba(0,0,0,0.25);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;cursor:pointer}
+.fire-month{display:inline-block;filter:hue-rotate(190deg) saturate(1.5)}
 .avatar-btn{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,0.4);background:rgba(0,0,0,0.2);cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:14px}
 .avatar-btn img{width:100%;height:100%;object-fit:cover}
-.date-sub{font-size:11px;color:rgba(255,255,255,0.75);padding:0 16px 8px;font-family:'DM Mono',monospace;position:relative;z-index:1}
-.days-since{font-size:11px;padding:0 16px 8px;position:relative;z-index:1;color:rgba(255,255,255,0.75)}
+.date-sub{font-size:11px;color:rgba(255,255,255,0.75);padding:0 0 6px;white-space:nowrap;overflow:hidden;font-family:'DM Mono',monospace;position:relative;z-index:1}
+.days-since{font-size:11px;padding:0;position:relative;z-index:1;color:rgba(255,255,255,0.75)}
 .days-since span{font-weight:700;color:#fff}
 
 /* NAV */
@@ -502,15 +504,18 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 <div id="app">
 
   <div class="header">
-    <div class="header-inner">
-      <div class="app-title">Kaishu<span class="app-title-gym">Gym</span><span>Log</span> <span class="sync-dot" id="sync-dot"></span><button class="save-status" data-state="" onclick="explainSaveStatus()" aria-label="Estado de guardado"></button></div>
+    <div class="header-main">
+      <div class="header-left">
+        <div class="app-title">Kaishu<span class="app-title-gym">Gym</span><span>Log</span> <span class="sync-dot" id="sync-dot"></span><button class="save-status" data-state="" onclick="explainSaveStatus()" aria-label="Estado de guardado"></button></div>
+        <div class="date-sub" id="date-sub"></div>
+        <div class="days-since" id="days-since"></div>
+      </div>
       <div class="header-right">
-        <div class="streak-badge" id="streak-badge">🔥 0 días</div>
         <div class="avatar-btn" id="avatar-btn" onclick="switchTab('perfil',document.querySelector('[data-tab=perfil]'))">🏋️</div>
+        <div class="streak-badge" id="streak-badge" onclick="explainTrainingCounters()">Semana 🔥 0</div>
+        <div class="streak-badge" id="streak-badge-month" onclick="explainTrainingCounters()">Mes <span class="fire-month">🔥</span> 0</div>
       </div>
     </div>
-    <div class="date-sub" id="date-sub"></div>
-    <div class="days-since" id="days-since"></div>
     <div id="offline-banner" style="display:none;padding:3px 16px 6px;font-size:11px;color:#f0a04b;font-weight:600">📡 Sin conexión — los cambios se guardarán cuando vuelva internet</div>
   </div>
 
@@ -870,7 +875,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         </div>
         <button class="profile-save-btn" onclick="saveProfile()">Guardar perfil</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.18</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.19</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -6370,12 +6375,35 @@ function updateStreakBadge(n) {
     history.filter(h => !h.pesoOnly && new Date(h.date) >= weekStart)
            .map(h => new Date(h.date).toDateString())
   ).size;
-  document.getElementById('streak-badge').textContent = `🔥 ${weekDays} esta semana`;
+  // Same rule for the month: unique training days since the 1st
+  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+  const monthDays = new Set(
+    history.filter(h => !h.pesoOnly && new Date(h.date) >= monthStart)
+           .map(h => new Date(h.date).toDateString())
+  ).size;
+  _trainCounters = { week: weekDays, month: monthDays };
+  const wEl = document.getElementById('streak-badge');
+  const mEl = document.getElementById('streak-badge-month');
+  if (wEl) wEl.textContent = `Semana 🔥 ${weekDays}`;
+  if (mEl) mEl.innerHTML = `Mes <span class="fire-month">🔥</span> ${monthDays}`;
 }
+let _trainCounters = { week: 0, month: 0 };
+window.explainTrainingCounters = () => {
+  const { week, month } = _trainCounters;
+  showToast(`${week} entreno${week===1?'':'s'} esta semana · ${month} este mes`);
+};
 
 /* ── MISC ── */
 function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2200); }
-function setDate() { document.getElementById('date-sub').textContent = new Date().toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}); }
+// Full date when it fits next to the counters; on narrow phones drop the year, then abbreviate.
+function setDate() {
+  const el = document.getElementById('date-sub'); if (!el) return;
+  const d = new Date();
+  const fmts = [{weekday:'long',day:'numeric',month:'long',year:'numeric'}, {weekday:'long',day:'numeric',month:'long'}, {weekday:'short',day:'numeric',month:'short'}];
+  for (const f of fmts) { el.textContent = d.toLocaleDateString('es-AR', f); if (el.scrollWidth <= el.clientWidth) break; }
+}
+// The header font (DM Mono) can finish loading after the first setDate(); re-check the fit then.
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (currentUser) setDate(); });
 </script>
 </body>
 </html>
