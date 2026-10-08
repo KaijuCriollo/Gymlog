@@ -601,6 +601,10 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       Perfil
     </button>
+    <button class="nav-btn" data-tab="comidas" id="nav-comidas" style="display:none" onclick="switchTab('comidas',this)">
+      <svg viewBox="0 0 24 24"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+      Comidas
+    </button>
   </nav>
 
   <div class="content">
@@ -684,6 +688,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     <div id="tab-progreso" class="tab">
       <div class="stats-grid" id="global-stats"></div>
       <div id="objetivo-banner"></div>
+      <div id="photos-card"></div>
 
       <div class="chart-title">CONSISTENCIA — ÚLTIMOS 6 MESES</div>
       <div id="consistency-grid" style="margin:8px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:13px;overflow-x:auto"></div>
@@ -776,7 +781,30 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       </div>
     </div>
 
-    <!-- PERFIL -->
+    <!-- COMIDAS (v1.21: vuelve como pestaña opcional, se activa desde Perfil) -->
+    <div id="tab-comidas" class="tab">
+      <div style="padding:16px 12px 0">
+        <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:4px">🍽️ Comidas</div>
+        <div style="font-size:12px;color:#555">Anotá lo que comiste en el día. Es solo para vos: no suma ni resta nada del entrenamiento.</div>
+      </div>
+      <div class="nutri-date-row">
+        <span style="font-size:12px;color:var(--muted)">📅</span>
+        <input class="nutri-date-inp" type="date" id="nutri-date-inp"/>
+        <button class="nutri-today-btn" onclick="setNutriDateToday();loadNutriEntry(document.getElementById('nutri-date-inp').value)">Hoy</button>
+        <button class="nutri-save-btn" onclick="saveNutri()">Guardar</button>
+      </div>
+      <div class="nutri-meal"><div class="nutri-meal-header"><div class="nutri-meal-title">🌅 Desayuno</div></div><div class="nutri-meal-body"><textarea class="nutri-meal-ta" id="nutri-desayuno" placeholder="Ej: 2 huevos, tostadas, café…" rows="3"></textarea></div></div>
+      <div class="nutri-meal"><div class="nutri-meal-header"><div class="nutri-meal-title">☀️ Almuerzo</div></div><div class="nutri-meal-body"><textarea class="nutri-meal-ta" id="nutri-almuerzo" placeholder="Ej: Pechuga, arroz, ensalada…" rows="3"></textarea></div></div>
+      <div class="nutri-meal"><div class="nutri-meal-header"><div class="nutri-meal-title">🍎 Merienda</div></div><div class="nutri-meal-body"><textarea class="nutri-meal-ta" id="nutri-merienda" placeholder="Ej: Yogur, fruta, nueces…" rows="2"></textarea></div></div>
+      <div class="nutri-meal"><div class="nutri-meal-header"><div class="nutri-meal-title">🌙 Cena</div></div><div class="nutri-meal-body"><textarea class="nutri-meal-ta" id="nutri-cena" placeholder="Ej: Pasta, ensalada…" rows="3"></textarea></div></div>
+      <div style="margin:10px 12px 0"><button class="nutri-copy-btn" onclick="copyNutri()">📋 Copiar resumen del día</button></div>
+      <div class="nutri-history" id="nutri-history-wrap" style="display:none">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);margin:6px 0 8px">Días anteriores <span style="color:#444;font-weight:500">· tocá la fecha para editarlo</span></div>
+        <div id="nutri-history-list"></div>
+      </div>
+      <div style="height:20px"></div>
+    </div>
+
     <!-- PERFIL -->
     <div id="tab-perfil" class="tab">
 
@@ -927,11 +955,25 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
             <div style="font-size:10px;color:#444;margin-top:10px;line-height:1.5">Funciona siempre que abrís la app. En segundo plano (con la app cerrada) depende de qué tan seguido la usás — es una limitación de Android/Chrome, no se puede garantizar al 100% sin un servidor.</div>
           </div>
         </div>
+        <div class="profile-field">
+          <div class="profile-label">🍽️ Pestañas opcionales</div>
+          <div style="background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;padding:12px 14px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <div>
+                <div style="font-size:13px;color:#ddd;font-weight:600">Anotar comidas</div>
+                <div style="font-size:11px;color:#555;margin-top:2px">Suma la pestaña “Comidas” al menú, después de Perfil</div>
+              </div>
+              <div id="comidas-toggle" onclick="toggleComidas()" style="flex-shrink:0;width:44px;height:26px;border-radius:20px;background:#333;position:relative;cursor:pointer;transition:background 0.15s">
+                <div id="comidas-toggle-dot" style="position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#888;transition:transform 0.15s"></div>
+              </div>
+            </div>
+          </div>
+        </div>
         <div class="profile-autosave" id="profile-autosave">Los cambios se guardan solos</div>
         <button class="profile-link-btn" onclick="openGuide(0)">📖 Ver la guía de la app</button>
         <button class="profile-link-btn" onclick="exportData()">⬇️ Exportar mis datos (JSON)</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.20</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.21</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -939,17 +981,6 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <div style="font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px;margin-bottom:12px">🗂 MIS RUTINAS</div>
         <div id="routines-list"></div>
         <button class="new-routine-btn" onclick="openNewRoutineModal()">+ Nueva rutina</button>
-      </div>
-
-      <!-- FOTOS DE PROGRESO (entrada a pantalla propia) -->
-      <div style="margin:16px 12px 0">
-        <button onclick="openProgressPhotosScreen()" style="width:100%;padding:14px;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;color:#f0ede8;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:space-between">
-          <span>📸 Fotos de progreso</span>
-          <span style="display:flex;align-items:center;gap:6px;color:#666;font-weight:600;font-size:12px">
-            <span id="progress-photos-count">0 fotos</span>
-            <svg style="width:16px;height:16px;stroke:#555;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-          </span>
-        </button>
       </div>
 
       <div style="height:20px"></div>
@@ -1186,20 +1217,21 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
           <div class="gm-card" style="text-align:center;position:relative;overflow:hidden">
             <span style="position:absolute;left:24px;top:18px;width:7px;height:12px;border-radius:2px;background:var(--accent,#E83535);transform:rotate(25deg)"></span>
             <span style="position:absolute;right:30px;top:24px;width:7px;height:12px;border-radius:2px;background:#f2c14e;transform:rotate(-30deg)"></span>
-            <span style="position:absolute;left:64px;top:62px;width:8px;height:8px;border-radius:4px;background:#4a90f5"></span>
-            <span style="position:absolute;right:58px;top:66px;width:7px;height:12px;border-radius:2px;background:#e84dbb;transform:rotate(40deg)"></span>
-            <div style="font-size:44px;line-height:1.2">🏆</div>
-            <div style="font-size:18px;font-weight:700;margin-top:4px">¡Nuevo récord!</div>
-            <div style="font-family:'DM Mono',monospace;font-size:14px;color:#bbb;margin-top:4px">Press de banca · 70 kg × 9</div>
+            <span style="position:absolute;left:18px;top:74px;width:8px;height:8px;border-radius:4px;background:#4a90f5"></span>
+            <span style="position:absolute;right:16px;top:70px;width:7px;height:12px;border-radius:2px;background:#e84dbb;transform:rotate(40deg)"></span>
+            <div style="font-size:40px;line-height:1.2">🏋️</div>
+            <div style="font-size:18px;font-weight:700;margin-top:4px">¡Nuevo peso máximo!</div>
+            <div style="font-family:'DM Mono',monospace;font-size:13px;color:#bbb;margin-top:4px">🏋️ Banca · 70 kg × 9 <span style="color:#666">antes 67,5</span></div>
+            <div style="font-family:'DM Mono',monospace;font-size:13px;color:#bbb;margin-top:6px">🔁 Remo · 60 kg × 10 <span style="color:#22c97a;font-weight:700">+2 reps</span></div>
             <div style="display:flex;justify-content:center;gap:6px;margin-top:14px;flex-wrap:wrap">
-              <span style="font-size:11px;font-weight:700;color:#bbb;background:#111;border:1px solid #2e2e2e;border-radius:20px;padding:4px 10px">Progreso</span>
+              <span style="font-size:11px;font-weight:700;color:#bbb;background:#111;border:1px solid #2e2e2e;border-radius:20px;padding:4px 10px">Progreso · 📸</span>
               <span style="font-size:11px;font-weight:700;color:#bbb;background:#111;border:1px solid #2e2e2e;border-radius:20px;padding:4px 10px">Historial</span>
               <span style="font-size:11px;font-weight:700;color:#bbb;background:#111;border:1px solid #2e2e2e;border-radius:20px;padding:4px 10px">Cierres</span>
             </div>
           </div>
         </div>
         <div class="guide-title">Récords y progreso</div>
-        <div class="guide-text">Cada vez que superás una marca, la app lo festeja. En <b>Progreso</b> ves tus gráficos y récords, en <b>Historial</b> todas tus sesiones, y en <b>Cierres</b> el balance de cada mes.</div>
+        <div class="guide-text">Cada vez que superás una marca, la app lo festeja y te dice cuál: <b>🏋️ peso máximo</b> o <b>🔁 más reps</b> con el mismo peso. En <b>Progreso</b> ves tus gráficos, récords y fotos de progreso, en <b>Historial</b> todas tus sesiones, y en <b>Cierres</b> el balance de cada mes.</div>
       </div>
 
       <div class="guide-slide">
@@ -1228,7 +1260,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
           </div>
         </div>
         <div class="guide-title">Todo queda guardado</div>
-        <div class="guide-text">La nube al lado del nombre te dice si todo se subió. Si se pone amarilla es que no hay señal: tus series quedan en el teléfono y se suben solas después. En <b>Perfil</b> elegís tu color, tu objetivo y recordatorios.</div>
+        <div class="guide-text">La nube al lado del nombre te dice si todo se subió. Si se pone amarilla es que no hay señal: tus series quedan en el teléfono y se suben solas después. En <b>Perfil</b> elegís tu color, tu objetivo, recordatorios y si querés la pestaña <b>Comidas</b>.</div>
       </div>
 
     </div>
@@ -2108,7 +2140,7 @@ function renderAll() {
   if (profile.accentColor) applyAccent(profile.accentColor);
   applyChartColor(profile.chartColor || profile.accentColor || '#E24B4A');
   restoreSessionPlanState();
-  renderFilters(); renderExercises(); renderMoods(); renderSessionPlannerBar(); renderRoutinePillsSelector(); renderRoutines(); renderProgressPhotos();
+  renderFilters(); renderExercises(); renderMoods(); renderSessionPlannerBar(); renderRoutinePillsSelector(); renderRoutines(); renderProgressPhotos(); applyComidasVisibility();
   updatePesoLast(); updateQuickPesoLast(); calcStreak(); updateDaysSince();
   checkAndNotifyReminders(false);
   // Apply header avatar without full profile render (faster)
@@ -2131,7 +2163,7 @@ window.switchTab = (tab, btn) => {
   if (tab === 'historial') renderHistory();
   if (tab === 'cierres') renderCierres();
   if (tab === 'progreso') renderProgress();
-  // nutricion removed — coach tab handled by button
+  if (tab === 'comidas') openComidasTab();
   if (tab === 'perfil') renderProfile();
 };
 
@@ -2331,8 +2363,10 @@ function getLastBodyWeight() {
 function renderExercises() {
   const list = document.getElementById('exercises-list');
   let items;
-  if (activeRoutineId && sessionPlanActive && sessionPlan.length > 0) {
+  if (sessionPlanActive && sessionPlan.length > 0 && (activeRoutineId || currentFilter === 'Ahora')) {
     // Training mode from a saved routine: show ONLY that routine's exercises, nothing else.
+    // v1.21: same for a hand-picked session while the filter is "Ahora" (the default) —
+    // before, "Elegir ejercicios → Empezar" landed on an empty "no completaste ninguna serie".
     items = sessionPlan.map(id => exercises.find(e => e.id === id)).filter(Boolean);
   } else if (sessionPlanActive && sessionPlan.length > 0 && currentFilter !== 'Ahora') {
     const planned = sessionPlan.map(id => exercises.find(e => e.id === id)).filter(Boolean);
@@ -2543,24 +2577,8 @@ window.toggleDone = (exId, idx) => {
     // When marking as done: start timer + check for PR confetti
     if (!wasDone && ex.series[idx].done) {
       startRestTimer(90);
-      const serie = ex.series[idx];
-      const prs = getAllPRs(ex.name);
-      const type = ex.type || 'normal';
-      let isPR = false;
-      if (type === 'time' && (parseInt(serie.secs)||0) > prs.secs) isPR = true;
-      else if ((type==='bw_lastre'||type==='bw') && (parseInt(serie.reps)||0) > prs.reps) isPR = true;
-      else if (type==='normal') {
-        const kg = parseFloat(serie.kg)||0;
-        const reps = parseInt(serie.reps)||0;
-        if (kg > prs.kg) isPR = true;
-        else if (kg === prs.kg && reps > (prs.bestKgReps||0)) isPR = true;
-        else if (kg > 0 && reps > 0 && prs.kg > 0) {
-          const newOrm = kg * (1 + reps/30);
-          const prevOrm = prs.kg * (1 + (prs.bestKgReps||0)/30);
-          if (newOrm > prevOrm) isPR = true;
-        }
-      }
-      if (isPR) setTimeout(fireConfetti, 150);
+      const rec = liveSetRecord(ex, idx);
+      if (rec) { setTimeout(fireConfetti, 150); showToast(rec.short); }
     }
   }
 };
@@ -2814,46 +2832,9 @@ window.saveWorkout = async () => {
     }
   }
 
-  // Detect PRs before saving (compare current done series vs historical)
-  const sessionPRs = [];
-  exercises.forEach(ex => {
-    const doneSers = (ex.series||[]).filter(s=>s.done);
-    if (!doneSers.length) return;
-    const prs = getAllPRs(ex.name);
-    const exType = ex.type || 'normal';
-    if (exType === 'time') {
-      const maxSecs = Math.max(...doneSers.map(s=>parseInt(s.secs)||0), 0);
-      if (maxSecs > prs.secs) sessionPRs.push(`🏆 ${ex.name}: ${maxSecs}s`);
-    } else if (exType === 'bw_lastre' || exType === 'bw') {
-      const maxReps = Math.max(...doneSers.map(s=>parseInt(s.reps)||0), 0);
-      if (maxReps > prs.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxReps} reps`);
-    } else {
-      // Best serie by 1RM
-      let bestSerie = null, bestOrm = 0;
-      doneSers.forEach(s => {
-        const kg = parseFloat(s.kg)||0, reps = parseInt(s.reps)||0;
-        if (kg > 0 && reps > 0) {
-          const orm = kg * (1 + reps/30);
-          if (orm > bestOrm) { bestOrm = orm; bestSerie = s; }
-        }
-      });
-      if (!bestSerie) return;
-      const kg = parseFloat(bestSerie.kg)||0;
-      const reps = parseInt(bestSerie.reps)||0;
-      const prevOrm = prs.kg * (1 + (prs.bestKgReps||0)/30);
-      if (kg > prs.kg) {
-        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg (nuevo máximo)`);
-      } else if (kg === prs.kg && reps > (prs.bestKgReps||0)) {
-        // Only show a "+N reps" delta when there's a real previous best set at this same
-        // weight to compare against — otherwise (prs.bestKgReps === 0) the subtraction was
-        // showing the set's TOTAL reps disguised as an increase, which is misleading.
-        const deltaTxt = prs.bestKgReps > 0 ? ` (+${reps-prs.bestKgReps} reps)` : '';
-        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps${deltaTxt}`);
-      } else if (bestOrm > prevOrm) {
-        sessionPRs.push(`🏆 ${ex.name}: 1RM ~${Math.round(bestOrm*10)/10}kg`);
-      }
-    }
-  });
+  // Records of this session vs. everything saved before it (v1.21: shared engine)
+  const sessionRecs = sessionRecords(exercises.filter(e => (e.series||[]).some(sr => sr.done)).map(e => ({ name: e.name, type: e.type, series: (e.series||[]).filter(sr => sr.done) })), history);
+  const sessionPRs = sessionRecs.map(r => r.text);
   const doneAny = exercises.some(e => e.series.some(s => s.done));
   if (!doneAny) { showToast('¡Marcá al menos una serie!'); return; }
   document.getElementById('save-btn').disabled = true;
@@ -2897,20 +2878,17 @@ window.saveWorkout = async () => {
   updatePesoLast(); updateDaysSince(); calcStreak();
   document.getElementById('save-btn').disabled = false;
   showToast('¡Entrenamiento guardado! 💪');
+  // "Última sesión" always reflects the session just saved (empty if no records), and the
+  // monthly count is recomputed from history so it can't drift or double count.
+  profile.lastSessionPRs = {
+    date: new Date(entry.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
+    sessionDate: new Date(entry.date).toDateString(),
+    prs: sessionPRs,
+    items: sessionRecs
+  };
+  rebuildMonthlyPRs(true);
+  saveProfileDB();
   if (sessionPRs.length) {
-    const todayStr = new Date().toDateString();
-    const monthKey = `${new Date().getFullYear()}-${new Date().getMonth()}`;
-    // Accumulate ALL PRs — each broken record counts, even same exercise multiple times
-    const existingMonthPRs = (profile.monthlyPRs && profile.monthlyPRs.monthKey === monthKey)
-      ? profile.monthlyPRs.prs : [];
-    const allMonthPRs = [...existingMonthPRs, ...sessionPRs];
-    profile.monthlyPRs = { monthKey, prs: allMonthPRs };
-    profile.lastSessionPRs = {
-      date: new Date().toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
-      sessionDate: todayStr,
-      prs: sessionPRs
-    };
-    saveProfileDB();
     setTimeout(() => {
       // Custom PR popup (no ugly browser alert)
       const overlay = document.createElement('div');
@@ -2921,10 +2899,7 @@ window.saveWorkout = async () => {
         <div style="font-size:40px;margin-bottom:12px">🔥</div>
         <div style="font-size:18px;font-weight:700;color:#fff;margin-bottom:16px">¡Nuevos récords hoy!</div>
         <div style="text-align:left;margin-bottom:20px">
-          ${sessionPRs.map(r=>`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:#111;border-radius:10px;padding:10px 12px">
-            <span style="font-size:20px">🏆</span>
-            <span style="font-size:13px;color:#eee;font-weight:600;line-height:1.3">${r.replace('🏆 ','')}</span>
-          </div>`).join('')}
+          ${sessionRecs.map(recordLineHTML).join('')}
         </div>
         <button onclick="this.closest('div[style*=fixed]').remove()" style="width:100%;padding:13px;background:var(--accent,#E83535);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">¡Seguí así! 💪</button>
       `;
@@ -3390,6 +3365,7 @@ window.exportData = () => {
 
 /* ── PROGRESO ── */
 function renderProgress() {
+  renderPhotosCard();
   const exNames = [...new Set(history.flatMap(h => (h.exercises||[]).map(e => e.name||'')).filter(Boolean))];
   const sel = document.getElementById('progress-ex-sel');
   const prev = sel.value;
@@ -3818,78 +3794,65 @@ function renderMuscleStreak() {
 }
 
 function renderMuscleTrend() {
+  // v1.21: three months side by side (e.g. Ago / Sep / Oct). The trend % compares the
+  // last two COMPLETE months; the current month is shown as "en curso" so a half-done
+  // month no longer reads as a drop. Sub-muscles roll up into their group
+  // (Cuádriceps/Glúteos → Piernas, Abdominales → Core), same as the filters.
   const el = document.getElementById('muscle-trend');
   if (!el) return;
-  const validHistory = history.filter(h => !h.pesoOnly && (h.exercises||[]).length > 0);
-  if (!validHistory.length) {
-    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos aún</div>';
-    return;
-  }
   const today = new Date();
-  const curMonthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-  const prevMonthStart = new Date(today.getFullYear(), today.getMonth()-1, 1);
-  const prevMonthEnd = new Date(today.getFullYear(), today.getMonth(), 0);
-
-  // Get volume per muscle for each month
-  function getVolByMuscle(from, to) {
+  const months = [2, 1, 0].map(back => {
+    const from = new Date(today.getFullYear(), today.getMonth() - back, 1);
+    const to = back === 0 ? today : new Date(today.getFullYear(), today.getMonth() - back + 1, 0, 23, 59, 59);
+    return { from, to, label: from.toLocaleDateString('es-AR', { month: 'short' }).replace('.', '').toUpperCase(), current: back === 0 };
+  });
+  function volByMuscle(from, to) {
     const vol = {};
     history.filter(h => !h.pesoOnly && new Date(h.date) >= from && new Date(h.date) <= to).forEach(h => {
-      (h.exercises||[]).forEach(e => {
-        const m = e.muscle || 'Otro';
-        const v = (e.series||[]).reduce((a,s) => a + ((parseInt(s.reps)||0)*(parseFloat(s.kg)||0) + (parseInt(s.secs)||0)), 0);
-        vol[m] = (vol[m]||0) + v;
+      (h.exercises || []).forEach(e => {
+        const m = muscleGroupOf(e.muscle || 'Otro');
+        const v = (e.series || []).filter(sr => sr.done !== false).reduce((a, sr) => a + ((parseInt(sr.reps) || 0) * (parseFloat(sr.kg) || 0) + (parseInt(sr.secs) || 0)), 0);
+        vol[m] = (vol[m] || 0) + v;
       });
     });
     return vol;
   }
-
-  const curVol = getVolByMuscle(curMonthStart, today);
-  const prevVol = getVolByMuscle(prevMonthStart, prevMonthEnd);
-  const allMuscles = [...new Set([...Object.keys(curVol), ...Object.keys(prevVol)])].sort((a,b) => (curVol[b]||0)-(curVol[a]||0));
-
-  if (!allMuscles.length) {
-    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center">Sin datos suficientes</div>';
+  const vols = months.map(m => volByMuscle(m.from, m.to));
+  const muscles = [...new Set(vols.flatMap(v => Object.keys(v)))]
+    .filter(m => vols.some(v => (v[m] || 0) > 0))
+    .sort((a, b) => ((vols[1][b] || 0) + (vols[2][b] || 0)) - ((vols[1][a] || 0) + (vols[2][a] || 0)));
+  if (!muscles.length) {
+    el.innerHTML = '<div style="font-size:12px;color:#555;text-align:center;padding:8px">Sin datos aún</div>';
     return;
   }
-
-  const accent = 'var(--accent,#E83535)';
-  el.innerHTML = allMuscles.map(muscle => {
-    const cur = Math.round(curVol[muscle]||0);
-    const prev = Math.round(prevVol[muscle]||0);
-    const diff = cur - prev;
-    const pct = prev > 0 ? Math.round((diff/prev)*100) : (cur > 0 ? 100 : 0);
-    const trend = diff > 0 ? '📈' : diff < 0 ? '📉' : '➡️';
-    const trendColor = diff > 0 ? '#22c97a' : diff < 0 ? '#E83535' : '#666';
-    const maxVal = Math.max(cur, prev, 1);
-    const curPct = Math.round((cur/maxVal)*100);
-    const prevPct = Math.round((prev/maxVal)*100);
-    const pctStr = diff === 0 ? 'Sin cambio' : `${diff > 0 ? '+' : ''}${pct}%`;
-
+  const fmtV = v => v > 999 ? (Math.round(v / 100) / 10).toString().replace('.', ',') + 'k' : String(Math.round(v));
+  const barColors = ['#3a3a3a', 'var(--accent,#E83535)', 'var(--accent,#E83535)'];
+  el.innerHTML = muscles.map(muscle => {
+    const v = vols.map(x => Math.round(x[muscle] || 0));
+    const maxVal = Math.max(...v, 1);
+    const prev = v[0], last = v[1];
+    let trendHtml;
+    if (prev > 0) {
+      const pct = Math.round(((last - prev) / prev) * 100);
+      const color = pct > 0 ? '#22c97a' : pct < 0 ? '#E83535' : '#666';
+      trendHtml = `<span style="font-size:11px;font-weight:700;color:${color}">${pct > 0 ? '📈 +' : pct < 0 ? '📉 ' : '➡️ '}${pct}% <span style="color:#555;font-weight:600">${months[1].label} vs ${months[0].label}</span></span>`;
+    } else {
+      trendHtml = `<span style="font-size:11px;font-weight:600;color:#555">${last > 0 ? 'Nuevo en ' + months[1].label : '—'}</span>`;
+    }
+    const rows = months.map((m, k) => `
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+        <div style="font-size:9px;color:${k === 0 ? '#555' : '#888'};width:30px;text-align:right;font-weight:700">${m.label}${m.current ? '*' : ''}</div>
+        <div style="flex:1;height:9px;background:#252525;border-radius:4px;overflow:hidden">
+          <div style="width:${Math.round((v[k] / maxVal) * 100)}%;height:100%;background:${barColors[k]};border-radius:4px;${m.current ? 'opacity:0.45;' : ''}transition:width 0.4s"></div>
+        </div>
+        <div style="font-size:9px;color:${k === 0 ? '#555' : '#aaa'};width:40px;font-family:'DM Mono',monospace">${fmtV(v[k])}</div>
+      </div>`).join('');
     return `<div style="margin-bottom:14px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
-        <span style="font-size:13px;font-weight:700;color:#eee">${muscle}</span>
-        <span style="font-size:11px;font-weight:700;color:${trendColor}">${trend} ${pctStr}</span>
-      </div>
-      <div style="margin-bottom:3px">
-        <div style="display:flex;align-items:center;gap:6px">
-          <div style="font-size:9px;color:#555;width:28px;text-align:right;font-weight:600">MES</div>
-          <div style="flex:1;height:10px;background:#252525;border-radius:4px;overflow:hidden">
-            <div style="width:${curPct}%;height:100%;background:${accent};border-radius:4px;transition:width 0.4s"></div>
-          </div>
-          <div style="font-size:9px;color:#aaa;width:40px;font-family:'DM Mono',monospace">${cur>999?Math.round(cur/1000)+'k':cur}</div>
-        </div>
-      </div>
-      <div>
-        <div style="display:flex;align-items:center;gap:6px">
-          <div style="font-size:9px;color:#444;width:28px;text-align:right;font-weight:600">ANT</div>
-          <div style="flex:1;height:10px;background:#252525;border-radius:4px;overflow:hidden">
-            <div style="width:${prevPct}%;height:100%;background:#333;border-radius:4px"></div>
-          </div>
-          <div style="font-size:9px;color:#555;width:40px;font-family:'DM Mono',monospace">${prev>999?Math.round(prev/1000)+'k':prev}</div>
-        </div>
-      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;gap:8px">
+        <span style="font-size:13px;font-weight:700;color:#eee">${muscle}</span>${trendHtml}
+      </div>${rows}
     </div>`;
-  }).join('');
+  }).join('') + `<div style="font-size:10px;color:#555;margin-top:4px">Volumen = kilos × reps. La tendencia compara los dos últimos meses completos. *${months[2].label} en curso.</div>`;
 }
 
 function renderMuscleStats() {
@@ -4229,7 +4192,7 @@ window.copyNutri = () => {
   navigator.clipboard.writeText(text.trim()).then(()=>showToast('¡Copiado! 📋')).catch(()=>showToast('No se pudo copiar'));
 };
 window.loadNutriEntry = (date) => { document.getElementById('nutri-date-inp').value=date; const e=nutricion.find(n=>n.date===date); document.getElementById('nutri-desayuno').value=e?e.desayuno:''; document.getElementById('nutri-almuerzo').value=e?e.almuerzo:''; document.getElementById('nutri-merienda').value=e?e.merienda:''; document.getElementById('nutri-cena').value=e?e.cena:''; };
-window.deleteNutri = async (fid,date) => { await deleteNutriDB(fid); nutricion=nutricion.filter(n=>n.date!==date); renderNutriHistory(); showToast('Eliminado'); };
+window.deleteNutri = async (fid,date) => { if (!confirm('¿Borrar las comidas de este día?')) return; await deleteNutriDB(fid); nutricion=nutricion.filter(n=>n.date!==date); renderNutriHistory(); showToast('Eliminado'); };
 function renderCierres() {
   const el = document.getElementById('cierres-list');
   if (!el) return;
@@ -4489,22 +4452,92 @@ function renderLastSessionPRs() {
     el.innerHTML = '<div style="font-size:12px;color:#444;text-align:center;padding:8px">Sin récords detectados en la última sesión</div>';
     return;
   }
+  const list = (data.items && data.items.length) ? data.items : data.prs;
   el.innerHTML = `
     <div style="font-size:11px;color:#555;margin-bottom:10px;font-weight:600">${data.date}</div>
-    ${data.prs.map(r => `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <span style="font-size:20px">🏆</span>
-      <span style="font-size:13px;color:#eee;font-weight:600">${r.replace('🏆 ','')}</span>
-    </div>`).join('')}
+    ${list.map(recordLineHTML).join('')}
   `;
+}
+
+// v1.21: "Comidas" is back as an optional tab (after Perfil), switched on from Perfil.
+// Default when the user never touched the switch: on if they already have meal notes or
+// are brand new (so friends can discover it), off otherwise. The default is saved once.
+function comidasEnabled() {
+  if (typeof profile.showComidas === 'boolean') return profile.showComidas;
+  return nutricion.length > 0 || history.length === 0;
+}
+function applyComidasVisibility() {
+  if (typeof profile.showComidas !== 'boolean' && _dataReady && currentUser) {
+    profile.showComidas = comidasEnabled();
+    saveProfileDB().catch(() => {});
+  }
+  const on = comidasEnabled();
+  const btn = document.getElementById('nav-comidas');
+  if (btn) btn.style.display = on ? '' : 'none';
+  const toggle = document.getElementById('comidas-toggle');
+  const dot = document.getElementById('comidas-toggle-dot');
+  if (toggle && dot) {
+    toggle.style.background = on ? 'var(--accent,#E83535)' : '#333';
+    dot.style.transform = on ? 'translateX(18px)' : 'translateX(0)';
+    dot.style.background = on ? '#fff' : '#888';
+  }
+  if (!on && document.getElementById('tab-comidas')?.classList.contains('active')) {
+    switchTab('perfil', document.querySelector('[data-tab=perfil]'));
+  }
+}
+window.toggleComidas = () => {
+  profile.showComidas = !comidasEnabled();
+  applyComidasVisibility();
+  autoSaveProfile(300);
+  showToast(profile.showComidas ? '🍽️ Pestaña Comidas activada (al final del menú)' : 'Pestaña Comidas oculta — tus anotaciones quedan guardadas');
+};
+function openComidasTab() {
+  const inp = document.getElementById('nutri-date-inp');
+  if (inp && !inp.value) { setNutriDateToday(); loadNutriEntry(inp.value); }
+  renderNutriHistory();
+}
+
+// v1.21: progress photos get a visible card near the top of Progreso (before, they hid
+// behind a button at the bottom of Perfil). Shows first vs latest photo when there are 2+.
+function renderPhotosCard() {
+  const el = document.getElementById('photos-card');
+  if (!el) return;
+  const photos = (profile.progressPhotos || []).slice().sort((a, b) => (a.month || '').localeCompare(b.month || ''));
+  const now = new Date();
+  const thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const monthName = now.toLocaleDateString('es-AR', { month: 'long' });
+  const lbl = m => { const [y, mo] = (m || '').split('-').map(Number); return y ? new Date(y, mo - 1, 1).toLocaleDateString('es-AR', { month: 'short', year: '2-digit' }).replace('.', '') : ''; };
+  const hasThisMonth = photos.some(p => p.month === thisMonth);
+  const thumb = (p, tag) => `<div style="position:relative;width:62px;height:82px;border-radius:10px;overflow:hidden;background:#111;flex-shrink:0">
+      <img src="${p.url}" alt="" style="width:100%;height:100%;object-fit:cover"/>
+      <div style="position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:12px 4px 4px;font-size:9px;font-weight:700;color:#fff;text-align:center;line-height:1.25">${tag}</div>
+    </div>`;
+  let thumbs = '';
+  if (photos.length >= 2) thumbs = thumb(photos[0], 'ANTES<br><span style="font-weight:600;color:#ccc">' + lbl(photos[0].month) + '</span>') + thumb(photos[photos.length - 1], 'AHORA<br><span style="font-weight:600;color:#ccc">' + lbl(photos[photos.length - 1].month) + '</span>');
+  else if (photos.length === 1) thumbs = thumb(photos[0], lbl(photos[0].month));
+  else thumbs = `<div style="width:62px;height:82px;border-radius:10px;border:1.5px dashed #333;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">📸</div>`;
+  const sub = photos.length
+    ? `${photos.length === 1 ? '1 foto' : photos.length + ' fotos'}${hasThisMonth ? ' · la de ' + monthName + ' ya está ✓' : ''}`
+    : 'Sacate una por mes, mismo lugar y misma luz, y mirá el cambio.';
+  const cta = hasThisMonth ? 'Ver todas →' : (photos.length ? '+ Foto de ' + monthName : '+ Agregar la primera');
+  el.innerHTML = `<div onclick="openProgressPhotosScreen()" style="margin:10px 12px 0;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:14px;padding:12px;display:flex;gap:12px;align-items:center;cursor:pointer">
+      <div style="display:flex;gap:6px">${thumbs}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:700;color:#fff">📸 Fotos de progreso</div>
+        <div style="font-size:11px;color:#777;margin:3px 0 8px;line-height:1.4">${sub}</div>
+        <button onclick="event.stopPropagation();${hasThisMonth ? 'openProgressPhotosScreen()' : 'openAddPhotoModal()'}" style="padding:7px 12px;background:${hasThisMonth ? 'none' : 'var(--accent,#E83535)'};border:${hasThisMonth ? '1px solid #333' : 'none'};border-radius:9px;color:${hasThisMonth ? '#aaa' : 'var(--on-accent,#fff)'};font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">${cta}</button>
+      </div>
+    </div>`;
 }
 
 function renderNutriHistory() {
   const wrap = document.getElementById('nutri-history-wrap');
+  if (!wrap) return;
   if (!nutricion.length) { wrap.style.display='none'; return; }
   wrap.style.display='block';
   document.getElementById('nutri-history-list').innerHTML = nutricion.map(n => {
     const d = new Date(n.date+'T12:00:00').toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short'});
-    let body=''; if(n.desayuno)body+=`🌅 ${n.desayuno}\n`; if(n.almuerzo)body+=`☀️ ${n.almuerzo}\n`; if(n.merienda)body+=`🍎 ${n.merienda}\n`; if(n.cena)body+=`🌙 ${n.cena}`;
+    let body=''; if(n.desayuno)body+=`🌅 ${escHtml(n.desayuno)}\n`; if(n.almuerzo)body+=`☀️ ${escHtml(n.almuerzo)}\n`; if(n.merienda)body+=`🍎 ${escHtml(n.merienda)}\n`; if(n.cena)body+=`🌙 ${escHtml(n.cena)}`;
     return `<div class="nutri-hist-item"><div class="nutri-hist-header"><span style="cursor:pointer" onclick="loadNutriEntry('${n.date}')">${d}</span><button class="nutri-hist-del" onclick="deleteNutri('${n.fid}','${n.date}')">✕</button></div><div class="nutri-hist-body">${body.trim()}</div></div>`;
   }).join('');
 }
@@ -4512,6 +4545,7 @@ const _nutriInp = document.getElementById('nutri-date-inp'); if(_nutriInp) _nutr
 
 /* ── PERFIL ── */
 function renderProfile() {
+  applyComidasVisibility();
   if (profile.nickname) document.getElementById('profile-nickname').value = profile.nickname;
   if (profile.frase) document.getElementById('profile-frase').value = profile.frase;
   if (profile.objetivo) {
@@ -5005,166 +5039,42 @@ window.cerrarMesManual = () => {
   showCierreDeMes(monthHistory, monthStart);
 };
 
-function rebuildMonthlyPRs() {
-  // Recalculate all PRs broken this month from history
+function rebuildMonthlyPRs(noSave) {
+  // v1.21: recomputed from history every time with the shared record engine. Each
+  // session this month is compared with everything before it, so repeated records for
+  // the same exercise still count (intended), and false records from older versions
+  // disappear on their own.
   const now = new Date();
   const monthKey = `${now.getFullYear()}-${now.getMonth()}`;
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-  // Already have data for this month — skip
-  if (profile.monthlyPRs?.monthKey === monthKey && profile.monthlyPRs.prs.length > 1) return;
-
-  const monthSessions = history
-    .filter(h => !h.pesoOnly && new Date(h.date) >= monthStart)
-    .sort((a,b) => new Date(a.date) - new Date(b.date));
-
-  if (monthSessions.length < 1) return;
-
-  const allMonthPRs = [];
-
-  monthSessions.forEach(session => {
-    const sessionDate = new Date(session.date).toDateString();
-    // Get history BEFORE this session
-    const prevHistory = history.filter(h => !h.pesoOnly && new Date(h.date).toDateString() !== sessionDate && new Date(h.date) < new Date(session.date));
-
-    function getPrevPR(exName) {
-      const aliases = getAliases(exName);
-      let prKg = 0, prReps = 0, prSecs = 0, bestKgReps = 0;
-      prevHistory.forEach(h => {
-        (h.exercises||[]).forEach(e => {
-          if (!aliases.includes(normalizeExName(e.name))) return;
-          (e.series||[]).forEach(s => {
-            const kg = parseFloat(s.kg)||0, reps = parseInt(s.reps)||0, secs = parseInt(s.secs)||0;
-            if (kg > prKg) { prKg = kg; bestKgReps = reps; }
-            else if (kg === prKg && reps > bestKgReps) bestKgReps = reps;
-            if (reps > prReps) prReps = reps;
-            if (secs > prSecs) prSecs = secs;
-          });
-        });
-      });
-      return { kg: prKg, reps: prReps, secs: prSecs, bestKgReps };
-    }
-
-    (session.exercises||[]).forEach(ex => {
-      const type = ex.type || 'normal';
-      const prev = getPrevPR(ex.name);
-      const series = ex.series || [];
-
-      if (type === 'time') {
-        const maxSecs = Math.max(...series.map(s=>parseInt(s.secs)||0), 0);
-        if (maxSecs > prev.secs) allMonthPRs.push(`🏆 ${ex.name}: ${maxSecs}s`);
-      } else if (type === 'bw_lastre' || type === 'bw') {
-        const maxReps = Math.max(...series.map(s=>parseInt(s.reps)||0), 0);
-        if (maxReps > prev.reps) allMonthPRs.push(`🏆 ${ex.name}: ${maxReps} reps`);
-      } else {
-        let bestSerie = null, bestOrm = 0;
-        series.forEach(s => {
-          const kg = parseFloat(s.kg)||0, reps = parseInt(s.reps)||0;
-          if (kg > 0 && reps > 0) {
-            const orm = kg * (1 + reps/30);
-            if (orm > bestOrm) { bestOrm = orm; bestSerie = s; }
-          }
-        });
-        if (!bestSerie) return;
-        const kg = parseFloat(bestSerie.kg)||0;
-        const reps = parseInt(bestSerie.reps)||0;
-        const prevOrm = prev.kg * (1 + (prev.bestKgReps||0)/30);
-        if (kg > prev.kg) allMonthPRs.push(`🏆 ${ex.name}: ${kg}kg`);
-        else if (kg === prev.kg && reps > prev.bestKgReps) allMonthPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps`);
-        else if (bestOrm > prevOrm && bestOrm > 0) allMonthPRs.push(`🏆 ${ex.name}: 1RM ~${Math.round(bestOrm*10)/10}kg`);
-      }
-    });
+  const real = history.filter(h => !h.pesoOnly).slice().sort((a, b) => new Date(a.date) - new Date(b.date));
+  const prs = [], items = [];
+  real.forEach((session, k) => {
+    if (new Date(session.date) < monthStart) return;
+    sessionRecords(session.exercises, real.slice(0, k)).forEach(r => { prs.push(r.text); items.push(r); });
   });
-
-  if (allMonthPRs.length > 0) {
-    profile.monthlyPRs = { monthKey, prs: allMonthPRs };
-    saveProfileDB();
-    console.log(`Rebuilt ${allMonthPRs.length} PRs for this month`);
-  }
+  const next = { monthKey, prs, items, v: 2 };
+  const changed = JSON.stringify(profile.monthlyPRs || null) !== JSON.stringify(next);
+  profile.monthlyPRs = next;
+  if (changed && !noSave) saveProfileDB();
 }
 
 function detectLastSessionPRs() {
-  // Find the most recent real workout
-  const realHistory = history.filter(h => !h.pesoOnly);
-  if (realHistory.length < 2) return; // need at least 2 sessions to compare
-
-  const lastSession = realHistory[0];
-  const lastDate = new Date(lastSession.date).toDateString();
-
-  // Get all sessions BEFORE the last one
-  const prevHistory = realHistory.slice(1);
-
-  // Temporarily use prevHistory to calculate PRs
-  function getPRFromHistory(exName, hist) {
-    const aliases = getAliases(exName);
-    let prKg = 0, prReps = 0, prSecs = 0;
-    hist.forEach(h => {
-      (h.exercises||[]).forEach(e => {
-        if (!aliases.includes(normalizeExName(e.name))) return;
-        (e.series||[]).forEach(s => {
-          const kg = parseFloat(s.kg)||0;
-          const reps = parseInt(s.reps)||0;
-          const secs = parseInt(s.secs)||0;
-          if (kg > prKg) prKg = kg;
-          if (reps > prReps) prReps = reps;
-          if (secs > prSecs) prSecs = secs;
-        });
-      });
-    });
-    return { kg: prKg, reps: prReps, secs: prSecs };
-  }
-
-  const sessionPRs = [];
-  (lastSession.exercises||[]).forEach(ex => {
-    const exType = ex.type || 'normal';
-    const prevPR = getPRFromHistory(ex.name, prevHistory);
-    const doneSeries = ex.series || [];
-
-    if (exType === 'time') {
-      const maxSecs = Math.max(...doneSeries.map(s=>parseInt(s.secs)||0), 0);
-      if (maxSecs > prevPR.secs) sessionPRs.push(`🏆 ${ex.name}: ${maxSecs}s`);
-    } else if (exType === 'bw_lastre' || exType === 'bw') {
-      const maxReps = Math.max(...doneSeries.map(s=>parseInt(s.reps)||0), 0);
-      if (maxReps > prevPR.reps) sessionPRs.push(`🏆 ${ex.name}: ${maxReps} reps`);
-    } else {
-      let bestSerie = null, bestOrm = 0;
-      doneSeries.forEach(s => {
-        const kg = parseFloat(s.kg)||0, reps = parseInt(s.reps)||0;
-        if (kg > 0 && reps > 0) {
-          const orm = kg * (1 + reps/30);
-          if (orm > bestOrm) { bestOrm = orm; bestSerie = s; }
-        }
-      });
-      if (!bestSerie) return;
-      const kg = parseFloat(bestSerie.kg)||0;
-      const reps = parseInt(bestSerie.reps)||0;
-      const prevOrm = (prevPR.kg||0) * (1 + (prevPR.bestKgReps||0)/30);
-      if (kg > (prevPR.kg||0)) {
-        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg (nuevo máximo)`);
-      } else if (kg === prevPR.kg && reps > (prevPR.bestKgReps||0)) {
-        const deltaTxt = prevPR.bestKgReps > 0 ? ` (+${reps-prevPR.bestKgReps} reps)` : '';
-        sessionPRs.push(`🏆 ${ex.name}: ${kg}kg × ${reps} reps${deltaTxt}`);
-      } else if (bestOrm > prevOrm) {
-        sessionPRs.push(`🏆 ${ex.name}: 1RM ~${Math.round(bestOrm*10)/10}kg`);
-      }
-    }
-  });
-
-  // Save last session PRs + accumulate in monthly
-  profile.lastSessionPRs = {
-    date: new Date(lastSession.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
-    sessionDate: lastDate,
-    prs: sessionPRs
+  const real = history.filter(h => !h.pesoOnly).slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (!real.length) return;
+  const last = real[0];
+  const recs = sessionRecords(last.exercises, real.slice(1));
+  const next = {
+    date: new Date(last.date).toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long'}),
+    sessionDate: new Date(last.date).toDateString(),
+    prs: recs.map(r => r.text),
+    items: recs
   };
-  // Accumulate in monthly PRs
-  const monthKey = `${new Date(lastSession.date).getFullYear()}-${new Date(lastSession.date).getMonth()}`;
-  const existingMonthPRs = (profile.monthlyPRs?.monthKey === monthKey) ? profile.monthlyPRs.prs : [];
-  // Avoid duplicating if same session already counted
-  const alreadyCounted = existingMonthPRs.some(p => p === sessionPRs[0] && profile.lastSessionPRs?.sessionDate === lastDate);
-  if (!alreadyCounted) {
-    profile.monthlyPRs = { monthKey, prs: [...existingMonthPRs, ...sessionPRs] };
-  }
-  saveProfileDB();
+  const changed = JSON.stringify(profile.lastSessionPRs || null) !== JSON.stringify(next);
+  profile.lastSessionPRs = next;
+  rebuildMonthlyPRs(true);
+  if (changed) saveProfileDB();
+  if (typeof renderLastSessionPRs === 'function') renderLastSessionPRs();
 }
 
 function checkCierreDeMes(force = false) {
@@ -5767,24 +5677,8 @@ window.wmToggleDone = (exId, idx) => {
     if (!wasDone) startWmTimer(90);
     // Same PR-detection + confetti as the regular Hoy screen (toggleDone) — was missing here.
     if (!wasDone && ex.series[idx].done) {
-      const serie = ex.series[idx];
-      const prs = getAllPRs(ex.name);
-      const type = ex.type || 'normal';
-      let isPR = false;
-      if (type === 'time' && (parseInt(serie.secs)||0) > prs.secs) isPR = true;
-      else if ((type==='bw_lastre'||type==='bw') && (parseInt(serie.reps)||0) > prs.reps) isPR = true;
-      else if (type==='normal') {
-        const kg = parseFloat(serie.kg)||0;
-        const reps = parseInt(serie.reps)||0;
-        if (kg > prs.kg) isPR = true;
-        else if (kg === prs.kg && reps > (prs.bestKgReps||0)) isPR = true;
-        else if (kg > 0 && reps > 0 && prs.kg > 0) {
-          const newOrm = kg * (1 + reps/30);
-          const prevOrm = prs.kg * (1 + (prs.bestKgReps||0)/30);
-          if (newOrm > prevOrm) isPR = true;
-        }
-      }
-      if (isPR) setTimeout(fireConfetti, 150);
+      const rec = liveSetRecord(ex, idx);
+      if (rec) { setTimeout(fireConfetti, 150); showToast(rec.short); }
     }
   }
 };
@@ -5854,6 +5748,123 @@ window.stopRestTimer = () => {
 window.setRestDuration = (secs) => {
   startRestTimer(secs);
 };
+
+/* ── RÉCORDS (v1.21): una sola definición para toda la app ──
+   Antes había 4 copias de la lógica y no coincidían. La de "Récords — última sesión"
+   ni siquiera calculaba "reps en tu peso máximo" (quedaba en 0), así que igualar tu
+   peso máximo con MENOS reps contaba como récord, y una comparación de "1RM estimado"
+   contra tu peso máximo crudo saltaba casi siempre. Ahora hay solo dos tipos, claros:
+     PESO → tu serie más pesada supera tu peso máximo anterior.
+     REPS → mismo peso máximo que antes, más reps que tu mejor serie con ese peso (+N).
+   (Peso corporal: más reps que nunca. Por tiempo: más segundos que nunca.)
+   La primera vez que hacés un ejercicio es tu punto de partida, no un récord. Las
+   series que quedaron sin marcar como hechas no cuentan. */
+function bestsFor(exName, hist) {
+  const aliases = getAliases(exName);
+  let seen = false, maxKg = 0, repsAtMaxKg = 0, maxReps = 0, maxRepsNoKg = 0, maxSecs = 0;
+  (hist || []).forEach(h => {
+    if (!h || h.pesoOnly) return;
+    (h.exercises || []).forEach(e => {
+      if (!aliases.includes(normalizeExName(e.name))) return;
+      (e.series || []).forEach(sr => {
+        if (sr.done === false) return;
+        seen = true;
+        const kg = parseFloat(sr.kg) || 0, reps = parseInt(sr.reps) || 0, secs = parseInt(sr.secs) || 0;
+        if (kg > maxKg) { maxKg = kg; repsAtMaxKg = reps; }
+        else if (kg === maxKg && reps > repsAtMaxKg) repsAtMaxKg = reps;
+        if (reps > maxReps) maxReps = reps;
+        if (kg <= 0 && reps > maxRepsNoKg) maxRepsNoKg = reps;
+        if (secs > maxSecs) maxSecs = secs;
+      });
+    });
+  });
+  return { seen, maxKg, repsAtMaxKg, maxReps, maxRepsNoKg, maxSecs };
+}
+function fmtKg(n) { return String(Math.round(n * 100) / 100).replace('.', ','); }
+// At most ONE record per exercise per session. Returns null or
+// { kind: 'peso'|'reps'|'tiempo', name, value, delta, before, text, short }.
+function recordFor(name, type, sets, prev) {
+  if (!prev || !prev.seen) return null;
+  const done = (sets || []).filter(sr => sr.done !== false);
+  if (!done.length) return null;
+  const t = type || 'normal';
+  if (t === 'time') {
+    const secs = Math.max(0, ...done.map(sr => parseInt(sr.secs) || 0));
+    if (prev.maxSecs > 0 && secs > prev.maxSecs) {
+      const d = secs - prev.maxSecs;
+      return { kind: 'tiempo', name, value: secs + ' s', delta: '+' + d + ' s', before: prev.maxSecs + ' s',
+        text: '⏱️ ' + name + ' · ' + secs + ' s — +' + d + ' s (antes ' + prev.maxSecs + ' s)', short: '¡+' + d + ' s! Nuevo récord de tiempo' };
+    }
+    return null;
+  }
+  const withKg = done.some(sr => (parseFloat(sr.kg) || 0) > 0);
+  if (t === 'bw' || (t === 'bw_lastre' && !withKg)) {
+    // Bodyweight only: more reps than ever without extra weight
+    const reps = Math.max(0, ...done.filter(sr => (parseFloat(sr.kg) || 0) <= 0).map(sr => parseInt(sr.reps) || 0));
+    const best = t === 'bw' ? prev.maxReps : prev.maxRepsNoKg;
+    if (best > 0 && reps > best) {
+      const d = reps - best;
+      return { kind: 'reps', name, value: reps + ' reps', delta: '+' + d + (d === 1 ? ' rep' : ' reps'), before: best + ' reps',
+        text: '🔁 ' + name + ' · ' + reps + ' reps — +' + d + (d === 1 ? ' rep' : ' reps') + ' (antes ' + best + ')', short: '¡+' + d + (d === 1 ? ' rep' : ' reps') + '! Récord de reps' };
+    }
+    return null;
+  }
+  let maxKg = 0, repsAtMax = 0;
+  done.forEach(sr => {
+    const kg = parseFloat(sr.kg) || 0, reps = parseInt(sr.reps) || 0;
+    if (kg > maxKg) { maxKg = kg; repsAtMax = reps; }
+    else if (kg === maxKg && reps > repsAtMax) repsAtMax = reps;
+  });
+  if (t === 'bw_lastre' && maxKg > 0 && prev.maxKg <= 0) {
+    return { kind: 'peso', name, value: '+' + fmtKg(maxKg) + ' kg × ' + repsAtMax, delta: '+' + fmtKg(maxKg) + ' kg', before: 'sin lastre',
+      text: '🏋️ ' + name + ' · +' + fmtKg(maxKg) + ' kg × ' + repsAtMax + ' — primera vez con lastre', short: '¡Primera vez con lastre! +' + fmtKg(maxKg) + ' kg' };
+  }
+  if (maxKg <= 0 || prev.maxKg <= 0) return null;
+  if (maxKg > prev.maxKg) {
+    return { kind: 'peso', name, value: fmtKg(maxKg) + ' kg × ' + repsAtMax, delta: '+' + fmtKg(maxKg - prev.maxKg) + ' kg', before: fmtKg(prev.maxKg) + ' kg',
+      text: '🏋️ ' + name + ' · ' + fmtKg(maxKg) + ' kg × ' + repsAtMax + ' — nuevo peso máximo (antes ' + fmtKg(prev.maxKg) + ' kg)', short: '¡Nuevo peso máximo! ' + fmtKg(maxKg) + ' kg' };
+  }
+  if (maxKg === prev.maxKg && prev.repsAtMaxKg > 0 && repsAtMax > prev.repsAtMaxKg) {
+    const d = repsAtMax - prev.repsAtMaxKg;
+    return { kind: 'reps', name, value: fmtKg(maxKg) + ' kg × ' + repsAtMax, delta: '+' + d + (d === 1 ? ' rep' : ' reps'), before: prev.repsAtMaxKg + ' reps',
+      text: '🔁 ' + name + ' · ' + fmtKg(maxKg) + ' kg × ' + repsAtMax + ' — +' + d + (d === 1 ? ' rep' : ' reps') + ' (antes ' + prev.repsAtMaxKg + ')', short: '¡+' + d + (d === 1 ? ' rep' : ' reps') + ' con ' + fmtKg(maxKg) + ' kg!' };
+  }
+  return null;
+}
+// Records of one session vs. a given "before" history
+function sessionRecords(sessionExercises, prevHist) {
+  return (sessionExercises || []).map(ex => recordFor(ex.name, ex.type || catalogTypeOf(ex.name), ex.series, bestsFor(ex.name, prevHist))).filter(Boolean);
+}
+// Old history entries may not carry the exercise type — take it from the catalog
+function catalogTypeOf(name) {
+  const key = getAliases(name)[0];
+  const c = (exercises || []).find(e => getAliases(e.name)[0] === key);
+  return (c && c.type) || 'normal';
+}
+// Live check while logging: this set vs. history PLUS the other sets already done today,
+// so a second set at the same new max doesn't celebrate again unless it beats the first.
+function liveSetRecord(ex, idx) {
+  // First time ever with this exercise = baseline, even from the 2nd set on
+  if (!bestsFor(ex.name, history).seen) return null;
+  const others = (ex.series || []).filter((sr, i) => i !== idx && sr.done);
+  const base = history.concat(others.length ? [{ exercises: [{ name: ex.name, series: others }] }] : []);
+  return recordFor(ex.name, ex.type, [ex.series[idx]], bestsFor(ex.name, base));
+}
+// One record line as HTML: a clear PESO / REPS / TIEMPO badge + the detail
+const REC_STYLE = { peso: ['NUEVO PESO', '🏋️'], reps: ['MÁS REPS', '🔁'], tiempo: ['MÁS TIEMPO', '⏱️'] };
+function recordLineHTML(rec) {
+  if (typeof rec === 'string') { // legacy text saved by older versions
+    return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:18px">🏆</span><span style="font-size:13px;color:#eee;font-weight:600">' + escHtml(rec.replace('🏆 ', '')) + '</span></div>';
+  }
+  const st = REC_STYLE[rec.kind] || ['RÉCORD', '🏆'];
+  return '<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;background:#111;border-radius:10px;padding:9px 11px">'
+    + '<span style="font-size:20px">' + st[1] + '</span>'
+    + '<span style="flex:1;min-width:0"><span style="display:block;font-size:13px;color:#eee;font-weight:700">' + escHtml(rec.name) + '</span>'
+    + '<span style="display:block;font-size:12px;color:#9aa3ad;font-family:\'DM Mono\',monospace">' + escHtml(rec.value) + ' · antes ' + escHtml(rec.before) + '</span></span>'
+    + '<span style="text-align:right;flex-shrink:0"><span style="display:block;font-size:10px;font-weight:700;letter-spacing:0.4px;color:var(--red-dark)">' + st[0] + '</span>'
+    + '<span style="display:block;font-size:14px;font-weight:700;color:var(--accent,#E83535)">' + escHtml(rec.delta) + '</span></span>'
+    + '</div>';
+}
 
 /* ── GUÍA DE BIENVENIDA (v1.20) ──
    Shown once per account (profile.guideVersion, mirrored in localStorage so it doesn't
@@ -6299,6 +6310,21 @@ window.openSessionPlannerPicker = (addingMore = false) => {
 };
 
 /* ── COACH IA ── */
+// v1.21: when the Coach fails, say why (no credit, invalid/expired key, model gone...)
+// instead of a generic message. Anthropic's API returns { type: 'error', error: { type, message } }.
+async function coachErrorText(response, data) {
+  const msg = ((data && data.error && (data.error.message || data.error)) || (data && data.message) || '').toString();
+  const low = msg.toLowerCase();
+  const st = response ? response.status : 0;
+  if (low.includes('credit balance')) return 'Sin crédito en la cuenta de la API de Anthropic. Cargá saldo en console.anthropic.com → Billing.';
+  if (st === 401 || low.includes('x-api-key') || low.includes('authentication') || low.includes('invalid api key')) return 'La API key no es válida o fue revocada. Generá una nueva en console.anthropic.com y actualizala en el Worker de Cloudflare.';
+  if (st === 404 || low.includes('model')) return 'El modelo configurado no está disponible (' + (msg || 'not found') + '). Hay que actualizar el nombre del modelo en la app.';
+  if (st === 429) return 'Se alcanzó el límite de uso de la API por ahora. Probá de nuevo en un rato.';
+  if (st === 529 || low.includes('overloaded')) return 'Los servidores de Anthropic están saturados. Probá de nuevo en unos minutos.';
+  if (st >= 500 && !msg) return 'El Worker de Cloudflare respondió con error ' + st + '. Revisá el Worker en el panel de Cloudflare.';
+  return 'Error del Coach' + (st ? ' (' + st + ')' : '') + (msg ? ': ' + msg : '. Revisá la conexión.');
+}
+
 window.runCoachAnalysis = async () => {
   const btn = document.getElementById('coach-btn');
   const loading = document.getElementById('coach-loading');
@@ -6424,8 +6450,17 @@ window.runCoachAnalysis = async () => {
       })
     });
 
-    const data = await response.json();
-    const text = data.content?.[0]?.text || 'No se pudo obtener el análisis.';
+    let data = null;
+    try { data = await response.json(); } catch (e) { data = null; }
+    if (!response.ok || !data || data.type === 'error' || data.error || !data.content?.[0]?.text) {
+      const why = await coachErrorText(response, data);
+      result.innerHTML = '<div style="background:rgba(232,53,53,0.1);border:1px solid rgba(232,53,53,0.3);border-radius:12px;padding:16px;color:#ff9a9a;font-size:13px;line-height:1.5">⚠️ ' + escHtml(why) + '</div>';
+      result.style.display = 'block';
+      loading.style.display = 'none';
+      btn.style.display = '';
+      return;
+    }
+    const text = data.content[0].text;
     // If the model ran out of room mid-answer, say so instead of silently showing a
     // response that just stops — this is the failure mode sending the full raw data risks.
     const cutOff = data.stop_reason === 'max_tokens';
@@ -6465,7 +6500,7 @@ window.runCoachAnalysis = async () => {
     result.style.display = 'block';
 
   } catch(e) {
-    result.innerHTML = '<div style="background:rgba(232,53,53,0.1);border:1px solid rgba(232,53,53,0.3);border-radius:12px;padding:16px;color:#ff7070;font-size:13px">Error al conectar con el Coach. Intentá de nuevo.</div>';
+    result.innerHTML = '<div style="background:rgba(232,53,53,0.1);border:1px solid rgba(232,53,53,0.3);border-radius:12px;padding:16px;color:#ff7070;font-size:13px;line-height:1.5">⚠️ No se pudo conectar con el Coach' + (navigator.onLine === false ? ' (estás sin internet).' : ': el Worker de Cloudflare no respondió (' + escHtml(e && e.message || 'error de red') + ').') + '</div>';
     result.style.display = 'block';
     console.error(e);
   }
@@ -6505,8 +6540,14 @@ window.runCoachFollowup = async () => {
         ]
       })
     });
-    const data = await response.json();
-    const text = data.content?.[0]?.text || 'Sin respuesta.';
+    let data = null;
+    try { data = await response.json(); } catch (e) { data = null; }
+    if (!response.ok || !data || data.type === 'error' || data.error || !data.content?.[0]?.text) {
+      res.innerHTML = '<div style="color:#ff9a9a;font-size:12px;line-height:1.5">⚠️ ' + escHtml(await coachErrorText(response, data)) + '</div>';
+      inp.disabled = false;
+      return;
+    }
+    const text = data.content[0].text;
     const rendered = text
       .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
       .split('\n').join('<br>');
@@ -6515,7 +6556,7 @@ window.runCoachFollowup = async () => {
       + rendered + '</div>';
     inp.value = '';
   } catch(e) {
-    res.innerHTML = '<div style="color:#ff7070;font-size:12px">Error al consultar. Intentá de nuevo.</div>';
+    res.innerHTML = '<div style="color:#ff7070;font-size:12px;line-height:1.5">⚠️ No se pudo conectar con el Coach' + (navigator.onLine === false ? ' (estás sin internet).' : ' (' + escHtml(e && e.message || 'error de red') + ').') + '</div>';
   }
   inp.disabled = false;
 };
@@ -6618,6 +6659,7 @@ function renderProgressPhotos() {
   const countEl = document.getElementById('progress-photos-count');
   const photos = profile.progressPhotos || [];
   if (countEl) countEl.textContent = photos.length === 1 ? '1 foto' : `${photos.length} fotos`;
+  renderPhotosCard();
   if (!grid) return;
   if (!photos.length) {
     grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#333;font-size:12px;padding:20px">No hay fotos aún. ¡Agregá tu primera foto!</div>';
