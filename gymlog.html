@@ -67,6 +67,65 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .fire-month{display:inline-block;filter:hue-rotate(190deg) saturate(1.5)}
 .avatar-btn{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,0.4);background:rgba(0,0,0,0.2);cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:14px}
 .avatar-btn img{width:100%;height:100%;object-fit:cover}
+/* v1.23 — Kaishu en el círculo del header */
+.avatar-btn{position:relative}
+.avatar-btn.kaishu{width:38px;height:38px;background:#0d0d0d;border-color:rgba(255,255,255,0.55);overflow:visible}
+.kz-face-wrap{position:absolute;inset:0;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:17px}
+.avatar-btn .kz-face{position:absolute;max-width:none;height:auto;object-fit:initial}
+.avatar-btn .kz-new{position:absolute;top:-3px;right:-3px;width:14px;height:14px;border-radius:50%;background:#ffd166;color:#111;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;animation:kzPing 1.2s ease-in-out infinite}
+@keyframes kzPing{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
+/* v1.23 — pantalla del Kaishu */
+.kz-screen{display:none;position:fixed;inset:0;background:#0d0d0d;z-index:9990;flex-direction:column}
+.kz-top{display:flex;align-items:center;gap:8px;padding:14px 12px;border-bottom:1px solid #2e2e2e;flex-shrink:0}
+.kz-top .kz-back{background:none;border:none;color:#f0ede8;font-size:20px;cursor:pointer;padding:4px 8px}
+.kz-title{flex:1;min-width:0}.kz-name{font-size:17px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px}
+.kz-name button{background:none;border:none;color:#666;font-size:13px;cursor:pointer}
+.kz-path{font-size:12px;color:#888;font-weight:600}
+.kz-body{flex:1;overflow-y:auto;padding:14px 12px 28px;max-width:480px;width:100%;margin:0 auto}
+.kz-stage{position:relative;width:min(78%,300px);aspect-ratio:2/3;margin:0 auto}
+.kz-stage img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:50% 60%}
+.kz-stage .kz-next{filter:brightness(0);opacity:.2}
+.kz-stage .kz-cur{animation:kzFloat 3.2s ease-in-out infinite}
+.kz-stage.sombra .kz-cur{animation:kzFloat 3.2s ease-in-out infinite,kzPulseM 2.4s ease-in-out infinite}
+.kz-stage.mecha .kz-cur{animation:kzFloat 2.6s ease-in-out infinite,kzPulseO 3s ease-in-out infinite}
+@keyframes kzFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2.5%) scale(1.02,.99)}}
+@keyframes kzPulseM{0%,100%{filter:drop-shadow(0 0 2px rgba(255,40,160,.35))}50%{filter:drop-shadow(0 0 14px rgba(255,40,160,.75))}}
+@keyframes kzPulseO{0%,100%{filter:drop-shadow(0 0 1px rgba(255,160,40,.2))}50%{filter:drop-shadow(0 0 8px rgba(255,160,40,.5))}}
+.kz-stage.up .kz-cur{animation:kzShake .45s ease-in-out 2,kzFlash .9s ease-out .9s}
+@keyframes kzShake{0%,100%{transform:rotate(0)}25%{transform:rotate(-5deg)}75%{transform:rotate(5deg)}}
+@keyframes kzFlash{0%{filter:brightness(1)}35%{filter:brightness(3) drop-shadow(0 0 30px #fff)}100%{filter:brightness(1)}}
+.kz-led{position:absolute;width:5%;aspect-ratio:1;border-radius:50%;background:radial-gradient(#fff6c8,#ffb020 45%,rgba(255,150,0,0) 70%);transform:translate(-50%,-50%);animation:kzBlink 1.6s steps(2) infinite;pointer-events:none;display:none}
+.kz-led.b{animation-delay:.8s;width:6%}
+@keyframes kzBlink{0%{opacity:1}100%{opacity:.15}}
+.kz-zap{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible;-webkit-mask-size:100% 100%;mask-size:100% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat}
+.kz-stage.charged .kz-cur{filter:brightness(1.12) drop-shadow(0 0 10px rgba(120,220,255,.55)) !important}
+.kz-stage.charged .kz-led{opacity:1 !important;filter:brightness(1.6) hue-rotate(160deg)}
+.kz-lvl{text-align:center;font-size:24px;font-weight:800;margin-top:6px}
+.kz-msg{text-align:center;font-size:13px;color:#999;margin-top:2px;min-height:18px}
+.kz-xp{margin:12px 4px 0}.kz-xp-row{display:flex;justify-content:space-between;font-size:11px;color:#888;font-weight:600;margin-bottom:5px}
+.kz-xp-bar{height:9px;border-radius:5px;background:#222;overflow:hidden}.kz-xp-fill{height:100%;border-radius:5px;background:var(--accent,#E83535);transition:width .6s}
+.kz-next-up{margin-top:10px;background:#161616;border:1px solid #2a2a2a;border-radius:12px;padding:10px 12px;font-size:12px;color:#bbb;line-height:1.4}
+.kz-sec{font-size:11px;font-weight:700;color:#666;letter-spacing:.5px;margin:18px 2px 8px}
+.kz-evos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.kz-evo{background:#161616;border:1px solid #2a2a2a;border-radius:12px;padding:6px 4px 8px;text-align:center}
+.kz-evo.on{border-color:var(--accent,#E83535)}
+.kz-evo .kz-evo-img{height:58px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#333}
+.kz-evo img{height:58px;width:auto;object-fit:contain}
+.kz-evo-n{font-size:10px;font-weight:700;color:#ddd;margin-top:4px}.kz-evo-l{font-size:9px;color:#666;margin-top:1px;line-height:1.25}
+.kz-how{font-size:11px;color:#666;line-height:1.6;background:#141414;border-radius:10px;padding:10px 12px}
+.kz-btn{width:100%;padding:12px;border-radius:12px;border:1px solid #2e2e2e;background:#1a1a1a;color:#ddd;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
+.kz-btn.main{background:var(--accent,#E83535);border:none;color:var(--on-accent,#fff)}
+.kz-prev{display:none;margin-top:10px}.kz-prev.on{display:block}
+.kz-chips{display:flex;gap:6px;justify-content:center;margin-top:8px}
+.kz-chips button{width:48px;padding:7px 0;border-radius:10px;border:1px solid #2e2e2e;background:#111;color:#888;font-weight:700;cursor:pointer}
+.kz-chips button.on{background:#fff;color:#111}
+.kz-banner{text-align:center;font-size:11px;font-weight:700;color:#ffd166;margin-top:6px}
+.kz-pick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.kz-pick-card{background:#161616;border:2px solid #2a2a2a;border-radius:16px;padding:10px 8px 12px;text-align:center;cursor:pointer}
+.kz-pick-card.sel{border-color:var(--accent,#E83535);background:#1c1416}
+.kz-pick-card .kz-stage{width:100%}
+.kz-pick-name{font-size:16px;font-weight:800;margin-top:4px}.kz-pick-desc{font-size:11px;color:#888;line-height:1.35;margin-top:3px}
+
 .date-sub{font-size:11px;color:rgba(255,255,255,0.75);padding:0 0 6px;white-space:nowrap;overflow:hidden;font-family:'DM Mono',monospace;position:relative;z-index:1}
 .days-since{font-size:11px;padding:0;position:relative;z-index:1;color:rgba(255,255,255,0.75)}
 .days-since span{font-weight:700;color:#fff}
@@ -497,7 +556,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <div class="days-since" id="days-since"></div>
       </div>
       <div class="header-right">
-        <div class="avatar-btn" id="avatar-btn" onclick="switchTab('perfil',document.querySelector('[data-tab=perfil]'))">🏋️</div>
+        <div class="avatar-btn" id="avatar-btn" onclick="openKaishu()" title="Tu Kaishu">🥚</div>
         <div class="streak-badge" id="streak-badge" onclick="explainTrainingCounters()">Semana 🔥 0</div>
         <div class="streak-badge" id="streak-badge-month" onclick="explainTrainingCounters()">Mes <span class="fire-month">🔥</span> 0</div>
       </div>
@@ -903,7 +962,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button class="profile-link-btn" onclick="openGuide(0)">📖 Ver la guía de la app</button>
         <button class="profile-link-btn" onclick="exportData()">⬇️ Exportar mis datos (JSON)</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.22</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.23</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -1043,6 +1102,15 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 <div class="toast" id="toast"></div>
 
 <!-- ADD PHOTO MODAL -->
+<!-- KAISHU (v1.23) — pantalla de la mascota, se abre desde el círculo del header -->
+<div id="kz-screen" class="kz-screen">
+  <div class="kz-top">
+    <button class="kz-back" onclick="closeKaishu()">←</button>
+    <div class="kz-title"><div class="kz-name"><span id="kz-name">Tu Kaishu</span><button onclick="renameKaishu()" title="Ponerle nombre">✏️</button></div><div class="kz-path" id="kz-path"></div></div>
+  </div>
+  <div class="kz-body" id="kz-body"></div>
+</div>
+
 <!-- FOTOS DE PROGRESO — pantalla propia, separada del Perfil -->
 <div id="progress-photos-screen" style="display:none;position:fixed;inset:0;background:#0d0d0d;z-index:9998;flex-direction:column">
   <div style="display:flex;align-items:center;gap:10px;padding:16px 12px;border-bottom:1px solid #2e2e2e;flex-shrink:0">
@@ -1994,13 +2062,7 @@ function renderAll() {
   renderFilters(); renderExercises(); renderMoods(); renderSessionPlannerBar(); renderRoutinePillsSelector(); renderRoutines(); renderProgressPhotos(); applyComidasVisibility();
   updateQuickPesoLast(); updateStreakBadge(); updateDaysSince();
   checkAndNotifyReminders(false);
-  // Apply header avatar without full profile render (faster)
-  if (profile.avatarUrl) {
-    const hdrBtn = document.getElementById('avatar-btn');
-    if (hdrBtn && !hdrBtn.querySelector('img')) {
-      hdrBtn.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar" style="width:100%;height:100%;object-fit:cover"/>`;
-    }
-  }
+  renderKaishuHeader(); // v1.23: the header circle is your Kaishu (your photo lives in Perfil)
 }
 
 /* ── TABS ── */
@@ -2702,6 +2764,7 @@ window.saveWorkout = async () => {
   saveAppCache();
   updateDaysSince(); updateStreakBadge();
   detectLastSessionPRs(); // "última sesión" + "este mes" recomputed from history
+  kaishuAfterWorkout();
   showToast(merge ? '✅ Entrenamiento unificado con el de ese día' : '¡Entrenamiento guardado! 💪');
   if (sessionRecs.length) setTimeout(() => showRecordsPopup(sessionRecs), 600);
 };
@@ -4266,14 +4329,6 @@ function renderProfile() {
   if (profile.frase) document.getElementById('profile-frase').value = profile.frase;
   if (profile.objetivo) {
     document.querySelectorAll('.objetivo-chip').forEach(ch => { if (ch.textContent.includes(profile.objetivo.split(' ').pop())) ch.classList.add('selected'); });
-  }
-  if (profile.avatarUrl) {
-    const hdrAvatar = document.getElementById('avatar-btn');
-    if (hdrAvatar) hdrAvatar.innerHTML = `<img src="${profile.avatarUrl}" alt="avatar"/>`;
-  }
-  if (profile.nickname) {
-    const btn = document.getElementById('avatar-btn');
-    if (btn) btn.title = profile.nickname;
   }
   const accent = profile.accentColor || '#E83535';
   applyAccent(accent);
@@ -6013,6 +6068,217 @@ window.runCoachFollowup = async () => {
   }
   inp.disabled = false;
 };
+
+/* ── KAISHU (v1.23) ──
+   Tu mascota. Elegís un camino (Sombra o Mecha, se puede cambiar) y el huevo crece con la
+   experiencia que juntás DESDE que lo elegiste: +10 por día entrenado, +5 por récord y +10 por
+   semana (lunes a domingo) con 3 o más días. Nivel n cuesta 5·n·(n+1) XP en total (1 → 10,
+   3 → 60, 6 → 210, 10 → 550). Dibujos del usuario en /Gymlog/kaishu/ (una imagen por etapa,
+   mismo encuadre 1024×1536). Las etapas siguientes al huevo están "en desarrollo". */
+const KZ_BASE = '/Gymlog/kaishu/';
+const KZ_STAGES = [0, 1, 3, 6];
+const KZ = {
+  sombra: { label: 'Sombra', emoji: '🟣', face: { cx: 484, cy: 967, size: 540 },
+    desc: 'Nace de la oscuridad. Le crecen cuernos, cola y alas de humo.',
+    txt: { 0: 'Un huevo de sombra. Algo late adentro…', 1: '¡Le creció el cuerno!', 3: '¡Asoma la cola!', 6: '¡Desplegó las alas!' } },
+  mecha:  { label: 'Mecha', emoji: '🟠', face: { cx: 503, cy: 563, size: 640 },
+    desc: 'Una máquina que se arma sola. Antena, brazo con garra y escudo.',
+    txt: { 0: 'Un huevo blindado. Se escucha un zumbido…', 1: '¡Se encendió la antena!', 3: '¡Sacó el brazo con garra!', 6: '¡Escudo con rayo activado!' } },
+};
+const KZ_EVOS = [ { n: 'Huevo', lv: 0 }, { n: 'Cría', lv: 10 }, { n: 'Juvenil', lv: 20 }, { n: 'Adulto', lv: 35 }, { n: 'Forma Kaishu', lv: 50 } ];
+const kzImg = (path, st) => KZ_BASE + path + '_n' + st + '.webp';
+const kzXpFor = n => 5 * n * (n + 1);
+const kzStageFor = lv => KZ_STAGES.filter(s => s <= lv).pop();
+
+function kaishuState() {
+  const k = profile.kaishu;
+  if (!k || !KZ[k.path]) return null;
+  const since = new Date(k.startedAt || Date.now());
+  const real = history.filter(h => !h.pesoOnly && new Date(h.date) >= since);
+  const days = countTrainingDays(real);
+  let records = 0;
+  walkRecords((session, recs) => { if (new Date(session.date) >= since) records += recs.length; });
+  const weeks = new Map();
+  real.forEach(h => { const d = new Date(h.date), w = mondayIndex(d); if (!weeks.has(w)) weeks.set(w, new Set()); weeks.get(w).add(dayIndex(d)); });
+  const goodWeeks = [...weeks.values()].filter(x => x.size >= 3).length;
+  const xp = days * 10 + records * 5 + goodWeeks * 10;
+  let level = 0; while (kzXpFor(level + 1) <= xp) level++;
+  return { path: k.path, name: k.name || 'Kaishu', xp, level, days, records, goodWeeks, from: kzXpFor(level), to: kzXpFor(level + 1), seen: k.seenLevel || 0 };
+}
+
+// Header circle: your Kaishu's face (zoomed on the egg), with a "!" when it leveled up
+function renderKaishuHeader() {
+  const el = document.getElementById('avatar-btn'); if (!el) return;
+  const st = kaishuState();
+  el.classList.add('kaishu');
+  if (!st) { el.innerHTML = '<span class="kz-face-wrap">🥚</span><span class="kz-new">!</span>'; el.title = 'Elegí tu Kaishu'; return; }
+  const f = KZ[st.path].face, k = 100 / f.size;
+  el.innerHTML = `<span class="kz-face-wrap"><img class="kz-face" src="${kzImg(st.path, kzStageFor(st.level))}" alt="" style="width:${1024 * k}%;left:${50 - f.cx * k}%;top:${50 - f.cy * k}%"></span>`
+    + (st.level > st.seen ? '<span class="kz-new">!</span>' : '');
+  el.title = st.name + ' · nivel ' + st.level;
+}
+
+let _kzPreview = null; // stage shown in "ver todas las etapas" (null = your real level)
+window.openKaishu = () => {
+  document.getElementById('kz-screen').style.display = 'flex';
+  _kzPreview = null;
+  renderKaishu(true);
+};
+window.closeKaishu = () => {
+  document.getElementById('kz-screen').style.display = 'none';
+  clearTimeout(_kzZapTimer);
+};
+
+function kzStageHTML(path, st, opts = {}) {
+  const next = opts.next != null ? `<img class="kz-next" src="${kzImg(path, opts.next)}" alt="">` : '';
+  const mecha = path === 'mecha';
+  return `<div class="kz-stage ${path}" ${opts.id ? `id="${opts.id}"` : ''}>${next}<img class="kz-cur" src="${kzImg(path, st)}" alt="">`
+    + (mecha ? `<span class="kz-led" style="left:30.8%;top:7.6%;${st >= 1 ? 'display:block' : ''}"></span><span class="kz-led b" style="left:60.6%;top:50.9%;${st >= 3 ? 'display:block' : ''}"></span>` : '')
+    + (opts.id ? `<svg class="kz-zap" id="kz-zap" viewBox="0 0 100 150" preserveAspectRatio="none" style="-webkit-mask-image:url(${kzImg(path, st)});mask-image:url(${kzImg(path, st)})"><defs><filter id="kzGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="1.1"/></filter></defs><g id="kz-bolts"></g></svg>` : '')
+    + `</div>`;
+}
+
+function renderKaishu(celebrate) {
+  const body = document.getElementById('kz-body');
+  const st = kaishuState();
+  if (!st) { renderKaishuPicker(); return; }
+  const K = KZ[st.path];
+  document.getElementById('kz-name').textContent = st.name;
+  document.getElementById('kz-path').textContent = K.emoji + ' Camino ' + K.label + ' · nivel ' + st.level;
+  const realStage = kzStageFor(st.level);
+  const shown = _kzPreview != null ? _kzPreview : realStage;
+  const nextStage = KZ_STAGES.find(x => x > shown);
+  const pct = Math.max(0, Math.min(100, Math.round((st.xp - st.from) / (st.to - st.from) * 100)));
+  const nextUnlock = KZ_STAGES.find(x => x > st.level);
+  const nextTxt = nextUnlock != null
+    ? `🔓 <b>Nivel ${nextUnlock}:</b> ${K.txt[nextUnlock].replace(/¡|!/g, '')} · te faltan ${kzXpFor(nextUnlock) - st.xp} XP`
+    : `🥚➡️🐣 <b>Nivel 10:</b> nace la cría — <i>en desarrollo</i> (el dibujo todavía no está)`;
+  body.innerHTML = `
+    ${kzStageHTML(st.path, shown, { id: 'kz-stage', next: nextStage })}
+    <div class="kz-lvl">${_kzPreview != null ? 'Etapa del nivel ' + shown : 'Nivel ' + st.level}</div>
+    <div class="kz-msg">${K.txt[shown]}</div>
+    ${_kzPreview != null ? `<div class="kz-banner">👁 Vista previa — tu nivel real es ${st.level}</div>` : `
+    <div class="kz-xp"><div class="kz-xp-row"><span>${st.xp} XP</span><span>Nivel ${st.level + 1}: ${st.to} XP</span></div>
+      <div class="kz-xp-bar"><div class="kz-xp-fill" style="width:${pct}%"></div></div></div>
+    <div class="kz-next-up">${nextTxt}</div>`}
+    <div class="kz-prev ${_kzPreview != null ? 'on' : ''}" id="kz-prev">
+      <div class="kz-chips">${KZ_STAGES.map(x => `<button class="${x === shown ? 'on' : ''}" onclick="kzPreview(${x})">${x}</button>`).join('')}</div>
+      ${shown < 6 ? `<button class="kz-btn main" onclick="kzPreviewUp()">⬆ Subir de nivel (vista previa)</button>` : ''}
+      <button class="kz-btn" onclick="kzPreview(null)">Volver a mi nivel</button>
+    </div>
+    ${_kzPreview == null ? `<button class="kz-btn" onclick="kzPreview(${realStage})">👁 Ver todas las etapas</button>` : ''}
+    <div class="kz-sec">EVOLUCIONES</div>
+    <div class="kz-evos">${KZ_EVOS.map((e, i) => i === 0
+      ? `<div class="kz-evo on"><div class="kz-evo-img"><img src="${kzImg(st.path, realStage)}" alt=""></div><div class="kz-evo-n">${e.n}</div><div class="kz-evo-l">Nivel 0–9</div></div>`
+      : `<div class="kz-evo"><div class="kz-evo-img">🔒</div><div class="kz-evo-n">${e.n}</div><div class="kz-evo-l">Nivel ${e.lv}<br>En desarrollo</div></div>`).join('')}</div>
+    <div class="kz-sec">CÓMO CRECE</div>
+    <div class="kz-how">+10 XP por cada día que entrenás · +5 por cada récord · +10 por cada semana con 3 días o más.<br>
+      Desde que lo elegiste: ${st.days} día${st.days === 1 ? '' : 's'}, ${st.records} récord${st.records === 1 ? '' : 's'}, ${st.goodWeeks} semana${st.goodWeeks === 1 ? '' : 's'} completa${st.goodWeeks === 1 ? '' : 's'}.</div>
+    <button class="kz-btn" onclick="renderKaishuPicker(true)">🔁 Cambiar de camino</button>`;
+  kzStartZaps(st.path, shown);
+  // Leveled up since you last looked: celebrate once
+  if (celebrate && _kzPreview == null && st.level > st.seen) {
+    const stage = document.getElementById('kz-stage');
+    const grew = kzStageFor(st.level) > kzStageFor(st.seen);
+    if (grew && stage) { stage.classList.add('up'); setTimeout(() => stage.classList.remove('up'), 1900); setTimeout(fireConfetti, 900); }
+    showToast(grew ? '🎉 ' + K.txt[kzStageFor(st.level)] : `⬆ ¡${st.name} subió a nivel ${st.level}!`);
+    profile.kaishu.seenLevel = st.level;
+    renderKaishuHeader(); autoSaveProfile(300);
+  }
+}
+
+window.kzPreview = (x) => { _kzPreview = x; renderKaishu(false); };
+window.kzPreviewUp = () => {
+  const cur = _kzPreview != null ? _kzPreview : 0;
+  const nx = KZ_STAGES.find(x => x > cur); if (nx == null) return;
+  const stage = document.getElementById('kz-stage'); if (stage) stage.classList.add('up');
+  setTimeout(() => { _kzPreview = nx; renderKaishu(false); }, 1150);
+};
+
+// Choose (or change) your path
+function renderKaishuPicker(changing) {
+  const body = document.getElementById('kz-body');
+  const cur = profile.kaishu && profile.kaishu.path;
+  document.getElementById('kz-name').textContent = changing ? 'Cambiar de camino' : 'Elegí tu Kaishu';
+  document.getElementById('kz-path').textContent = changing ? 'Tu nivel y tu experiencia se mantienen' : 'Crece con cada entreno';
+  clearTimeout(_kzZapTimer);
+  body.innerHTML = `
+    <div style="font-size:13px;color:#999;line-height:1.5;text-align:center;margin:2px 6px 4px">${changing
+      ? 'Cambiá cuando quieras: solo cambia cómo se ve.'
+      : 'Es tu compañero de entrenamiento: empieza como huevo y crece con la experiencia que juntás entrenando. Elegí su camino (después lo podés cambiar).'}</div>
+    <div class="kz-pick">${Object.keys(KZ).map(p => `
+      <div class="kz-pick-card ${p === cur ? 'sel' : ''}" onclick="chooseKaishu('${p}')">
+        ${kzStageHTML(p, 0)}
+        <div class="kz-pick-name">${KZ[p].emoji} ${KZ[p].label}</div>
+        <div class="kz-pick-desc">${KZ[p].desc}</div>
+      </div>`).join('')}</div>
+    ${changing ? '<button class="kz-btn" onclick="renderKaishu(false)">Cancelar</button>' : ''}`;
+}
+window.renderKaishuPicker = renderKaishuPicker;
+window.renderKaishu = renderKaishu;
+window.chooseKaishu = (path) => {
+  const first = !profile.kaishu;
+  if (first) profile.kaishu = { path, name: 'Kaishu', startedAt: new Date().toISOString(), seenLevel: 0 };
+  else profile.kaishu.path = path;
+  autoSaveProfile(200);
+  renderKaishuHeader();
+  _kzPreview = null;
+  renderKaishu(false);
+  showToast(first ? '🥚 ¡Tu huevo ' + KZ[path].label + ' está listo! Entrená para que crezca' : 'Camino cambiado a ' + KZ[path].label);
+};
+window.renameKaishu = () => {
+  if (!profile.kaishu) return;
+  const n = (prompt('¿Cómo se llama tu Kaishu?', profile.kaishu.name || '') || '').trim().slice(0, 20);
+  if (!n) return;
+  profile.kaishu.name = n; autoSaveProfile(200); renderKaishu(false); renderKaishuHeader();
+};
+
+// After saving a workout: if it leveled up, the header circle gets a "!" and a toast
+function kaishuAfterWorkout() {
+  const st = kaishuState(); if (!st) return;
+  renderKaishuHeader();
+  if (st.level > st.seen) setTimeout(() => showToast(`⬆ ¡${st.name} subió a nivel ${st.level}! Tocá el círculo de arriba para verlo`), 2600);
+}
+
+// Mecha: electric arcs along the seams (coords in % of the drawing; y × 1.5 in the SVG)
+const KZ_GEAR = [43.5, 31.5];
+const KZ_ARCS = {
+  0: [[KZ_GEAR, [52, 26], [63.5, 24.5]], [KZ_GEAR, [53, 36], [68, 39]], [[29, 19], [28.5, 30], [30, 45]], [[52.5, 17], [54, 30], [55.5, 44]]],
+  1: [[[34, 14.5], [32, 9], [30.5, 4.5]], [KZ_GEAR, [38, 20], [34, 14.5]]],
+  3: [[[60, 48.5], [63, 62.5], [64, 71.5], [61, 80], [62, 86]], [KZ_GEAR, [52, 42], [60, 48.5]]],
+  6: [[[41, 41], [47, 44], [43, 47], [48, 50]]],
+};
+let _kzZapTimer = null;
+function kzJag(a, b, rough, depth, out) {
+  if (depth === 0) { out.push(b); return; }
+  const dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy) || 1, off = (Math.random() - 0.5) * len * rough;
+  const m = [(a[0] + b[0]) / 2 - dy / len * off, (a[1] + b[1]) / 2 + dx / len * off];
+  kzJag(a, m, rough, depth - 1, out); kzJag(m, b, rough, depth - 1, out);
+}
+function kzBolt(pts) {
+  const P = pts.map(p => [p[0], p[1] * 1.5]), out = [P[0]];
+  for (let k = 1; k < P.length; k++) kzJag(P[k - 1], P[k], 0.45, 4, out);
+  return 'M' + out.map(p => p[0].toFixed(2) + ' ' + p[1].toFixed(2)).join(' L');
+}
+function kzStartZaps(path, stage) {
+  clearTimeout(_kzZapTimer);
+  if (path !== 'mecha') return;
+  const pool = []; Object.keys(KZ_ARCS).forEach(k => { if (+k <= stage) pool.push(...KZ_ARCS[k]); });
+  const run = () => {
+    const g = document.getElementById('kz-bolts'), st = document.getElementById('kz-stage');
+    if (!g || !st || document.getElementById('kz-screen').style.display !== 'flex') return;
+    const pick = pool.slice().sort(() => Math.random() - 0.5).slice(0, 1 + Math.floor(Math.random() * 2));
+    let n = 4 + Math.floor(Math.random() * 4);
+    st.classList.add('charged');
+    (function flick() {
+      if (n-- <= 0) { g.innerHTML = ''; st.classList.remove('charged'); _kzZapTimer = setTimeout(run, 1400 + Math.random() * 2600); return; }
+      g.innerHTML = pick.filter(() => Math.random() > 0.15).map(pts => { const d = kzBolt(pts);
+        return `<path d="${d}" fill="none" stroke="#6fdcff" stroke-width="1.8" stroke-linejoin="round" opacity=".75" filter="url(#kzGlow)"/><path d="${d}" fill="none" stroke="#fff" stroke-width=".45" stroke-linejoin="round"/>`; }).join('');
+      _kzZapTimer = setTimeout(flick, 45 + Math.random() * 45);
+    })();
+  };
+  _kzZapTimer = setTimeout(run, 700);
+}
 
 /* ── PROGRESS PHOTOS ── */
 window.openAddPhotoModal = () => {
