@@ -113,6 +113,15 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .kz-evo.on{border-color:var(--accent,#E83535)}
 .kz-evo .kz-evo-img{height:58px;display:flex;align-items:center;justify-content:center;font-size:26px;color:#333;overflow:hidden}
 .kz-evo-n{font-size:10px;font-weight:700;color:#ddd;margin-top:4px}.kz-evo-l{font-size:9px;color:#666;margin-top:1px;line-height:1.25}
+.kz-power{float:right;color:#f5c542;letter-spacing:0}
+.kz-stats{background:#141414;border:1px solid #232323;border-radius:12px;padding:4px 12px}
+.kz-stat{padding:9px 0;border-bottom:1px solid #1f1f1f}.kz-stat:last-child{border-bottom:none}
+.kz-stat-top{display:flex;justify-content:space-between;align-items:baseline}
+.kz-stat-n{font-size:13px;font-weight:700;color:#ddd}.kz-stat-v{font-family:'DM Mono',monospace;font-size:18px;font-weight:700}
+.kz-stat-bar{height:6px;border-radius:3px;background:#222;overflow:hidden;margin:5px 0 4px}.kz-stat-bar div{height:100%;border-radius:3px;transition:width .6s}
+.kz-stat-d{font-size:10.5px;color:#777}
+.sum-stats{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+.sum-stats span{background:#1d1d1d;border:1px solid #2c2c2c;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:700}
 .kz-how{font-size:11px;color:#666;line-height:1.6;background:#141414;border-radius:10px;padding:10px 12px}
 .kz-btn{width:100%;padding:12px;border-radius:12px;border:1px solid #2e2e2e;background:#1a1a1a;color:#ddd;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
 .kz-btn.main{background:var(--accent,#E83535);border:none;color:var(--on-accent,#fff)}
@@ -977,7 +986,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button class="profile-link-btn" onclick="openGuide(0)">📖 Ver la guía de la app</button>
         <button class="profile-link-btn" onclick="exportData()">⬇️ Exportar mis datos (JSON)</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.25</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.26</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -2828,9 +2837,11 @@ function buildSummary(entry, recs, kzBefore, kzAfter) {
     const pct = Math.max(0, Math.min(100, Math.round((kzAfter.xp - kzAfter.from) / (kzAfter.to - kzAfter.from) * 100)));
     const up = kzBefore && kzAfter.level > kzBefore.level;
     const grew = up && kzStageFor(kzAfter.path, kzAfter.level) > kzStageFor(kzAfter.path, kzBefore.level);
+    const statUps = kzBefore && kzBefore.stats ? KZ_STATS.filter(s => kzAfter.stats[s.k] > kzBefore.stats[s.k]) : [];
     xpHtml = `<div class="sum-xp"><div class="sum-xp-top"><span class="sum-xp-gain">+${gained} XP</span><span class="sum-xp-lvl">${escHtml(kzAfter.name)} · nivel ${kzAfter.level}</span></div>
       <div class="kz-xp-bar" style="margin-top:6px"><div class="kz-xp-fill" style="width:${pct}%"></div></div>
-      ${up ? `<div class="sum-up">⬆ ¡Subió a nivel ${kzAfter.level}!${grew ? ' ' + KZ[kzAfter.path].txt[kzStageFor(kzAfter.path, kzAfter.level)] : ''} Tocá su círculo para verlo.</div>` : ''}</div>`;
+      ${up ? `<div class="sum-up">⬆ ¡Subió a nivel ${kzAfter.level}!${grew ? ' ' + KZ[kzAfter.path].txt[kzStageFor(kzAfter.path, kzAfter.level)] : ''} Tocá su círculo para verlo.</div>` : ''}
+      ${statUps.length ? `<div class="sum-stats">${statUps.map(s => `<span style="color:${s.col}">${s.icon} ${s.n} +${kzAfter.stats[s.k] - kzBefore.stats[s.k]}</span>`).join('')}</div>` : ''}</div>`;
   } else {
     emojiEl.className = 'summary-emoji';
     xpHtml = `<button class="kz-btn" style="margin-top:10px" onclick="closeSummary();openKaishu()">🥚 Elegí tu Kaishu y ganá experiencia con cada entreno</button>`;
@@ -6181,6 +6192,28 @@ const KZ_BOX = {"espina10":[158,944,694,496],"espina13":[104,527,798,913],"espin
 const KZ_EVOS = [ { n: 'Huevo', lv: 0 }, { n: 'Cría', lv: 10 }, { n: 'Juvenil', lv: 20 }, { n: 'Adulto', lv: 35 }, { n: 'Forma Kaishu', lv: 50 } ];
 const kzImg = (path, st) => KZ_BASE + path + '_n' + st + '.webp';
 const kzXpFor = n => 5 * n * (n + 1);
+// v1.26: stats. Each one comes from real training data since you picked the Kaishu and never goes down.
+// value = mult·√count (fast at first, slower later), max 99.
+const KZ_STATS = [
+  { k: 'fuerza', icon: '💪', n: 'Fuerza',      src: 'records',       mult: 5, col: '#ff6b6b', u: ['récord', 'récords'] },
+  { k: 'resist', icon: '🔋', n: 'Resistencia', src: 'series',        mult: 1, col: '#4fc3f7', u: ['serie', 'series'] },
+  { k: 'const',  icon: '🔥', n: 'Constancia',  src: 'goodWeeks',     mult: 7, col: '#ffa94d', u: ['semana de 3+ días', 'semanas de 3+ días'], us: ['semana', 'semanas'] },
+  { k: 'equil',  icon: '⚖️', n: 'Equilibrio',  src: 'balancedWeeks', mult: 7, col: '#b197fc', u: ['semana con 4+ zonas', 'semanas con 4+ zonas'], us: ['semana', 'semanas'] },
+  { k: 'vital',  icon: '❤️', n: 'Vitalidad',   src: 'days',          mult: 4, col: '#ff85ab', u: ['día entrenado', 'días entrenados'], us: ['día', 'días'] },
+];
+const kzStatVal = (s, n) => Math.min(99, Math.floor(s.mult * Math.sqrt(n) + 1e-9));
+function kzStatNext(s, v) { // smallest count that gives v+1
+  if (v >= 99) return null;
+  let n = Math.max(0, Math.floor(((v + 1) / s.mult) ** 2) - 1);
+  while (kzStatVal(s, n) <= v) n++;
+  return n;
+}
+// Body areas for Equilibrio (Bíceps + Tríceps = Brazos; Cardio doesn't count)
+function kzAreaOf(m) {
+  const g = muscleGroupOf(m || '');
+  if (g === 'Bíceps' || g === 'Tríceps') return 'Brazos';
+  return ['Pecho', 'Espalda', 'Hombros', 'Piernas', 'Core'].includes(g) ? g : null;
+}
 // v1.25: each path has its own list of drawn stages (Espina already has its cría and juvenil)
 const kzStages = path => (KZ[path] && KZ[path].stages) || KZ_STAGES;
 const kzStageFor = (path, lv) => kzStages(path).filter(s => s <= lv).pop();
@@ -6194,12 +6227,20 @@ function kaishuState() {
   const days = countTrainingDays(real);
   let records = 0;
   walkRecords((session, recs) => { if (new Date(session.date) >= since) records += recs.length; });
-  const weeks = new Map();
-  real.forEach(h => { const d = new Date(h.date), w = mondayIndex(d); if (!weeks.has(w)) weeks.set(w, new Set()); weeks.get(w).add(dayIndex(d)); });
+  const weeks = new Map(), areas = new Map(); let series = 0;
+  real.forEach(h => {
+    const d = new Date(h.date), w = mondayIndex(d);
+    if (!weeks.has(w)) { weeks.set(w, new Set()); areas.set(w, new Set()); }
+    weeks.get(w).add(dayIndex(d));
+    (h.exercises || []).forEach(e => { const a = kzAreaOf(e.muscle); if (a) areas.get(w).add(a); series += (e.series || []).length; });
+  });
   const goodWeeks = [...weeks.values()].filter(x => x.size >= 3).length;
+  const balancedWeeks = [...areas.values()].filter(x => x.size >= 4).length;
   const xp = days * 10 + records * 5 + goodWeeks * 10;
   let level = 0; while (kzXpFor(level + 1) <= xp) level++;
-  return { path: k.path, name: k.name || 'Kaishu', xp, level, days, records, goodWeeks, from: kzXpFor(level), to: kzXpFor(level + 1), seen: k.seenLevel || 0 };
+  const counts = { records, series, goodWeeks, balancedWeeks, days }, stats = {};
+  KZ_STATS.forEach(s => { stats[s.k] = kzStatVal(s, counts[s.src]); });
+  return { path: k.path, name: k.name || 'Kaishu', xp, level, days, records, goodWeeks, counts, stats, from: kzXpFor(level), to: kzXpFor(level + 1), seen: k.seenLevel || 0 };
 }
 
 // Header circle: your Kaishu's face (zoomed on the egg), with a "!" when it leveled up
@@ -6268,6 +6309,7 @@ function renderKaishu(celebrate) {
     ${_kzPreview == null ? `<button class="kz-btn" onclick="kzPreview(${realStage})">👁 Ver todas las etapas</button>` : ''}
     ${(() => { const since = new Date(profile.kaishu.startedAt); const n = countTrainingDays(history.filter(h => !h.pesoOnly && new Date(h.date) < since));
       return n && _kzPreview == null ? `<button class="kz-btn" onclick="kzCountPast()">📜 Sumar mis ${n} días de entreno anteriores</button>` : ''; })()}
+    ${kzStatsHTML(st)}
     <div class="kz-sec">EVOLUCIONES</div>
     <div class="kz-evos">${KZ_EVOS.map((e, i) => {
       const until = KZ_EVOS[i + 1] ? KZ_EVOS[i + 1].lv : 999;
@@ -6279,7 +6321,8 @@ function renderKaishu(celebrate) {
     }).join('')}</div>
     <div class="kz-sec">CÓMO CRECE</div>
     <div class="kz-how">+10 XP por cada día que entrenás · +5 por cada récord · +10 por cada semana con 3 días o más.<br>
-      Desde que lo elegiste: ${st.days} día${st.days === 1 ? '' : 's'}, ${st.records} récord${st.records === 1 ? '' : 's'}, ${st.goodWeeks} semana${st.goodWeeks === 1 ? '' : 's'} completa${st.goodWeeks === 1 ? '' : 's'}.</div>
+      Desde que lo elegiste: ${st.days} día${st.days === 1 ? '' : 's'}, ${st.records} récord${st.records === 1 ? '' : 's'}, ${st.goodWeeks} semana${st.goodWeeks === 1 ? '' : 's'} completa${st.goodWeeks === 1 ? '' : 's'}.<br>
+      Las estadísticas salen de tus entrenos reales y nunca bajan. <b>Equilibrio</b> cuenta las semanas en que entrenaste 4 zonas o más (pecho, espalda, hombros, brazos, piernas, core).</div>
     <button class="kz-btn" onclick="renderKaishuPicker(true)">🔁 Cambiar de camino</button>`;
   kzStartZaps(st.path, shown);
   // Leveled up since you last looked: celebrate once
@@ -6291,6 +6334,20 @@ function renderKaishu(celebrate) {
     profile.kaishu.seenLevel = st.level;
     renderKaishuHeader(); autoSaveProfile(300);
   }
+}
+
+function kzStatsHTML(st) {
+  const total = KZ_STATS.reduce((a, s) => a + st.stats[s.k], 0);
+  return `<div class="kz-sec">ESTADÍSTICAS <span class="kz-power">⚡ Poder ${total}</span></div>
+    <div class="kz-stats">${KZ_STATS.map(s => {
+      const v = st.stats[s.k], n = st.counts[s.src], nx = kzStatNext(s, v);
+      const unit = (c, short) => ((short && s.us) || s.u)[c === 1 ? 0 : 1];
+      return `<div class="kz-stat">
+        <div class="kz-stat-top"><span class="kz-stat-n">${s.icon} ${s.n}</span><span class="kz-stat-v" style="color:${s.col}">${v}</span></div>
+        <div class="kz-stat-bar"><div style="width:${Math.max(2, v / 99 * 100)}%;background:${s.col}"></div></div>
+        <div class="kz-stat-d">${n.toLocaleString('es-AR')} ${unit(n)}${nx != null ? ` · +1 con ${nx - n} ${unit(nx - n, true)} más` : ' · ¡al máximo!'}</div>
+      </div>`;
+    }).join('')}</div>`;
 }
 
 // The current Kaishu drawing cropped to its content, at a given height (px)
