@@ -466,6 +466,50 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .wm-body{flex:1;overflow-y:auto;padding:16px}
 .wm-ex-name{font-size:28px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:-0.5px}
 .wm-ex-muscle{font-size:13px;color:#666;margin-bottom:12px;font-weight:600}
+
+/* ── BIBLIOTECA DE EJERCICIOS (v1.27) ── */
+.kx-ov{display:none;position:fixed;inset:0;z-index:10020;background:#0d0d0d;flex-direction:column;color:#f0ede8;font-family:'DM Sans',sans-serif}
+.kx-ov.open{display:flex}
+.kx-top{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 10px;border-bottom:1px solid #222;flex-shrink:0}
+.kx-back{width:36px;height:36px;border-radius:50%;border:1px solid #333;background:#1a1a1a;color:#ddd;font-size:16px;cursor:pointer;flex-shrink:0}
+.kx-title{font-size:17px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kx-scroll{flex:1;overflow-y:auto;padding:14px 16px calc(28px + env(safe-area-inset-bottom,0px));max-width:560px;width:100%;margin:0 auto;box-sizing:border-box}
+.kx-tabs{display:flex;gap:6px;margin-bottom:8px}
+.kx-tabs button{flex:1;padding:7px;border-radius:9px;border:1px solid #2e2e2e;background:#161616;color:#999;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+.kx-tabs button.on{border-color:var(--accent,#E83535);color:#fff;background:#1c1416}
+.kx-media{position:relative;width:100%;aspect-ratio:6/5;background:#141414;border:1px solid #262626;border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#f0ede8}
+.kx-media svg{width:100%;height:100%;display:block}
+.kx-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;transition:opacity .35s}
+.kx-loading{font-size:12px;color:#777}
+.kx-credit{font-size:10px;color:#555;text-align:right;margin:4px 2px 0;min-height:12px}
+.kx-meta{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:#aaa;margin:10px 0 2px}
+.kx-h{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:#888;margin:18px 0 8px}
+.kx-chips{display:flex;flex-wrap:wrap;gap:6px}
+.kx-chip{font-size:12px;font-weight:600;padding:5px 10px;border-radius:20px}
+.kx-chip.p{background:var(--accent,#E83535);color:var(--on-accent,#fff)}
+.kx-chip.s{background:#222;color:#bbb;border:1px solid #333}
+.kx-legend{font-size:10px;color:#666;margin-top:6px;display:flex;align-items:center;gap:5px}
+.kx-dot{width:8px;height:8px;border-radius:50%;display:inline-block}.kx-dot.p{background:var(--accent,#E83535)}.kx-dot.s{background:#444;margin-left:8px}
+.kx-list{margin:0;padding-left:20px;font-size:14px;line-height:1.5;color:#ddd}.kx-list li{margin-bottom:6px}
+.kx-err li::marker{color:#f0a04b}
+.kx-alts,#kx-lib-list{display:flex;flex-direction:column;gap:8px}
+.kx-row{display:flex;align-items:center;gap:10px;background:#161616;border:1px solid #262626;border-radius:12px;padding:6px 10px 6px 6px;cursor:pointer}
+.kx-mini{width:64px;height:54px;flex-shrink:0;background:#141414;border-radius:8px;color:#f0ede8}.kx-mini svg{width:100%;height:100%;display:block}
+.kx-row-txt{flex:1;min-width:0}.kx-row-name{font-size:14px;font-weight:700}.kx-row-sub{font-size:11px;color:#888;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.kx-have{font-size:11px;color:#22c97a;font-weight:700;white-space:nowrap}
+.kx-add{width:34px;height:34px;border-radius:50%;border:1px solid var(--accent,#E83535);background:transparent;color:var(--accent,#E83535);font-size:18px;cursor:pointer;flex-shrink:0}
+.kx-main-btn{width:100%;margin-top:18px;padding:13px;border-radius:12px;border:none;background:var(--accent,#E83535);color:var(--on-accent,#fff);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer}
+.kx-foot{font-size:10px;color:#444;text-align:center;margin-top:18px}
+.kx-search{display:block;width:calc(100% - 28px);margin:10px 14px 0;box-sizing:border-box;padding:11px 14px;border-radius:12px;border:1px solid #2e2e2e;background:#161616;color:#fff;font-size:15px;font-family:inherit;outline:none}
+.kx-search:focus{border-color:var(--accent,#E83535)}
+.kx-groups{display:flex;gap:6px;overflow-x:auto;padding:10px 14px 4px;flex-shrink:0;scrollbar-width:none}.kx-groups::-webkit-scrollbar{display:none}
+.kx-g{flex-shrink:0;padding:6px 12px;border-radius:20px;border:1px solid #2e2e2e;background:#161616;color:#aaa;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}
+.kx-g.on{background:var(--accent,#E83535);border-color:var(--accent,#E83535);color:var(--on-accent,#fff)}
+.kx-count{font-size:11px;color:#555;padding:4px 14px 0;flex-shrink:0}
+.kx-empty{font-size:13px;color:#777;text-align:center;padding:30px 10px}
+.kx-info{width:26px;height:26px;border-radius:50%;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;font-family:'DM Mono',monospace;cursor:pointer;flex-shrink:0;padding:0;line-height:1}
+.kx-wm-link{display:inline-block;margin-left:8px;color:var(--accent,#E83535);font-weight:700;cursor:pointer}
+.kx-add-hint{font-size:12px;color:#888;margin:6px 2px 0;min-height:0}.kx-add-hint a{color:var(--accent,#E83535);font-weight:700;cursor:pointer;text-decoration:underline}
 .wm-info-row{display:flex;gap:10px;margin-bottom:16px}
 .wm-info-box{flex:1;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;padding:10px;text-align:center}
 .wm-info-label{font-size:10px;color:#555;font-weight:700;margin-bottom:4px}
@@ -983,10 +1027,11 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
           </div>
         </div>
         <div class="profile-autosave" id="profile-autosave">Los cambios se guardan solos</div>
+        <button class="profile-link-btn" onclick="kxOpenLib()">📚 Biblioteca de ejercicios</button>
         <button class="profile-link-btn" onclick="openGuide(0)">📖 Ver la guía de la app</button>
         <button class="profile-link-btn" onclick="exportData()">⬇️ Exportar mis datos (JSON)</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.26</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.27</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -1025,12 +1070,29 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   </div>
 </div>
 
+
+<!-- ── BIBLIOTECA DE EJERCICIOS (v1.27) ── -->
+<div class="kx-ov" id="kx-lib">
+  <div class="kx-top"><button class="kx-back" onclick="kxCloseLib()">✕</button><div class="kx-title">📚 Biblioteca de ejercicios</div></div>
+  <input class="kx-search" id="kx-q" type="search" placeholder="Buscar: remo, glúteo, polea, mancuernas…" autocomplete="off" oninput="kxRenderLib()"/>
+  <div class="kx-groups" id="kx-groups"></div>
+  <div class="kx-count" id="kx-lib-count"></div>
+  <div class="kx-scroll"><div id="kx-lib-list"></div></div>
+</div>
+<div class="kx-ov" id="kx-ficha">
+  <div class="kx-top"><button class="kx-back" onclick="kxBack()">✕</button><div class="kx-title"></div></div>
+  <div class="kx-scroll"></div>
+</div>
+<datalist id="kx-datalist"></datalist>
+
 <div class="modal-overlay" id="modal-add-ex">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">Agregar ejercicio</div>
     <div class="field-label">Nombre</div>
-    <input class="modal-input" id="ex-name-inp" type="text" placeholder="Ej: Press de banca" autocomplete="off"/>
+    <input class="modal-input" id="ex-name-inp" type="text" placeholder="Ej: Press de banca" autocomplete="off" list="kx-datalist" oninput="kxFillAddModal(this.value)"/>
+    <div class="kx-add-hint" id="kx-add-hint"></div>
+    <button type="button" class="profile-link-btn" style="margin-top:8px;width:100%" onclick="closeModal('modal-add-ex');kxOpenLib()">📚 Elegir de la biblioteca</button>
     <div class="field-label">Grupo muscular</div>
     <select class="modal-select" id="ex-muscle-inp">
       <option value="Pecho">Pecho</option><option value="Espalda">Espalda</option>
@@ -1351,6 +1413,1129 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   </div>
 </div>
 
+<script>
+/* ══ KAISHU · Figuras de palito animadas ══════════════════════════════════
+   Cada ejercicio describe 2 poses (inicio → fin) con ÁNGULOS, y el motor arma un
+   SVG animado (va y vuelve) sin imágenes externas: funciona offline y pesa <2 KB.
+
+   Ángulos en grados, dirección del segmento: 0 = arriba, 90 = adelante (derecha),
+   180 = abajo, -90 = atrás (izquierda). Siempre absolutos (no relativos al padre).
+   Pose: { x, y      → cadera
+           t         → torso (cadera → hombro)
+           h         → cabeza (default = t)
+           a:[b,a]   → brazo cercano (brazo, antebrazo) · b → brazo lejano (default = a)
+           l:[m,p]   → pierna cercana (muslo, pierna)  · m → pierna lejana (default = l)
+           f / g     → pie cercano / lejano (default 90 = apoyado hacia adelante) }
+   Props (opcionales, en fig.p): barra, mancu, kb (en las manos) · banco, inclinado,
+   fija (barra de dominadas), paralela, polea, caja, rueda, suelo extra.
+   ───────────────────────────────────────────────────────────────────────── */
+(function (root) {
+  const L = { T: 24, N: 3.5, R: 5, UA: 13, FA: 12, TH: 17, SH: 17, FT: 5.5 };
+  const GROUND = 94;
+  const rad = d => d * Math.PI / 180;
+  const step = (p, ang, len) => [p[0] + Math.sin(rad(ang)) * len, p[1] - Math.cos(rad(ang)) * len];
+  const r1 = n => Math.round(n * 10) / 10;
+  const pt = p => r1(p[0]) + ' ' + r1(p[1]);
+
+  // Forward kinematics → puntos de cada articulación
+  // Dirección (en grados de esta convención) de p → q
+  const dirOf = (p, q) => Math.atan2(q[0] - p[0], -(q[1] - p[1])) * 180 / Math.PI;
+  // IK de 2 huesos: base → objetivo. s=+1 dobla "hacia adelante" (rodilla), -1 hacia atrás (codo)
+  function ik(base, tgt, l1, l2, s) {
+    const d = Math.min(Math.hypot(tgt[0] - base[0], tgt[1] - base[1]), l1 + l2 - 0.01);
+    const th = dirOf(base, tgt);
+    const al = Math.acos(Math.max(-1, Math.min(1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d)))) * 180 / Math.PI;
+    const a1 = th - s * al;
+    const j = step(base, a1, l1);
+    return [a1, dirOf(j, tgt)];
+  }
+  /* Pose → puntos. Además de ángulos se pueden dar OBJETIVOS (más fácil de dibujar):
+     ap/bp:[x,y] mano cercana/lejana · lp/mp:[x,y] tobillo cercano/lejano
+     ak/bk (+1/-1) hacia dónde dobla el codo (default -1 = atrás), lk/mk rodilla (default +1)
+     as: escala del brazo (escorzo, ej. 0.4 = brazo que va hacia la cámara)
+     ts/ns: escala de torso / cuello (encogimientos)
+     Vista de frente (fig.frente): el lado lejano es el espejo del cercano. */
+  function joints(P, frente) {
+    let hip = [P.x, P.y];
+    const T = L.T * (P.ts || 1), UA = L.UA * (P.as || 1), FA = L.FA * (P.as || 1);
+    if (P.x == null) { // ancla en el pie (default [56,93])
+      const lg = P.l || [180, 180];
+      const k = step(P.pie || [56, 93], lg[1] + 180, L.SH); hip = step(k, lg[0] + 180, L.TH);
+    }
+    const W = frente ? 5.5 : 0, HW = frente ? 3.5 : 0;
+    const shC = step(hip, P.t || 0, T);
+    const sh = [shC[0] + W, shC[1]], shF0 = [shC[0] - W, shC[1]];
+    const hipN = [hip[0] + HW, hip[1]], hipF0 = [hip[0] - HW, hip[1]];
+    const neck = step(shC, P.h ?? P.t ?? 0, L.N * (P.ns ?? 1));
+    const head = step(neck, P.h ?? P.t ?? 0, L.R);
+    const A = P.ap ? ik(sh, P.ap, UA, FA, P.ak ?? -1) : (P.a || [180, 180]);
+    const G = P.lp ? ik(hipN, P.lp, L.TH, L.SH, P.lk ?? 1) : (P.l || [180, 180]);
+    const arm = (s, A) => { const e = step(s, A[0], UA); return [e, step(e, A[1], FA)]; };
+    const leg = (h, G, f) => { const k = step(h, G[0], L.TH); const a = step(k, G[1], L.SH); return [k, a, step(a, f ?? 90, L.FT)]; };
+    const [eN, hN] = arm(sh, A);
+    const [kN, aN, tN] = leg(hipN, G, P.f ?? (frente ? 180 : 90));
+    let eF, hF, kF, aF, tF, shF = sh, hipF = hipN;
+    if (frente) {
+      const mx = p => [2 * shC[0] - p[0], p[1]];
+      shF = shF0; hipF = hipF0;[eF, hF] = P.bp ? arm(shF, ik(shF, P.bp, UA, FA, P.bk ?? 1)) : [mx(eN), mx(hN)];[kF, aF, tF] = [mx(kN), mx(aN), mx(tN)];
+    } else {
+      const B = P.bp ? ik(sh, P.bp, UA, FA, P.bk ?? -1) : (P.b || A);
+      const M = P.mp ? ik(hipN, P.mp, L.TH, L.SH, P.mk ?? 1) : (P.m || G);
+      [eF, hF] = arm(sh, B);[kF, aF, tF] = leg(hipN, M, P.g ?? P.f);
+    }
+    return { hip, hipN, hipF, sh, shF, shC, neck, head, eN, hN, eF, hF, kN, aN, tN, kF, aF, tF };
+  }
+
+  const paths = J => ({
+    armF: `M${pt(J.shF)}L${pt(J.eF)}L${pt(J.hF)}`,
+    legF: `M${pt(J.hipF)}L${pt(J.kF)}L${pt(J.aF)}L${pt(J.tF)}`,
+    torso: J.shF === J.sh ? `M${pt(J.hip)}L${pt(J.sh)}L${pt(J.neck)}` : `M${pt(J.hipF)}L${pt(J.hipN)}M${pt(J.hip)}L${pt(J.shC)}L${pt(J.neck)}M${pt(J.shF)}L${pt(J.sh)}`,
+    legN: `M${pt(J.hipN)}L${pt(J.kN)}L${pt(J.aN)}L${pt(J.tN)}`,
+    armN: `M${pt(J.sh)}L${pt(J.eN)}L${pt(J.hN)}`,
+  });
+
+  // Atributo animado: valor fijo si no cambia, <animate> si cambia
+  let DUR = 2.6;
+  function anim(attr, a, b) {
+    if (a === b) return { v: a, s: '' };
+    return { v: a, s: `<animate attributeName="${attr}" values="${a};${b};${a}" dur="${DUR}s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/>` };
+  }
+  function pathEl(a, b, attrs) { const r = anim('d', a, b); return `<path d="${r.v}" ${attrs}>${r.s}</path>`; }
+  function circ(pA, pB, rr, attrs) {
+    const x = anim('cx', r1(pA[0]), r1(pB[0])), y = anim('cy', r1(pA[1]), r1(pB[1]));
+    return `<circle cx="${x.v}" cy="${y.v}" r="${rr}" ${attrs}>${x.s}${y.s}</circle>`;
+  }
+  // Cualquier forma relativa a un punto que se mueve → <g> con translate animado
+  function follow(pA, pB, inner) {
+    const a = `${r1(pA[0])} ${r1(pA[1])}`, b = `${r1(pB[0])} ${r1(pB[1])}`;
+    const s = a === b ? '' : `<animateTransform attributeName="transform" type="translate" values="${a};${b};${a}" dur="${DUR}s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.5;1" keySplines=".45 0 .55 1;.45 0 .55 1"/>`;
+    return `<g transform="translate(${a})">${s}${inner}</g>`;
+  }
+  const line = (x1, y1, x2, y2, extra = '') => `<path d="M${x1} ${y1}L${x2} ${y2}" ${extra}/>`;
+
+  // Props
+  function props(list, JA, JB, C) {
+    let back = '', front = '';
+    const hand = (J, w) => w === 'far' ? J.hF : J.hN;
+    for (const p of list || []) {
+      const k = p.k;
+      if (k === 'banco') { // {x1,x2,y}
+        back += line(p.x1, p.y, p.x2, p.y, `stroke="${C.eq}" stroke-width="3.2" stroke-linecap="round"`);
+        const legs = p.legs ?? [p.x1 + 3, p.x2 - 3];
+        for (const lx of legs) back += line(lx, p.y, lx, GROUND, `stroke="${C.eq}" stroke-width="1.6"`);
+      } else if (k === 'inclinado') { // respaldo {x1,y1,x2,y2} + asiento opcional {sx1,sx2,sy}
+        back += line(p.x1, p.y1, p.x2, p.y2, `stroke="${C.eq}" stroke-width="3.2" stroke-linecap="round"`);
+        if (p.sy != null) back += line(p.sx1, p.sy, p.sx2, p.sy, `stroke="${C.eq}" stroke-width="3.2" stroke-linecap="round"`);
+        const bx = p.sy != null ? (p.sx1 + p.sx2) / 2 : p.x1;
+        const by = p.sy != null ? p.sy : p.y1;
+        back += line(bx, by, bx, GROUND, `stroke="${C.eq}" stroke-width="1.6"`);
+      } else if (k === 'linea') { // genérico estático {x1,y1,x2,y2,w}
+        back += line(p.x1, p.y1, p.x2, p.y2, `stroke="${C.eq}" stroke-width="${p.w || 2}" stroke-linecap="round"`);
+      } else if (k === 'fija') { // barra de dominadas {x,y}
+        back += line(p.x - 14, p.y - 6, p.x - 14, GROUND, `stroke="${C.eq}" stroke-width="1.4" opacity=".5"`);
+        back += line(p.x - 14, p.y - 6, p.x, p.y - 6, `stroke="${C.eq}" stroke-width="1.4" opacity=".5"`);
+        back += line(p.x, p.y - 6, p.x, p.y, `stroke="${C.eq}" stroke-width="1.4" opacity=".5"`);
+        front += `<circle cx="${p.x}" cy="${p.y}" r="2" fill="${C.eq}"/>`;
+      } else if (k === 'paralela') { // {x,y}
+        back += line(p.x - 9, p.y, p.x + 9, p.y, `stroke="${C.eq}" stroke-width="3" stroke-linecap="round"`);
+        back += line(p.x, p.y, p.x, GROUND, `stroke="${C.eq}" stroke-width="1.6"`);
+      } else if (k === 'caja') { // {x,y,w,h}
+        back += `<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="1.5" fill="none" stroke="${C.eq}" stroke-width="1.6"/>`;
+      } else if (k === 'polea') { // {x,y, w:'far'|'near'} cable desde el punto a la mano
+        back += `<circle cx="${p.x}" cy="${p.y}" r="2.2" fill="none" stroke="${C.eq}" stroke-width="1.4"/>`;
+        if (p.torre !== false) back += line(p.tx ?? p.x, Math.min(p.y, 20), p.tx ?? p.x, GROUND, `stroke="${C.eq}" stroke-width="1.4" opacity=".55"`);
+        const a = hand(JA, p.w), b = hand(JB, p.w);
+        back += pathEl(`M${p.x} ${p.y}L${pt(a)}`, `M${p.x} ${p.y}L${pt(b)}`, `stroke="${C.eq}" stroke-width="1" stroke-dasharray="2 1.5" fill="none"`);
+      } else if (k === 'barra') { // disco de barra visto de costado, en la mano (o {on:'sh'} sobre la espalda)
+        const g = p.on === 'sh' ? (J => step(step(J.sh, -90, 3.5), 0, 1.5)) : (J => hand(J, p.w));
+        front += follow(g(JA), g(JB), `<circle r="${p.r || 7}" fill="${C.bg}" stroke="${C.eq}" stroke-width="2.2"/><circle r="1.4" fill="${C.eq}"/>`);
+      } else if (k === 'mancu') {
+        for (const w of p.both === false ? ['near'] : ['far', 'near']) {
+          const s = `<rect x="-3.6" y="-1.6" width="7.2" height="3.2" rx="1.4" fill="${C.eq}" ${w === 'far' && !C.fr ? 'opacity=".45"' : ''} transform="rotate(${p.rot || 0})"/>`;
+          (w === 'far' ? (back += follow(hand(JA, w), hand(JB, w), s)) : (front += follow(hand(JA, w), hand(JB, w), s)));
+        }
+      } else if (k === 'kb') {
+        front += follow(hand(JA), hand(JB), `<circle cy="4.5" r="3.8" fill="${C.eq}"/><path d="M-2 1.2 Q0 -1.5 2 1.2" stroke="${C.eq}" stroke-width="1.2" fill="none"/>`);
+      } else if (k === 'plat') { // plataforma que sigue al pie (prensa)
+        const g = J => step(J.aN, (J.tN[0] > J.aN[0] ? 90 : 90), 2);
+        front += follow(g(JA), g(JB), `<path d="M0 -9L0 9" stroke="${C.eq}" stroke-width="3" stroke-linecap="round" transform="rotate(${p.rot || 0})"/>`);
+      } else if (k === 'rueda') {
+        front += follow(hand(JA), hand(JB), `<circle cy="2" r="4.5" fill="none" stroke="${C.eq}" stroke-width="2"/>`);
+      } else if (k === 'soga') { // arco de la soga desde las manos pasando por los pies
+        back += pathEl(`M${pt(JA.hN)}C${r1(JA.hN[0] - 26)} ${GROUND + 6} ${r1(JA.hN[0] + 18)} ${GROUND + 6} ${pt(JA.hN)}`,
+          `M${pt(JB.hN)}C${r1(JB.hN[0] - 26)} ${r1(JB.head[1] - 34)} ${r1(JB.hN[0] + 18)} ${r1(JB.head[1] - 34)} ${pt(JB.hN)}`,
+          `stroke="${C.eq}" stroke-width="1" fill="none" opacity=".7"`);
+      }
+    }
+    return { back, front };
+  }
+
+  /* fig: { a: poseInicio, b: poseFin, p: [props], hl: ['brazos','piernas','torso'], dur }
+     opts: { size, accent, ink, eq, bg } → string SVG */
+  function figuraSVG(fig, opts = {}) {
+    if (!fig || !fig.a) return '';
+    DUR = fig.dur || 2.6;
+    const C = { ink: opts.ink || 'currentColor', acc: opts.accent || 'var(--accent, #e63946)', eq: opts.eq || 'var(--ex-eq, #8a8f98)', bg: opts.bg || 'var(--ex-bg, #16181d)', fr: !!fig.frente };
+    const A = fig.a, B = fig.b || fig.a;
+    const JA = joints(A, fig.frente), JB = joints(B, fig.frente);
+    const PA = paths(JA), PB = paths(JB);
+    const hl = new Set(fig.hl || []);
+    const col = part => hl.has(part) ? C.acc : C.ink;
+    const sw = 'stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" fill="none"';
+    const pr = props(fig.p, JA, JB, C);
+    let vb = fig.vb || '0 0 120 100';
+    if (opts.fit) { // recorte ajustado a la figura (miniaturas)
+      const pts = [JA, JB].flatMap(J => Object.values(J));
+      const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+      let x0 = Math.min(...xs) - 9, x1 = Math.max(...xs) + 9, y0 = Math.min(...ys) - 9, y1 = GROUND + 4;
+      const w = Math.max(x1 - x0, (y1 - y0) * 1.2), h = Math.max(y1 - y0, w / 1.2);
+      x0 = (x0 + x1) / 2 - w / 2; y0 = y1 - h;
+      vb = `${r1(x0)} ${r1(y0)} ${r1(w)} ${r1(h)}`;
+    }
+    let s = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}" class="ex-fig" role="img"${opts.size ? ` width="${opts.size}"` : ''}>`;
+    s += line(-50, GROUND + 1.6, 170, GROUND + 1.6, `stroke="${C.eq}" stroke-width="1" opacity=".35"`);
+    s += pr.back;
+    s += `<g opacity="${fig.frente ? 1 : .42}">` + pathEl(PA.armF, PB.armF, `stroke="${col('brazos')}" ${sw}`) + pathEl(PA.legF, PB.legF, `stroke="${col('piernas')}" ${sw}`) + `</g>`;
+    s += pathEl(PA.torso, PB.torso, `stroke="${col('torso')}" ${sw}`);
+    s += pathEl(PA.legN, PB.legN, `stroke="${col('piernas')}" ${sw}`);
+    s += circ(JA.head, JB.head, L.R, `fill="${C.ink}"`);
+    s += pathEl(PA.armN, PB.armN, `stroke="${col('brazos')}" ${sw}`);
+    s += pr.front;
+    s += `</svg>`;
+    return s;
+  }
+
+  root.KaishuFigura = { figuraSVG, joints, ik, L, GROUND };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+/* ══ KAISHU · Base de ejercicios ══════════════════════════════════════════
+   Conocimiento fijo dentro de la app (cero llamadas a la IA). Cada ejercicio:
+   id · nombre · alias (para reconocer los nombres que escribe el usuario) ·
+   grupo (mismos grupos que la app) · musculos {p: principales, s: secundarios} ·
+   equipo · nivel · tipo (normal / bw_lastre / time / cardio) · pasos · tips ·
+   errores · reemplazos (ids, del más parecido al menos) · foto (id de
+   free-exercise-db, dominio público) · fig (figura de palito animada).
+   ───────────────────────────────────────────────────────────────────────── */
+(function (root) {
+  // ── Plantillas de pose ──
+  const PIE = o => Object.assign({ x: 56, y: 59.3, t: 0, lp: [57, 93], mp: [55, 93] }, o);           // parado
+  const SENT = o => Object.assign({ x: 58, y: 72, t: 0, lp: [76, 93], mp: [73, 93] }, o);             // sentado
+  const ACOST = o => Object.assign({ x: 72, y: 72, t: -90, h: -90, lp: [88, 93], mp: [85, 93] }, o); // acostado en banco
+  const BANCO = { k: 'banco', x1: 30, x2: 82, y: 77 };
+  const ASIENTO = { k: 'banco', x1: 48, x2: 70, y: 76 };
+  const INCL = { k: 'inclinado', x1: 64, y1: 76.5, x2: 41, y2: 59, sx1: 60, sx2: 82, sy: 77 };
+  const RESP = { k: 'inclinado', x1: 54, y1: 76, x2: 50, y2: 42, sx1: 52, sx2: 72, sy: 76 };       // silla de máquina
+
+  const E = [
+    /* ═════════════ PECHO ═════════════ */
+    {
+      id: 'press-banca', nombre: 'Press de banca', alias: ['press banca', 'press plano', 'bench press', 'press de banca plano', 'press banca barra'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral mayor'], s: ['Deltoides anterior', 'Tríceps'] },
+      equipo: 'Barra y banco plano', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Acostate con los ojos debajo de la barra y los pies firmes en el piso.', 'Agarrá la barra un poco más ancho que los hombros, sacala y ubicala sobre el pecho con los brazos estirados.', 'Bajala controlada hasta rozar la parte baja del pecho.', 'Empujá hacia arriba y un poco hacia atrás, hasta estirar los brazos.'],
+      tips: ['Juntá los omóplatos y llevalos "al bolsillo de atrás" antes de sacar la barra.', 'Codos a unos 45–70° del cuerpo, no abiertos en cruz.', 'Muñecas rectas, la barra sobre el talón de la mano.'],
+      errores: ['Rebotar la barra en el pecho.', 'Levantar la cola del banco para empujar más.'],
+      reemplazos: ['press-mancuernas', 'press-maquina', 'flexiones', 'press-inclinado'],
+      foto: 'Barbell_Bench_Press_-_Medium_Grip',
+      fig: { a: ACOST({ ap: [48, 47] }), b: ACOST({ ap: [57, 62] }), p: [BANCO, { k: 'barra' }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'press-inclinado', nombre: 'Press Inclinado', alias: ['press inclinado barra', 'press banca inclinado', 'incline bench press'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral superior (clavicular)'], s: ['Deltoides anterior', 'Tríceps'] },
+      equipo: 'Barra y banco inclinado', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Banco a 30–45°. Sentate con la espalda bien apoyada y los pies en el piso.', 'Agarrá la barra un poco más ancho que los hombros y sacala sobre la parte alta del pecho.', 'Bajala hasta rozar debajo de la clavícula.', 'Empujá hasta estirar los brazos, sin trabar los codos de golpe.'],
+      tips: ['Más de 45° pasa a ser casi un press de hombros.', 'Mantené los omóplatos juntos y el pecho arriba toda la serie.'],
+      errores: ['Banco demasiado inclinado.', 'Bajar la barra al cuello o a la panza.'],
+      reemplazos: ['press-inclinado-mancuernas', 'press-maquina', 'press-banca', 'cruces-polea'],
+      foto: 'Barbell_Incline_Bench_Press_-_Medium_Grip',
+      fig: { a: { x: 66, y: 73, t: -55, lp: [88, 93], mp: [85, 93], ap: [47, 35] }, b: { x: 66, y: 73, t: -55, lp: [88, 93], mp: [85, 93], ap: [54, 51] }, p: [INCL, { k: 'barra' }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'press-mancuernas', nombre: 'Press con mancuernas', alias: ['press plano mancuernas', 'press banca mancuernas', 'dumbbell bench press', 'press mancuerna'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral mayor'], s: ['Deltoides anterior', 'Tríceps'] },
+      equipo: 'Mancuernas y banco plano', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentate con las mancuernas sobre los muslos y acostate llevándolas al pecho.', 'Empujá hacia arriba hasta que casi se toquen sobre el pecho.', 'Bajá abriendo los codos a unos 45° hasta sentir estiramiento en el pecho.', 'Subí de nuevo apretando el pecho.'],
+      tips: ['Permite más recorrido que la barra: aprovechalo sin perder el control.', 'Ideal si te molestan los hombros con barra: podés girar un poco las muñecas.'],
+      errores: ['Chocar las mancuernas arriba (se pierde tensión).', 'Bajar sin control y que los hombros se vayan para adelante.'],
+      reemplazos: ['press-banca', 'press-maquina', 'flexiones', 'aperturas'],
+      foto: 'Dumbbell_Bench_Press',
+      fig: { a: ACOST({ ap: [48, 47] }), b: ACOST({ ap: [56, 63] }), p: [BANCO, { k: 'mancu', rot: 90 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'press-inclinado-mancuernas', nombre: 'Press inclinado con mancuernas', alias: ['press inclinado mancuernas', 'incline dumbbell press'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral superior (clavicular)'], s: ['Deltoides anterior', 'Tríceps'] },
+      equipo: 'Mancuernas y banco inclinado', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Banco a 30–45°. Subí las mancuernas apoyándolas en las rodillas.', 'Empujá hacia arriba sobre la parte alta del pecho.', 'Bajá con los codos a 45° hasta sentir estiramiento.', 'Subí sin chocar las mancuernas.'],
+      tips: ['Muy buen reemplazo del inclinado con barra si te molesta el hombro.', 'Pensá en llevar los bíceps hacia el centro al subir.'],
+      errores: ['Arquear demasiado la espalda y convertirlo en press plano.'],
+      reemplazos: ['press-inclinado', 'press-maquina', 'cruces-polea', 'press-mancuernas'],
+      foto: 'Incline_Dumbbell_Press',
+      fig: { a: { x: 66, y: 73, t: -55, lp: [88, 93], mp: [85, 93], ap: [47, 35] }, b: { x: 66, y: 73, t: -55, lp: [88, 93], mp: [85, 93], ap: [53, 52] }, p: [INCL, { k: 'mancu', rot: 90 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'press-maquina', nombre: 'Press de pecho en máquina', alias: ['press pecho maquina', 'chest press', 'press en maquina', 'maquina de pecho'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral mayor'], s: ['Deltoides anterior', 'Tríceps'] },
+      equipo: 'Máquina', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Ajustá el asiento para que las manijas queden a la altura del medio del pecho.', 'Espalda pegada al respaldo, omóplatos juntos.', 'Empujá hasta casi estirar los brazos.', 'Volvé lento hasta sentir el estiramiento en el pecho.'],
+      tips: ['Perfecto para llegar cerca del fallo sin riesgo: no hay barra que te aplaste.', 'Útil al final de la rutina, después del press libre.'],
+      errores: ['Asiento muy bajo o muy alto (carga los hombros).', 'Despegar la espalda del respaldo.'],
+      reemplazos: ['press-banca', 'press-mancuernas', 'flexiones', 'pec-deck'],
+      foto: 'Leverage_Chest_Press',
+      fig: { a: SENT({ t: -6, ap: [58, 53] }), b: SENT({ t: -6, ap: [80, 49] }), p: [RESP], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'fondos', nombre: 'Fondos', alias: ['fondos en paralelas', 'fondos pecho', 'dips', 'paralelas'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral inferior', 'Tríceps'], s: ['Deltoides anterior'] },
+      equipo: 'Paralelas', nivel: 'Intermedio', tipo: 'bw_lastre',
+      pasos: ['Subite a las paralelas con los brazos estirados.', 'Inclinate un poco hacia adelante (más inclinado = más pecho; más vertical = más tríceps).', 'Bajá doblando los codos hasta que los hombros queden a la altura de los codos.', 'Empujá hasta estirar los brazos.'],
+      tips: ['Si no llegás a varias reps, usá la máquina asistida o una banda.', 'Cuando te salgan 12+, sumá lastre con cinturón.'],
+      errores: ['Bajar demasiado y forzar el hombro.', 'Encoger los hombros hacia las orejas.'],
+      reemplazos: ['fondos-banco', 'press-banca', 'flexiones', 'press-cerrado'],
+      foto: 'Dips_-_Chest_Version',
+      fig: { a: { x: 57, y: 47, t: 12, ap: [62, 49.5], lp: [47, 79], mp: [45, 77] }, b: { x: 50, y: 60, t: 26, ap: [62, 49.5], lp: [39, 90], mp: [37, 88] }, p: [{ k: 'paralela', x: 62, y: 50 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'cruces-polea', nombre: 'Cruces Polea', alias: ['cruce de poleas', 'cruces en polea', 'cable crossover', 'crossover'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral mayor'], s: ['Deltoides anterior'] },
+      equipo: 'Poleas (crossover)', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Poleas altas. Agarrá una manija con cada mano y da un paso adelante.', 'Pie adelantado, torso un poco inclinado y codos levemente doblados.', 'Llevá las manos hacia abajo y al centro, como abrazando un árbol.', 'Volvé lento hasta sentir el estiramiento.'],
+      tips: ['Los codos quedan fijos en el mismo ángulo: el movimiento es del hombro.', 'Poleas bajas → trabajás más el pecho superior.'],
+      errores: ['Convertirlo en un press doblando y estirando los codos.', 'Usar tanto peso que el cuerpo se va para atrás.'],
+      reemplazos: ['aperturas', 'pec-deck', 'press-mancuernas', 'flexiones'],
+      foto: 'Cable_Crossover',
+      fig: { a: PIE({ t: 12, lp: [68, 93], mp: [44, 93], g: 160, ap: [44, 22], ak: 1 }), b: PIE({ t: 12, lp: [68, 93], mp: [44, 93], g: 160, ap: [76, 57], ak: 1 }), p: [{ k: 'polea', x: 40, y: 14 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'aperturas', nombre: 'Aperturas con mancuernas', alias: ['aperturas', 'aperturas planas', 'dumbbell flyes', 'flyes', 'aperturas banco'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral mayor'], s: ['Deltoides anterior'] },
+      equipo: 'Mancuernas y banco', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Acostate con las mancuernas arriba del pecho, palmas enfrentadas.', 'Con los codos un poco doblados, abrí los brazos en arco hacia los costados.', 'Bajá hasta sentir estiramiento en el pecho (sin pasar la línea del hombro).', 'Cerrá el arco de vuelta arriba.'],
+      tips: ['Pensá en "abrazar" el aire, no en empujar.', 'Usá menos peso que en el press: es un ejercicio de estiramiento.'],
+      errores: ['Estirar del todo los codos (carga la articulación).', 'Bajar demasiado y forzar el hombro.'],
+      reemplazos: ['cruces-polea', 'pec-deck', 'press-mancuernas'],
+      foto: 'Dumbbell_Flyes',
+      fig: { a: ACOST({ ap: [49, 47.5] }), b: ACOST({ a: [178, 172], as: 0.42 }), p: [BANCO, { k: 'mancu', rot: 90 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'pec-deck', nombre: 'Pec deck (mariposa)', alias: ['peck deck', 'pec deck', 'mariposa', 'contractor de pecho', 'butterfly', 'maquina mariposa'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral mayor'], s: ['Deltoides anterior'] },
+      equipo: 'Máquina', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Ajustá el asiento para que los brazos queden a la altura del pecho.', 'Espalda pegada al respaldo, codos apenas doblados.', 'Cerrá los brazos al frente apretando el pecho 1 segundo.', 'Volvé lento hasta sentir estiramiento.'],
+      tips: ['Sentado al revés, la misma máquina sirve para deltoides posterior.'],
+      errores: ['Abrir demasiado atrás en la vuelta.', 'Usar impulso del torso.'],
+      reemplazos: ['cruces-polea', 'aperturas', 'press-maquina'],
+      foto: 'Butterfly',
+      fig: { a: SENT({ t: -6, a: [-95, -20], as: 0.55 }), b: SENT({ t: -6, a: [88, 8], as: 0.85 }), p: [RESP], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'flexiones', nombre: 'Flexiones pecho', alias: ['flexiones', 'flexiones de brazos', 'lagartijas', 'push ups', 'pushups', 'push-up'],
+      grupo: 'Pecho', musculos: { p: ['Pectoral mayor'], s: ['Tríceps', 'Deltoides anterior', 'Core'] },
+      equipo: 'Peso corporal', nivel: 'Principiante', tipo: 'bw_lastre',
+      pasos: ['Manos en el piso un poco más anchas que los hombros, cuerpo recto de cabeza a talones.', 'Apretá abdomen y glúteos.', 'Bajá el pecho hasta casi tocar el piso, codos a 45°.', 'Empujá el piso hasta estirar los brazos.'],
+      tips: ['Más fácil: manos sobre un banco. Más difícil: pies elevados o con mochila.', 'Manos más juntas → más tríceps.'],
+      errores: ['Cadera caída o levantada (perder la línea recta).', 'Codos abiertos en cruz.'],
+      reemplazos: ['press-banca', 'press-mancuernas', 'press-maquina', 'fondos'],
+      foto: 'Pushups',
+      fig: { a: { x: 62.3, y: 78.3, t: 64.5, ap: [84, 93], lp: [32, 91.5], f: 165 }, b: { x: 64.4, y: 87.2, t: 80, ap: [84, 93], lp: [32, 91.5], f: 165 }, p: [], hl: ['torso', 'brazos'] }
+    },
+
+    /* ═════════════ ESPALDA ═════════════ */
+    {
+      id: 'dominadas', nombre: 'Dominadas', alias: ['dominada', 'dominadas pronas', 'pull ups', 'pullups', 'pull-up'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho'], s: ['Bíceps', 'Romboides', 'Trapecio medio/inferior', 'Core'] },
+      equipo: 'Barra fija', nivel: 'Intermedio', tipo: 'bw_lastre',
+      pasos: ['Colgate de la barra con agarre prono (palmas hacia adelante), un poco más ancho que los hombros.', 'Bajá los hombros (alejalos de las orejas) antes de tirar.', 'Tirá llevando los codos hacia abajo y atrás hasta pasar el mentón por la barra.', 'Bajá controlado hasta estirar los brazos.'],
+      tips: ['Si no te sale ninguna: negativas (subí con salto y bajá en 4–5 s) o banda elástica.', 'Pensá en llevar el pecho a la barra, no el mentón.'],
+      errores: ['Hacer medio recorrido (no estirar abajo).', 'Balancearse con las piernas.'],
+      reemplazos: ['dorsalera', 'dominadas-supinas', 'dorsalera-unilateral', 'remo-barra'],
+      foto: 'Pullups',
+      fig: { a: { x: 60, y: 59, t: -5, ap: [63, 10], lp: [50, 86], mp: [48, 84], f: 150 }, b: { x: 59, y: 37, t: -10, ap: [63, 10], lp: [49, 64], mp: [47, 62], f: 150 }, p: [{ k: 'fija', x: 58, y: 10 }], hl: ['torso', 'brazos'], vb: '0 -6 120 106' }
+    },
+    {
+      id: 'dominadas-supinas', nombre: 'Dominadas supinas (chin-up)', alias: ['dominadas supinas', 'chin up', 'chin-ups', 'dominadas agarre supino', 'dominadas cerradas'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho', 'Bíceps'], s: ['Romboides', 'Braquial'] },
+      equipo: 'Barra fija', nivel: 'Intermedio', tipo: 'bw_lastre',
+      pasos: ['Colgate con las palmas hacia vos, manos al ancho de hombros.', 'Bajá los hombros y apretá abdomen.', 'Tirá hasta pasar el mentón por la barra.', 'Bajá lento hasta estirar los brazos.'],
+      tips: ['Suele salir más fácil que la prona: buena puerta de entrada a las dominadas.', 'Trabaja mucho bíceps: tenelo en cuenta si después hacés curl.'],
+      errores: ['Cortar el recorrido abajo.', 'Patalear para subir.'],
+      reemplazos: ['dominadas', 'dorsalera', 'remo-barra', 'curl-barra'],
+      foto: 'Chin-Up',
+      fig: { a: { x: 60, y: 59, t: -5, ap: [63, 10], lp: [50, 86], mp: [48, 84], f: 150 }, b: { x: 59, y: 37, t: -10, ap: [63, 10], lp: [49, 64], mp: [47, 62], f: 150 }, p: [{ k: 'fija', x: 58, y: 10 }], hl: ['torso', 'brazos'], vb: '0 -6 120 106' }
+    },
+    {
+      id: 'dorsalera', nombre: 'Dorsalera', alias: ['jalon al pecho', 'jalon', 'polea al pecho', 'lat pulldown', 'jalon dorsal', 'tiron al pecho', 'polea alta'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho'], s: ['Bíceps', 'Romboides', 'Deltoides posterior'] },
+      equipo: 'Polea alta', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentate y trabá las piernas debajo del soporte.', 'Agarrá la barra más ancho que los hombros.', 'Inclinate apenas atrás, sacá pecho y tirá la barra hasta la parte alta del pecho.', 'Subí controlado hasta estirar los brazos.'],
+      tips: ['Pensá en "meter los codos en los bolsillos".', 'La barra va al pecho, nunca detrás de la nuca.'],
+      errores: ['Tirarse para atrás y usar el peso del cuerpo.', 'Tirar con los brazos sin bajar los omóplatos.'],
+      reemplazos: ['dominadas', 'dorsalera-unilateral', 'pullover-polea', 'remo-bajo-polea'],
+      foto: 'Wide-Grip_Lat_Pulldown',
+      fig: { a: SENT({ t: -8, ap: [60, 23] }), b: SENT({ t: -14, ap: [59, 46] }), p: [ASIENTO, { k: 'polea', x: 56, y: 2, torre: false }, { k: 'linea', x1: 68, y1: 69, x2: 80, y2: 69, w: 3 }], hl: ['torso', 'brazos'], vb: '0 -6 120 106' }
+    },
+    {
+      id: 'dorsalera-unilateral', nombre: 'Dorsalera unilateral', alias: ['jalon a una mano', 'jalon unilateral', 'polea alta a una mano', 'one arm lat pulldown'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho'], s: ['Bíceps', 'Redondo mayor'] },
+      equipo: 'Polea alta con manija', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentate en la dorsalera con una manija simple.', 'Brazo estirado arriba, sentí el estiramiento del dorsal.', 'Tirá el codo hacia abajo y hacia la cadera.', 'Volvé lento dejando que el hombro suba.'],
+      tips: ['Permite más recorrido que con barra y corregir diferencias entre lados.', 'Empezá con el lado más débil y hacé las mismas reps con el otro.'],
+      errores: ['Girar el torso para ayudarte.'],
+      reemplazos: ['dorsalera', 'dominadas', 'remo-mancuerna', 'pullover-polea'],
+      foto: 'One_Arm_Lat_Pulldown',
+      fig: { a: SENT({ t: -6, ap: [60, 23], b: [170, 90] }), b: SENT({ t: -10, ap: [59, 47], b: [170, 90] }), p: [ASIENTO, { k: 'polea', x: 56, y: 2, torre: false }], hl: ['torso', 'brazos'], vb: '0 -6 120 106' }
+    },
+    {
+      id: 'remo-bajo-polea', nombre: 'Remo Bajo Polea', alias: ['remo sentado polea', 'remo en polea', 'seated cable row', 'remo gironda', 'remo polea baja'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho', 'Romboides', 'Trapecio medio'], s: ['Bíceps', 'Deltoides posterior', 'Erectores'] },
+      equipo: 'Polea baja', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentate con los pies en la plataforma y las rodillas un poco dobladas.', 'Espalda recta, brazos estirados adelante.', 'Tirá la manija hacia el ombligo llevando los codos atrás y juntando omóplatos.', 'Volvé estirando los brazos sin encorvar la espalda.'],
+      tips: ['Sacá pecho al final del tirón, 1 segundo de pausa.', 'Agarre en V (cerrado) → más dorsal bajo; barra ancha → más espalda alta.'],
+      errores: ['Balancear el torso adelante y atrás para mover el peso.', 'Encorvar la espalda en la vuelta.'],
+      reemplazos: ['remo-maquina', 'remo-mancuerna', 'remo-barra', 'dorsalera'],
+      foto: 'Seated_Cable_Rows',
+      fig: { a: { x: 40, y: 80, t: 16, lp: [70, 86], mp: [70, 84], f: 30, ap: [71, 62] }, b: { x: 40, y: 80, t: -6, lp: [70, 86], mp: [70, 84], f: 30, ap: [44, 66] }, p: [{ k: 'banco', x1: 26, x2: 50, y: 85, legs: [30, 46] }, { k: 'linea', x1: 76, y1: 76, x2: 76, y2: 93, w: 3 }, { k: 'polea', x: 92, y: 66, tx: 94 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'remo-maquina', nombre: 'Remo Bajo Máquina', alias: ['remo maquina', 'remo en maquina', 'remo sentado maquina', 'machine row', 'remo hammer'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho', 'Romboides', 'Trapecio medio'], s: ['Bíceps', 'Deltoides posterior'] },
+      equipo: 'Máquina de remo', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Ajustá el asiento para que las manijas queden a la altura del pecho/abdomen alto.', 'Pecho apoyado en el soporte.', 'Tirá llevando los codos atrás y juntando los omóplatos.', 'Volvé lento hasta estirar los brazos.'],
+      tips: ['Como tenés el pecho apoyado, podés concentrarte solo en la espalda.', 'Probá agarre neutro y prono: cambian el énfasis.'],
+      errores: ['Despegar el pecho del soporte.', 'Encoger los hombros hacia las orejas.'],
+      reemplazos: ['remo-bajo-polea', 'remo-mancuerna', 'remo-t', 'remo-barra'],
+      foto: 'Leverage_Iso_Row',
+      fig: { a: SENT({ t: 6, ap: [81, 52] }), b: SENT({ t: 0, ap: [62, 57] }), p: [ASIENTO, { k: 'linea', x1: 72, y1: 46, x2: 70, y2: 64, w: 3 }, { k: 'linea', x1: 72, y1: 64, x2: 72, y2: 93, w: 1.6 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'remo-mancuerna', nombre: 'Remo con Mancuerna', alias: ['remo mancuerna', 'remo a una mano', 'serrucho', 'one arm dumbbell row', 'remo unilateral'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho', 'Romboides'], s: ['Bíceps', 'Deltoides posterior', 'Trapecio'] },
+      equipo: 'Mancuerna y banco', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Apoyá rodilla y mano del mismo lado en el banco; espalda paralela al piso.', 'Con la otra mano agarrá la mancuerna, brazo estirado.', 'Tirá la mancuerna hacia la cadera llevando el codo atrás.', 'Bajá lento hasta estirar el brazo.'],
+      tips: ['Pensá en llevar el codo al bolsillo de atrás, no la mano al hombro.', 'Dejá que el hombro baje abajo para estirar bien el dorsal.'],
+      errores: ['Girar el torso para subir más peso.', 'Tirar hacia el pecho (trabaja más brazo).'],
+      reemplazos: ['remo-barra', 'remo-bajo-polea', 'remo-maquina', 'dorsalera-unilateral'],
+      foto: 'One-Arm_Dumbbell_Row',
+      fig: { a: { x: 40, y: 58, t: 84, ap: [64, 82], bp: [66, 69], lp: [38, 93], mp: [56, 66], mk: -1, g: -90 }, b: { x: 40, y: 58, t: 84, ap: [53, 64], bp: [66, 69], lp: [38, 93], mp: [56, 66], mk: -1, g: -90 }, p: [{ k: 'banco', x1: 44, x2: 84, y: 70 }, { k: 'mancu', both: false }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'remo-barra', nombre: 'Remo con barra', alias: ['remo barra', 'remo inclinado', 'bent over row', 'remo pendlay'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho', 'Romboides', 'Trapecio medio'], s: ['Erectores', 'Bíceps', 'Isquiotibiales'] },
+      equipo: 'Barra', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['De pie, rodillas un poco dobladas, inclinate desde la cadera con la espalda recta (torso a ~45°).', 'Barra colgando con los brazos estirados.', 'Tirá la barra hacia el ombligo llevando los codos atrás.', 'Bajá controlado sin perder la posición.'],
+      tips: ['La espalda baja trabaja todo el tiempo: elegí un peso que te permita mantenerla neutra.', 'Si te molesta la lumbar, pasá al remo con pecho apoyado.'],
+      errores: ['Ir enderezando el torso en cada rep.', 'Redondear la espalda.'],
+      reemplazos: ['remo-t', 'remo-mancuerna', 'remo-maquina', 'remo-bajo-polea'],
+      foto: 'Bent_Over_Barbell_Row',
+      fig: { a: { x: 50, y: 63, t: 62, lp: [56, 93], mp: [54, 93], ap: [70, 76] }, b: { x: 50, y: 63, t: 62, lp: [56, 93], mp: [54, 93], ap: [58, 61] }, p: [{ k: 'barra' }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'remo-t', nombre: 'Remo T', alias: ['remo en t', 't-bar row', 'remo barra t', 'remo con barra t'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho', 'Romboides', 'Trapecio medio'], s: ['Bíceps', 'Erectores'] },
+      equipo: 'Barra T / mina terrestre', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Parate sobre la barra, rodillas dobladas y torso inclinado con la espalda recta.', 'Agarrá la manija con los brazos estirados.', 'Tirá hacia el pecho bajo/abdomen.', 'Bajá lento hasta estirar.'],
+      tips: ['La versión con pecho apoyado le saca carga a la zona lumbar.'],
+      errores: ['Usar las piernas para subir el peso.', 'Redondear la espalda.'],
+      reemplazos: ['remo-barra', 'remo-maquina', 'remo-mancuerna', 'remo-bajo-polea'],
+      foto: 'T-Bar_Row_with_Handle',
+      fig: { a: { x: 50, y: 63, t: 55, lp: [56, 93], mp: [54, 93], ap: [68, 78] }, b: { x: 50, y: 63, t: 55, lp: [56, 93], mp: [54, 93], ap: [61, 61] }, p: [{ k: 'barra', r: 5 }, { k: 'linea', x1: 20, y1: 92, x2: 70, y2: 78, w: 1.6 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'face-pull', nombre: 'Face pull', alias: ['face pull over', 'facepull', 'tiron a la cara', 'jalon a la cara'],
+      grupo: 'Espalda', musculos: { p: ['Deltoides posterior', 'Trapecio medio'], s: ['Romboides', 'Manguito rotador'] },
+      equipo: 'Polea alta con soga', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Polea a la altura de la cara o un poco más arriba, con soga.', 'Agarrá la soga con las palmas hacia abajo y da un paso atrás.', 'Tirá hacia la cara separando las manos y llevando los codos altos y atrás.', 'Al final, girá los puños hacia atrás (como mostrando bíceps) y volvé lento.'],
+      tips: ['Peso liviano y muchas reps (12–20): es un ejercicio de salud del hombro.', 'Muy recomendable si hacés mucho press de pecho.'],
+      errores: ['Tirar con la espalda baja (echarse atrás).', 'Usar tanto peso que los codos bajan.'],
+      reemplazos: ['pajaros', 'remo-bajo-polea', 'pec-deck'],
+      foto: 'Face_Pull',
+      fig: { a: PIE({ t: -4, ap: [80, 32] }), b: PIE({ t: -4, a: [-95, 12] }), p: [{ k: 'polea', x: 98, y: 26, tx: 100 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'pullover-polea', nombre: 'Pullover en polea (brazos rectos)', alias: ['pullover polea', 'pull over', 'pullover', 'straight arm pulldown', 'jalon brazos rectos'],
+      grupo: 'Espalda', musculos: { p: ['Dorsal ancho'], s: ['Redondo mayor', 'Tríceps (cabeza larga)', 'Pectoral'] },
+      equipo: 'Polea alta con barra o soga', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Parate frente a la polea alta, inclinado un poco hacia adelante.', 'Brazos casi rectos, manos arriba a la altura de la cabeza.', 'Bajá la barra en arco hasta los muslos con los brazos rectos.', 'Volvé en arco hasta sentir el estiramiento del dorsal.'],
+      tips: ['Excelente para "sentir" el dorsal antes de las dominadas.', 'Codos fijos: si se doblan, se vuelve un press de tríceps.'],
+      errores: ['Doblar los codos.', 'Mover el torso para ayudar.'],
+      reemplazos: ['dorsalera', 'dominadas', 'dorsalera-unilateral'],
+      foto: 'Straight-Arm_Pulldown',
+      fig: { a: PIE({ t: 22, a: [42, 40] }), b: PIE({ t: 22, a: [172, 170] }), p: [{ k: 'polea', x: 96, y: 8, tx: 98 }], hl: ['torso', 'brazos'] }
+    },
+    {
+      id: 'peso-muerto', nombre: 'Peso muerto', alias: ['peso muerto convencional', 'deadlift', 'despegue'],
+      grupo: 'Espalda', musculos: { p: ['Glúteos', 'Isquiotibiales', 'Erectores espinales'], s: ['Dorsal ancho', 'Trapecio', 'Cuádriceps', 'Antebrazos'] },
+      equipo: 'Barra', nivel: 'Avanzado', tipo: 'normal',
+      pasos: ['Pies al ancho de cadera, barra sobre la mitad del pie (pegada a las tibias).', 'Bajá con la cadera atrás, agarrá la barra, espalda recta y pecho arriba.', 'Empujá el piso con las piernas y llevá la cadera adelante hasta pararte derecho.', 'Bajá la barra con el mismo camino, pegada a las piernas.'],
+      tips: ['Antes de tirar, "sacá el flojo": tensá la barra y apretá los dorsales.', 'Respirá y bloqueá el abdomen en cada rep.'],
+      errores: ['Redondear la espalda baja.', 'Que la barra se aleje del cuerpo.', 'Echarse para atrás arriba del todo.'],
+      reemplazos: ['peso-muerto-rumano', 'hip-thrust', 'swing-kb', 'hiperextensiones'],
+      foto: 'Barbell_Deadlift',
+      fig: { a: { x: 42, y: 70, t: 62, lp: [56, 93], mp: [54, 93], ap: [62, 84] }, b: PIE({ ap: [60, 70] }), p: [{ k: 'barra', r: 7.5 }], hl: ['torso', 'piernas'] }
+    },
+    {
+      id: 'hiperextensiones', nombre: 'Hiperextensiones (lumbares)', alias: ['hiperextensiones', 'lumbares', 'extensiones lumbares', 'back extension', 'banco romano'],
+      grupo: 'Espalda', musculos: { p: ['Erectores espinales'], s: ['Glúteos', 'Isquiotibiales'] },
+      equipo: 'Banco romano (45°)', nivel: 'Principiante', tipo: 'bw_lastre',
+      pasos: ['Ajustá el banco para que el apoyo quede justo debajo de la cadera.', 'Brazos cruzados en el pecho, cuerpo recto.', 'Bajá el torso doblándote desde la cadera.', 'Subí hasta quedar en línea con las piernas (no más).'],
+      tips: ['Apretá glúteos al subir para trabajar toda la cadena posterior.', 'Para progresar, abrazá un disco.'],
+      errores: ['Subir de más y arquear la lumbar.', 'Hacerlo rápido con rebote.'],
+      reemplazos: ['peso-muerto-rumano', 'puente-gluteo', 'peso-muerto'],
+      foto: 'Hyperextensions_Back_Extensions',
+      fig: { a: { x: 58, y: 54, t: 168, h: 168, a: [-35, 140], lp: [36, 81], mp: [36, 81], f: 150, ts: 1 }, b: { x: 58, y: 54, t: 62, h: 62, a: [210, 40], lp: [36, 81], mp: [36, 81], f: 150 }, p: [{ k: 'linea', x1: 54, y1: 58, x2: 66, y2: 63, w: 3.2 }, { k: 'linea', x1: 33, y1: 86, x2: 38, y2: 88, w: 3 }, { k: 'linea', x1: 60, y1: 61, x2: 40, y2: 93, w: 1.6 }], hl: ['torso'] }
+    },
+
+    /* ═════════════ HOMBROS ═════════════ */
+    {
+      id: 'press-militar', nombre: 'Press militar', alias: ['press militar barra', 'press de hombros barra', 'overhead press', 'ohp', 'press militar de pie'],
+      grupo: 'Hombros', musculos: { p: ['Deltoides anterior y medio'], s: ['Tríceps', 'Trapecio superior', 'Core'] },
+      equipo: 'Barra', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['De pie, barra apoyada arriba del pecho, agarre apenas más ancho que los hombros.', 'Apretá glúteos y abdomen.', 'Empujá la barra hacia arriba corriendo apenas la cabeza hacia atrás.', 'Al pasar la frente, meté la cabeza "por la ventana" y estirá los brazos arriba.'],
+      tips: ['La barra sube en línea recta: es la cabeza la que se corre.', 'Antebrazos verticales en la posición de inicio.'],
+      errores: ['Arquear la espalda baja para empujar.', 'Empujar la barra hacia adelante.'],
+      reemplazos: ['press-hombro-mancuernas', 'press-arnold', 'press-inclinado'],
+      foto: 'Standing_Military_Press',
+      fig: { a: PIE({ a: [145, 12] }), b: PIE({ a: [3, 0] }), p: [{ k: 'barra', r: 5.5 }], hl: ['brazos'] }
+    },
+    {
+      id: 'press-hombro-mancuernas', nombre: 'Press de hombros con mancuernas', alias: ['press hombros mancuernas', 'press militar mancuernas', 'dumbbell shoulder press', 'press sentado mancuernas'],
+      grupo: 'Hombros', musculos: { p: ['Deltoides anterior y medio'], s: ['Tríceps', 'Trapecio superior'] },
+      equipo: 'Mancuernas y banco con respaldo', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentate con el respaldo casi vertical y las mancuernas a la altura de las orejas.', 'Codos un poco adelante del cuerpo, no en cruz.', 'Empujá hacia arriba hasta casi juntarlas.', 'Bajá controlado hasta la altura de las orejas.'],
+      tips: ['Sentado y con respaldo, cuidás más la espalda baja que de pie.'],
+      errores: ['Bajar poco (medio recorrido).', 'Despegar la espalda del respaldo.'],
+      reemplazos: ['press-militar', 'press-arnold', 'press-maquina'],
+      foto: 'Dumbbell_Shoulder_Press',
+      fig: { a: SENT({ t: -4, a: [165, 0] }), b: SENT({ t: -4, a: [-2, 0] }), p: [RESP, { k: 'mancu', rot: 90 }], hl: ['brazos'] }
+    },
+    {
+      id: 'press-arnold', nombre: 'Press Arnold', alias: ['arnold press', 'press arnold mancuernas'],
+      grupo: 'Hombros', musculos: { p: ['Deltoides anterior y medio'], s: ['Tríceps'] },
+      equipo: 'Mancuernas', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Sentado, mancuernas frente a la cara con las palmas hacia vos.', 'Mientras empujás hacia arriba, girá las palmas hacia adelante.', 'Terminá con los brazos estirados arriba.', 'Bajá deshaciendo el giro.'],
+      tips: ['Usá un poco menos de peso que en el press normal.'],
+      errores: ['Girar de golpe al final en vez de durante la subida.'],
+      reemplazos: ['press-hombro-mancuernas', 'press-militar', 'vuelos-frontales'],
+      foto: 'Arnold_Dumbbell_Press',
+      fig: { a: SENT({ t: -4, a: [150, 8] }), b: SENT({ t: -4, a: [-2, 0] }), p: [RESP, { k: 'mancu', rot: 90 }], hl: ['brazos'] }
+    },
+    {
+      id: 'vuelos-laterales', nombre: 'Vuelos laterales', alias: ['elevaciones laterales', 'laterales', 'vuelo lateral', 'lateral raise', 'elevaciones laterales mancuernas'],
+      grupo: 'Hombros', musculos: { p: ['Deltoides medio'], s: ['Trapecio superior', 'Supraespinoso'] },
+      equipo: 'Mancuernas', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De pie, mancuernas al costado, codos apenas doblados.', 'Inclinate un poquito hacia adelante.', 'Subí los brazos hacia los costados hasta la altura de los hombros.', 'Bajá lento (2–3 s).'],
+      tips: ['Pensá en "llevar las manos lejos", no arriba.', 'Peso liviano y buena técnica: el deltoides medio responde a reps altas (12–20).'],
+      errores: ['Subir con impulso del cuerpo.', 'Encoger los hombros (trabaja el trapecio en vez del deltoides).'],
+      reemplazos: ['laterales-polea', 'remo-al-menton', 'press-hombro-mancuernas'],
+      foto: 'Side_Lateral_Raise',
+      fig: { frente: true, a: PIE({ lp: [60, 93], a: [172, 176] }), b: PIE({ lp: [60, 93], a: [96, 100] }), p: [{ k: 'mancu', rot: 90 }], hl: ['brazos'] }
+    },
+    {
+      id: 'laterales-polea', nombre: 'Vuelos laterales en polea', alias: ['laterales en polea', 'elevacion lateral polea', 'cable lateral raise'],
+      grupo: 'Hombros', musculos: { p: ['Deltoides medio'], s: ['Supraespinoso'] },
+      equipo: 'Polea baja', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Polea baja al costado; agarrá la manija con la mano más lejana.', 'Cable pasando por delante del cuerpo.', 'Subí el brazo hacia el costado hasta la altura del hombro.', 'Bajá lento resistiendo el cable.'],
+      tips: ['La polea mantiene la tensión abajo, donde la mancuerna no carga nada.'],
+      errores: ['Inclinar el torso hacia el otro lado para subir.'],
+      reemplazos: ['vuelos-laterales', 'remo-al-menton'],
+      foto: 'Cable_Seated_Lateral_Raise',
+      fig: { frente: true, a: PIE({ lp: [60, 93], a: [172, 176] }), b: PIE({ lp: [60, 93], a: [96, 100] }), p: [{ k: 'polea', x: 30, y: 90, tx: 26 }], hl: ['brazos'] }
+    },
+    {
+      id: 'vuelos-frontales', nombre: 'Vuelos frontales', alias: ['elevaciones frontales', 'frontales', 'front raise', 'elevacion frontal'],
+      grupo: 'Hombros', musculos: { p: ['Deltoides anterior'], s: ['Pectoral superior'] },
+      equipo: 'Mancuernas, disco o polea', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De pie, mancuernas delante de los muslos.', 'Subí los brazos casi rectos hacia adelante hasta la altura de los ojos.', 'Bajá controlado.'],
+      tips: ['Si ya hacés mucho press, el deltoides anterior suele estar bien trabajado: priorizá laterales y posteriores.'],
+      errores: ['Balancear el cuerpo.', 'Subir por encima de la cabeza.'],
+      reemplazos: ['press-hombro-mancuernas', 'press-arnold', 'vuelos-laterales'],
+      foto: 'Front_Dumbbell_Raise',
+      fig: { a: PIE({ a: [172, 168] }), b: PIE({ a: [88, 85] }), p: [{ k: 'mancu', rot: 90 }], hl: ['brazos'] }
+    },
+    {
+      id: 'pajaros', nombre: 'Pájaros (deltoides posterior)', alias: ['pajaros', 'vuelos posteriores', 'posteriores', 'rear delt fly', 'reverse fly', 'aperturas invertidas'],
+      grupo: 'Hombros', musculos: { p: ['Deltoides posterior'], s: ['Romboides', 'Trapecio medio'] },
+      equipo: 'Mancuernas', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentado en la punta del banco o de pie, inclinate hasta que el torso quede casi paralelo al piso.', 'Mancuernas colgando, codos apenas doblados.', 'Abrí los brazos hacia los costados hasta la altura del torso.', 'Bajá lento.'],
+      tips: ['Peso liviano: es un músculo chico.', 'Pensá en llevar las manos hacia afuera, no hacia atrás.'],
+      errores: ['Juntar los omóplatos de más (trabaja espalda en vez de hombro).', 'Usar impulso.'],
+      reemplazos: ['face-pull', 'pec-deck', 'remo-bajo-polea'],
+      foto: 'Seated_Bent-Over_Rear_Delt_Raise',
+      fig: { a: { x: 50, y: 63, t: 75, lp: [58, 93], mp: [56, 93], a: [178, 175] }, b: { x: 50, y: 63, t: 75, lp: [58, 93], mp: [56, 93], a: [178, 172], as: 0.3 }, p: [{ k: 'mancu', rot: 90 }], hl: ['brazos'] }
+    },
+    {
+      id: 'remo-al-menton', nombre: 'Remo al mentón', alias: ['remo al menton', 'remo vertical', 'upright row', 'remo parado'],
+      grupo: 'Hombros', musculos: { p: ['Deltoides medio', 'Trapecio superior'], s: ['Bíceps'] },
+      equipo: 'Barra, mancuernas o polea', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['De pie, barra delante de los muslos, agarre al ancho de hombros (no muy cerrado).', 'Subí llevando los codos hacia arriba y afuera.', 'Pará cuando los codos lleguen a la altura de los hombros.', 'Bajá controlado.'],
+      tips: ['Agarre más ancho = menos estrés en el hombro y más deltoides.'],
+      errores: ['Subir los codos por encima de los hombros si molesta.', 'Agarre muy cerrado.'],
+      reemplazos: ['vuelos-laterales', 'laterales-polea', 'encogimientos'],
+      foto: 'Upright_Barbell_Row',
+      fig: { frente: true, a: PIE({ lp: [60, 93], ap: [58, 60], ak: -1 }), b: PIE({ lp: [60, 93], a: [70, 200] }), p: [], hl: ['brazos'] }
+    },
+    {
+      id: 'encogimientos', nombre: 'Encogimientos (trapecio)', alias: ['encogimientos', 'shrugs', 'encogimiento de hombros', 'trapecio'],
+      grupo: 'Hombros', musculos: { p: ['Trapecio superior'], s: ['Elevador de la escápula'] },
+      equipo: 'Mancuernas o barra', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De pie, mancuernas a los costados, brazos estirados.', 'Subí los hombros hacia las orejas lo más alto que puedas.', 'Aguantá 1 segundo arriba.', 'Bajá lento.'],
+      tips: ['Movimiento recto arriba–abajo, sin girar los hombros.'],
+      errores: ['Doblar los codos.', 'Hacer medio recorrido con mucho peso.'],
+      reemplazos: ['remo-al-menton', 'peso-muerto', 'face-pull'],
+      foto: 'Dumbbell_Shrug',
+      fig: { frente: true, dur: 2, a: PIE({ lp: [60, 93], a: [178, 178] }), b: PIE({ lp: [60, 93], a: [178, 178], ts: 1.2, ns: 0.15 }), p: [{ k: 'mancu', rot: 90 }], hl: ['torso'] }
+    },
+
+    /* ═════════════ BÍCEPS ═════════════ */
+    {
+      id: 'curl-barra', nombre: 'Curl con barra 2 manos', alias: ['curl con barra', 'curl barra', 'barbell curl', 'curl barra z', 'curl con barra z'],
+      grupo: 'Bíceps', musculos: { p: ['Bíceps braquial'], s: ['Braquial', 'Antebrazos'] },
+      equipo: 'Barra recta o Z', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De pie, barra con agarre supino al ancho de hombros.', 'Codos pegados al cuerpo.', 'Subí la barra doblando solo los codos hasta el pecho.', 'Bajá lento hasta estirar los brazos.'],
+      tips: ['La barra Z cuida las muñecas.', 'Si tenés que balancearte, sobra peso.'],
+      errores: ['Mover los codos hacia adelante al subir.', 'Balancear el torso.'],
+      reemplazos: ['curl-mancuernas', 'curl-polea', 'curl-predicador', 'dominadas-supinas'],
+      foto: 'Barbell_Curl',
+      fig: { a: PIE({ a: [178, 178] }), b: PIE({ a: [176, 25] }), p: [{ k: 'barra', r: 5.5 }], hl: ['brazos'] }
+    },
+    {
+      id: 'curl-mancuernas', nombre: 'Curl de Bíceps', alias: ['curl biceps', 'curl con mancuernas', 'curl mancuernas', 'curl alternado', 'dumbbell curl', 'curl de biceps mancuerna'],
+      grupo: 'Bíceps', musculos: { p: ['Bíceps braquial'], s: ['Braquial', 'Antebrazos'] },
+      equipo: 'Mancuernas', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De pie o sentado, mancuernas a los costados con las palmas hacia adelante.', 'Codos pegados al torso.', 'Subí girando apenas el meñique hacia afuera al final.', 'Bajá lento hasta estirar del todo.'],
+      tips: ['Alternado te permite concentrarte en cada brazo.', 'Apretá 1 segundo arriba.'],
+      errores: ['Usar impulso de la cadera.', 'No estirar abajo (medio recorrido).'],
+      reemplazos: ['curl-barra', 'curl-martillo', 'curl-polea', 'curl-inclinado'],
+      foto: 'Dumbbell_Bicep_Curl',
+      fig: { a: PIE({ a: [178, 178] }), b: PIE({ a: [176, 25] }), p: [{ k: 'mancu', rot: 90 }], hl: ['brazos'] }
+    },
+    {
+      id: 'curl-martillo', nombre: 'Curl Martillo', alias: ['curl martillo', 'hammer curl', 'martillo'],
+      grupo: 'Bíceps', musculos: { p: ['Braquial', 'Braquiorradial'], s: ['Bíceps braquial'] },
+      equipo: 'Mancuernas', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De pie, mancuernas a los costados con las palmas enfrentadas (agarre neutro).', 'Codos pegados al cuerpo.', 'Subí sin girar la muñeca.', 'Bajá lento.'],
+      tips: ['Engrosa el brazo (braquial) y el antebrazo.', 'Con soga en polea es un gran reemplazo.'],
+      errores: ['Balancear el torso.', 'Subir los codos hacia adelante.'],
+      reemplazos: ['curl-mancuernas', 'curl-polea', 'curl-barra'],
+      foto: 'Hammer_Curls',
+      fig: { a: PIE({ a: [178, 178] }), b: PIE({ a: [176, 25] }), p: [{ k: 'mancu', rot: 0 }], hl: ['brazos'] }
+    },
+    {
+      id: 'curl-polea', nombre: 'Curl en Polea', alias: ['curl polea', 'cable curl', 'curl polea baja', 'curl en polea baja'],
+      grupo: 'Bíceps', musculos: { p: ['Bíceps braquial'], s: ['Braquial'] },
+      equipo: 'Polea baja', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De frente a la polea baja con barra o soga.', 'Codos pegados al cuerpo, un paso atrás.', 'Subí doblando los codos.', 'Bajá lento sin soltar la tensión.'],
+      tips: ['La polea mantiene tensión constante, ideal para terminar el bíceps.'],
+      errores: ['Inclinarse atrás para subir.'],
+      reemplazos: ['curl-barra', 'curl-mancuernas', 'curl-martillo', 'curl-predicador'],
+      foto: 'Standing_Biceps_Cable_Curl',
+      fig: { a: PIE({ a: [178, 172] }), b: PIE({ a: [176, 25] }), p: [{ k: 'polea', x: 86, y: 90, tx: 90 }], hl: ['brazos'] }
+    },
+    {
+      id: 'curl-predicador', nombre: 'Curl predicador (Scott)', alias: ['curl predicador', 'curl scott', 'banco scott', 'preacher curl', 'curl en banco scott'],
+      grupo: 'Bíceps', musculos: { p: ['Bíceps braquial (porción corta)', 'Braquial'], s: [] },
+      equipo: 'Banco Scott con barra Z o mancuerna', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentate con las axilas apoyadas en el borde del banco.', 'Brazos apoyados en el atril, agarre supino.', 'Subí la barra hasta que los antebrazos queden casi verticales.', 'Bajá lento hasta casi estirar (sin trabar el codo).'],
+      tips: ['Elimina el impulso: usá menos peso que en el curl de pie.'],
+      errores: ['Soltar el peso abajo de golpe (riesgo para el codo).', 'Levantar los codos del atril.'],
+      reemplazos: ['curl-polea', 'curl-concentrado', 'curl-barra'],
+      foto: 'Preacher_Curl',
+      fig: { a: SENT({ t: 8, a: [140, 140] }), b: SENT({ t: 8, a: [140, 5] }), p: [ASIENTO, { k: 'linea', x1: 62, y1: 44, x2: 74, y2: 58, w: 3.2 }, { k: 'linea', x1: 70, y1: 56, x2: 70, y2: 93, w: 1.6 }, { k: 'barra', r: 5 }], hl: ['brazos'] }
+    },
+    {
+      id: 'curl-concentrado', nombre: 'Curl concentrado', alias: ['curl concentrado', 'concentration curl', 'curl concentracion'],
+      grupo: 'Bíceps', musculos: { p: ['Bíceps braquial'], s: ['Braquial'] },
+      equipo: 'Mancuerna y banco', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentado, piernas abiertas, apoyá el codo en la cara interna del muslo.', 'Brazo estirado hacia el piso.', 'Subí la mancuerna hacia el hombro.', 'Bajá lento.'],
+      tips: ['Apretá fuerte arriba 1–2 segundos.'],
+      errores: ['Mover el codo de lugar.'],
+      reemplazos: ['curl-predicador', 'curl-mancuernas', 'curl-polea'],
+      foto: 'Concentration_Curls',
+      fig: { a: SENT({ t: 40, a: [176, 176] }), b: SENT({ t: 40, a: [176, 40] }), p: [ASIENTO, { k: 'mancu', both: false, rot: 90 }], hl: ['brazos'] }
+    },
+    {
+      id: 'curl-inclinado', nombre: 'Curl bíceps inclinado', alias: ['curl inclinado', 'curl en banco inclinado', 'incline dumbbell curl', 'curl biceps inclinado'],
+      grupo: 'Bíceps', musculos: { p: ['Bíceps braquial (porción larga)'], s: ['Braquial'] },
+      equipo: 'Mancuernas y banco inclinado', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Banco a 45–60°. Acostate con los brazos colgando detrás del torso.', 'Palmas hacia adelante.', 'Subí sin mover los codos hacia adelante.', 'Bajá lento hasta estirar del todo.'],
+      tips: ['El estiramiento abajo es lo que lo hace especial: no lo acortes.'],
+      errores: ['Llevar los codos adelante al subir.', 'Usar demasiado peso.'],
+      reemplazos: ['curl-mancuernas', 'curl-polea', 'curl-barra'],
+      foto: 'Alternate_Incline_Dumbbell_Curl',
+      fig: { a: { x: 66, y: 73, t: -42, lp: [88, 93], mp: [85, 93], a: [180, 180] }, b: { x: 66, y: 73, t: -42, lp: [88, 93], mp: [85, 93], a: [180, 30] }, p: [{ k: 'inclinado', x1: 63, y1: 77, x2: 46, y2: 58, sx1: 60, sx2: 82, sy: 77 }, { k: 'mancu', rot: 90 }], hl: ['brazos'] }
+    },
+
+    /* ═════════════ TRÍCEPS ═════════════ */
+    {
+      id: 'press-frances', nombre: 'Press francés', alias: ['press frances', 'rompecraneos', 'skull crusher', 'extension de triceps acostado', 'lying triceps extension'],
+      grupo: 'Tríceps', musculos: { p: ['Tríceps (las 3 cabezas, sobre todo la larga)'], s: [] },
+      equipo: 'Barra Z o mancuernas y banco', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Acostado, barra arriba con los brazos estirados y un poco inclinados hacia la cabeza.', 'Doblá solo los codos llevando la barra hacia la frente o detrás de la cabeza.', 'Estirá los brazos de nuevo.', 'Los codos apuntan al techo todo el tiempo.'],
+      tips: ['Llevarla detrás de la cabeza estira más la cabeza larga y cuida el codo.', 'Barra Z = muñecas más cómodas.'],
+      errores: ['Abrir los codos hacia los costados.', 'Mover los hombros (se vuelve un pullover).'],
+      reemplazos: ['extension-polea', 'extension-sobre-cabeza', 'press-cerrado', 'fondos-banco'],
+      foto: 'EZ-Bar_Skullcrusher',
+      fig: { a: ACOST({ a: [-14, -12] }), b: ACOST({ a: [-14, -150] }), p: [BANCO, { k: 'barra', r: 5 }], hl: ['brazos'] }
+    },
+    {
+      id: 'extension-polea', nombre: 'Extensión de tríceps en polea', alias: ['triceps polea', 'extension en polea', 'pushdown', 'tricep pushdown', 'jalon de triceps', 'triceps soga', 'extension triceps soga'],
+      grupo: 'Tríceps', musculos: { p: ['Tríceps (cabeza lateral y medial)'], s: [] },
+      equipo: 'Polea alta con barra o soga', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De frente a la polea alta, codos pegados al cuerpo.', 'Empujá hacia abajo hasta estirar los brazos.', 'Con soga, separá las manos al final.', 'Volvé hasta que los antebrazos queden paralelos al piso o un poco más.'],
+      tips: ['Los codos no se mueven: son una bisagra.', 'Un poco de inclinación del torso hacia adelante está bien.'],
+      errores: ['Usar el peso del cuerpo para bajar.', 'Despegar los codos del torso.'],
+      reemplazos: ['press-frances', 'extension-sobre-cabeza', 'patada-triceps', 'fondos-banco'],
+      foto: 'Triceps_Pushdown',
+      fig: { a: PIE({ t: 8, a: [172, 40] }), b: PIE({ t: 8, a: [172, 176] }), p: [{ k: 'polea', x: 72, y: 6, tx: 76 }], hl: ['brazos'], vb: '0 -6 120 106' }
+    },
+    {
+      id: 'extension-sobre-cabeza', nombre: 'Extensión de tríceps sobre la cabeza', alias: ['extension sobre la cabeza', 'triceps tras nuca', 'extension tras nuca', 'overhead triceps extension', 'copa', 'triceps copa'],
+      grupo: 'Tríceps', musculos: { p: ['Tríceps (cabeza larga)'], s: [] },
+      equipo: 'Mancuerna, soga o polea', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De pie o sentado, mancuerna sostenida con las dos manos arriba de la cabeza.', 'Codos apuntando al techo, cerca de la cabeza.', 'Bajá la mancuerna detrás de la nuca doblando los codos.', 'Estirá los brazos arriba.'],
+      tips: ['Es el que más estira la cabeza larga: no puede faltar en tu rutina de tríceps.'],
+      errores: ['Abrir los codos.', 'Arquear la espalda baja.'],
+      reemplazos: ['press-frances', 'extension-polea', 'patada-triceps'],
+      foto: 'Standing_Dumbbell_Triceps_Extension',
+      fig: { a: PIE({ a: [-8, -4] }), b: PIE({ a: [-8, -165] }), p: [{ k: 'mancu', both: false, rot: 0 }], hl: ['brazos'], vb: '0 -6 120 106' }
+    },
+    {
+      id: 'patada-triceps', nombre: 'Patada de tríceps', alias: ['patada de triceps', 'kickback', 'tricep kickback', 'patada triceps mancuerna'],
+      grupo: 'Tríceps', musculos: { p: ['Tríceps'], s: [] },
+      equipo: 'Mancuerna y banco', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Apoyá rodilla y mano en el banco, torso paralelo al piso.', 'Brazo pegado al cuerpo, codo a 90°.', 'Estirá el brazo hacia atrás hasta quedar recto.', 'Volvé a 90° sin mover el brazo.'],
+      tips: ['Peso liviano y apretar fuerte al final.', 'En polea baja la tensión es más pareja.'],
+      errores: ['Mover el hombro y balancear la mancuerna.'],
+      reemplazos: ['extension-polea', 'press-frances', 'extension-sobre-cabeza'],
+      foto: 'Tricep_Dumbbell_Kickback',
+      fig: { a: { x: 40, y: 58, t: 84, a: [-100, 180], bp: [66, 69], lp: [38, 93], mp: [56, 66], mk: -1, g: -90 }, b: { x: 40, y: 58, t: 84, a: [-100, -96], bp: [66, 69], lp: [38, 93], mp: [56, 66], mk: -1, g: -90 }, p: [{ k: 'banco', x1: 44, x2: 84, y: 70 }, { k: 'mancu', both: false }], hl: ['brazos'] }
+    },
+    {
+      id: 'fondos-banco', nombre: 'Fondos en banco', alias: ['fondos banco', 'fondos de triceps', 'bench dips', 'fondos en silla'],
+      grupo: 'Tríceps', musculos: { p: ['Tríceps'], s: ['Pectoral', 'Deltoides anterior'] },
+      equipo: 'Banco', nivel: 'Principiante', tipo: 'bw_lastre',
+      pasos: ['Manos en el borde del banco detrás tuyo, piernas adelante.', 'Bajá la cola doblando los codos hasta ~90°.', 'Empujá hasta estirar los brazos.'],
+      tips: ['Piernas dobladas = más fácil; estiradas o con disco = más difícil.'],
+      errores: ['Bajar demasiado (estresa el hombro).', 'Alejar la cola del banco.'],
+      reemplazos: ['fondos', 'extension-polea', 'press-cerrado'],
+      foto: 'Bench_Dips',
+      fig: { a: { x: 46, y: 70, t: 4, ap: [38, 72], ak: -1, lp: [86, 93], mp: [84, 93] }, b: { x: 46, y: 82, t: 4, ap: [38, 72], ak: -1, lp: [86, 93], mp: [84, 93] }, p: [{ k: 'banco', x1: 14, x2: 40, y: 74, legs: [17, 37] }], hl: ['brazos'] }
+    },
+    {
+      id: 'press-cerrado', nombre: 'Press de banca agarre cerrado', alias: ['press cerrado', 'press banca cerrado', 'close grip bench press', 'press agarre cerrado'],
+      grupo: 'Tríceps', musculos: { p: ['Tríceps'], s: ['Pectoral', 'Deltoides anterior'] },
+      equipo: 'Barra y banco', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Acostado como en el press de banca, manos al ancho de hombros.', 'Bajá la barra a la parte baja del pecho con los codos pegados al cuerpo.', 'Empujá hasta estirar.'],
+      tips: ['Es el ejercicio de tríceps con el que más peso vas a mover.'],
+      errores: ['Agarre demasiado cerrado (duelen las muñecas).', 'Abrir los codos.'],
+      reemplazos: ['fondos', 'press-frances', 'flexiones'],
+      foto: 'Close-Grip_Barbell_Bench_Press',
+      fig: { a: ACOST({ ap: [48, 47] }), b: ACOST({ ap: [58, 62] }), p: [BANCO, { k: 'barra' }], hl: ['brazos'] }
+    },
+
+    /* ═════════════ PIERNAS ═════════════ */
+    {
+      id: 'sentadillas', nombre: 'Sentadillas', alias: ['sentadilla', 'sentadilla con barra', 'squat', 'back squat', 'sentadilla trasera'],
+      grupo: 'Piernas', musculos: { p: ['Cuádriceps', 'Glúteos'], s: ['Aductores', 'Isquiotibiales', 'Erectores', 'Core'] },
+      equipo: 'Barra y rack', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Barra sobre los trapecios, pies al ancho de hombros con las puntas un poco afuera.', 'Tomá aire y apretá el abdomen.', 'Bajá llevando la cadera atrás y abajo, rodillas en la línea de los pies.', 'Bajá hasta que la cadera pase la rodilla (o hasta donde mantengas la espalda recta) y subí empujando el piso.'],
+      tips: ['El peso va en todo el pie, sin levantar talones.', 'Las rodillas pueden pasar la punta del pie: es normal.'],
+      errores: ['Rodillas que se van hacia adentro al subir.', 'Redondear la espalda abajo.'],
+      reemplazos: ['sentadilla-goblet', 'prensa', 'hack', 'bulgara'],
+      foto: 'Barbell_Squat',
+      fig: { a: PIE({ ap: [49, 36] }), b: { x: 40, y: 75, t: 42, lp: [57, 93], mp: [55, 93], ap: [44, 59] }, p: [{ k: 'barra', on: 'sh', r: 6 }], hl: ['piernas'] }
+    },
+    {
+      id: 'sentadilla-goblet', nombre: 'Sentadilla goblet', alias: ['goblet squat', 'sentadilla copa', 'sentadilla con mancuerna', 'sentadilla con pesa rusa'],
+      grupo: 'Piernas', musculos: { p: ['Cuádriceps', 'Glúteos'], s: ['Aductores', 'Core'] },
+      equipo: 'Mancuerna o pesa rusa', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sostené una mancuerna vertical contra el pecho.', 'Pies un poco más anchos que los hombros.', 'Bajá entre las rodillas con el torso derecho.', 'Subí empujando el piso.'],
+      tips: ['La mejor para aprender la sentadilla: el peso adelante te mantiene derecho.'],
+      errores: ['Levantar los talones.', 'Despegar la mancuerna del pecho.'],
+      reemplazos: ['sentadillas', 'prensa', 'bulgara', 'estocadas'],
+      foto: 'Goblet_Squat',
+      fig: { a: PIE({ ap: [63, 42] }), b: { x: 42, y: 77, t: 26, lp: [57, 93], mp: [55, 93], ap: [58, 62] }, p: [{ k: 'kb' }], hl: ['piernas'] }
+    },
+    {
+      id: 'prensa', nombre: 'Prensa de piernas', alias: ['prensa', 'prensa 45', 'leg press', 'prensa inclinada'],
+      grupo: 'Piernas', musculos: { p: ['Cuádriceps', 'Glúteos'], s: ['Isquiotibiales', 'Aductores'] },
+      equipo: 'Máquina prensa', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentate con la espalda y la cola bien apoyadas.', 'Pies en la plataforma al ancho de hombros.', 'Destrabá y bajá doblando las rodillas hacia el pecho.', 'Empujá sin trabar las rodillas arriba.'],
+      tips: ['Pies más arriba → más glúteo e isquios; más abajo → más cuádriceps.', 'Bajá hasta donde la cola no se despegue del asiento.'],
+      errores: ['Despegar la cola abajo (redondea la lumbar).', 'Trabar las rodillas arriba con mucho peso.'],
+      reemplazos: ['sentadillas', 'hack', 'sentadilla-goblet', 'bulgara'],
+      foto: 'Leg_Press',
+      fig: { a: { x: 46, y: 76, t: -62, a: [150, 120], lp: [76, 52], mp: [74, 52], f: 30, g: 30 }, b: { x: 46, y: 76, t: -62, a: [150, 120], lp: [62, 62], mp: [60, 62], f: 30, g: 30, lk: -1, mk: -1 }, p: [{ k: 'inclinado', x1: 44, y1: 81, x2: 22, y2: 68, sx1: 40, sx2: 54, sy: 81 }, { k: 'plat', rot: 40 }], hl: ['piernas'] }
+    },
+    {
+      id: 'hack', nombre: 'Sentadilla hack', alias: ['hack squat', 'hack', 'sentadilla en maquina hack', 'maquina hack'],
+      grupo: 'Piernas', musculos: { p: ['Cuádriceps'], s: ['Glúteos', 'Aductores'] },
+      equipo: 'Máquina hack', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Espalda pegada al respaldo, hombros bajo las almohadillas.', 'Pies al ancho de hombros, un poco adelante.', 'Bajá doblando las rodillas lo más profundo que puedas sin despegar la espalda.', 'Subí empujando con todo el pie.'],
+      tips: ['Muy buena para cuádriceps sin cargar tanto la espalda como la sentadilla libre.'],
+      errores: ['Levantar los talones.', 'Bajar poco.'],
+      reemplazos: ['sentadillas', 'prensa', 'sentadilla-goblet'],
+      foto: 'Hack_Squat',
+      fig: { a: PIE({ t: -10, a: [160, 15], lp: [62, 93], mp: [60, 93] }), b: { x: 46, y: 74, t: -10, lp: [62, 93], mp: [60, 93], a: [160, 15] }, p: [], hl: ['piernas'] }
+    },
+    {
+      id: 'estocadas', nombre: 'Estocadas', alias: ['estocada', 'zancadas', 'lunges', 'desplantes', 'estocadas con mancuernas'],
+      grupo: 'Piernas', musculos: { p: ['Cuádriceps', 'Glúteos'], s: ['Isquiotibiales', 'Aductores', 'Pantorrillas'] },
+      equipo: 'Mancuernas o peso corporal', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['De pie con mancuernas a los costados.', 'Da un paso largo adelante.', 'Bajá hasta que la rodilla de atrás casi toque el piso; la de adelante queda sobre el pie.', 'Empujá con la pierna de adelante y volvé.'],
+      tips: ['Paso largo → más glúteo; paso corto → más cuádriceps.', 'Torso derecho todo el tiempo.'],
+      errores: ['Rodilla de adelante que se va hacia adentro.', 'Golpear la rodilla de atrás en el piso.'],
+      reemplazos: ['bulgara', 'step-up', 'sentadilla-goblet', 'prensa'],
+      foto: 'Dumbbell_Lunges',
+      fig: { a: { x: 54, y: 61, t: 0, lp: [68, 93], mp: [38, 93], g: 160 }, b: { x: 52, y: 75, t: 0, lp: [68, 93], mp: [38, 93], g: 160 }, p: [{ k: 'mancu', rot: 90 }], hl: ['piernas'] }
+    },
+    {
+      id: 'bulgara', nombre: 'Sentadilla búlgara', alias: ['bulgara', 'sentadilla bulgara', 'bulgarian split squat', 'split squat'],
+      grupo: 'Piernas', musculos: { p: ['Cuádriceps', 'Glúteos'], s: ['Aductores', 'Isquiotibiales'] },
+      equipo: 'Banco y mancuernas', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['De espaldas a un banco, apoyá el empeine de atrás sobre él.', 'Pie de adelante a un paso largo del banco.', 'Bajá con la pierna de adelante hasta que el muslo quede paralelo al piso.', 'Subí empujando con el talón de adelante.'],
+      tips: ['Una de las mejores para piernas y glúteos sin cargar la espalda.', 'Inclinar un poco el torso → más glúteo.'],
+      errores: ['Pie de adelante demasiado cerca del banco.', 'Empujar con la pierna de atrás.'],
+      reemplazos: ['estocadas', 'step-up', 'sentadilla-goblet', 'sentadillas'],
+      foto: 'Split_Squat_with_Dumbbells',
+      fig: { a: { x: 54, y: 61, t: 6, lp: [70, 93], mp: [32, 70], mk: 1, g: 200 }, b: { x: 52, y: 74, t: 10, lp: [70, 93], mp: [32, 70], mk: 1, g: 200 }, p: [{ k: 'banco', x1: 14, x2: 36, y: 74, legs: [18, 32] }, { k: 'mancu', rot: 90 }], hl: ['piernas'] }
+    },
+    {
+      id: 'extension-cuadriceps', nombre: 'Extensión de cuádriceps', alias: ['extension de cuadriceps', 'sillon de cuadriceps', 'leg extension', 'extensiones', 'sillon cuadriceps'],
+      grupo: 'Piernas', musculos: { p: ['Cuádriceps'], s: [] },
+      equipo: 'Máquina (sillón)', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentate con la rodilla alineada con el eje de la máquina.', 'Rodillo apoyado sobre el tobillo.', 'Estirá las piernas hasta quedar rectas y apretá 1 segundo.', 'Bajá lento.'],
+      tips: ['Ideal para terminar piernas o si no podés hacer sentadilla.'],
+      errores: ['Patear con impulso.', 'Levantar la cola del asiento.'],
+      reemplazos: ['sentadilla-goblet', 'prensa', 'hack', 'bulgara'],
+      foto: 'Leg_Extensions',
+      fig: { a: SENT({ t: -8, a: [170, 120], lp: [76, 89] }), b: SENT({ t: -8, a: [170, 120], l: [90, 92], lp: null, f: 0 }), p: [RESP], hl: ['piernas'] }
+    },
+    {
+      id: 'curl-femoral', nombre: 'Curl femoral', alias: ['curl femoral', 'femorales', 'isquios maquina', 'leg curl', 'curl femoral acostado', 'curl femoral sentado', 'camilla'],
+      grupo: 'Piernas', musculos: { p: ['Isquiotibiales'], s: ['Gemelos'] },
+      equipo: 'Máquina (acostado o sentado)', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Acostate boca abajo con las rodillas justo fuera del borde.', 'Rodillo sobre los talones.', 'Doblá las rodillas llevando los talones a la cola.', 'Bajá lento hasta casi estirar.'],
+      tips: ['La versión sentada trabaja el músculo más estirado: si podés, alternalas.', 'Puntas de pie hacia vos.'],
+      errores: ['Levantar la cadera del banco.', 'Soltar el peso en la bajada.'],
+      reemplazos: ['peso-muerto-rumano', 'puente-gluteo', 'hiperextensiones'],
+      foto: 'Lying_Leg_Curls',
+      fig: { a: { x: 56, y: 72, t: 90, h: 90, a: [150, 90], l: [-90, -90], f: 180 }, b: { x: 56, y: 72, t: 90, h: 90, a: [150, 90], l: [-90, 20], f: 110 }, p: [{ k: 'banco', x1: 30, x2: 88, y: 76 }], hl: ['piernas'] }
+    },
+    {
+      id: 'peso-muerto-rumano', nombre: 'Peso muerto rumano', alias: ['peso muerto rumano', 'rumano', 'rdl', 'romanian deadlift', 'peso muerto piernas rigidas', 'peso muerto con mancuernas'],
+      grupo: 'Piernas', musculos: { p: ['Isquiotibiales', 'Glúteos'], s: ['Erectores espinales', 'Antebrazos'] },
+      equipo: 'Barra o mancuernas', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['De pie con la barra frente a los muslos, rodillas apenas dobladas.', 'Llevá la cadera hacia atrás bajando la barra pegada a las piernas.', 'Bajá hasta sentir estiramiento fuerte en los isquios (más o menos a media tibia).', 'Volvé llevando la cadera adelante y apretando glúteos.'],
+      tips: ['Es una bisagra de cadera, no una sentadilla: las rodillas casi no se doblan más.', 'Espalda recta siempre: el recorrido termina donde empieza a redondearse.'],
+      errores: ['Redondear la espalda para bajar más.', 'Alejar la barra de las piernas.'],
+      reemplazos: ['peso-muerto', 'curl-femoral', 'hiperextensiones', 'swing-kb'],
+      foto: 'Romanian_Deadlift',
+      fig: { a: PIE({ ap: [58, 70] }), b: { x: 44, y: 61, t: 78, lp: [57, 93], mp: [55, 93], ap: [65, 80] }, p: [{ k: 'barra', r: 7.5 }], hl: ['piernas'] }
+    },
+    {
+      id: 'hip-thrust', nombre: 'Hip thrust', alias: ['hip thrust', 'empuje de cadera', 'elevacion de cadera con barra', 'puente con barra en banco'],
+      grupo: 'Piernas', musculos: { p: ['Glúteo mayor'], s: ['Isquiotibiales', 'Cuádriceps'] },
+      equipo: 'Barra y banco', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Espalda alta apoyada en el borde del banco, barra sobre la cadera (con almohadilla).', 'Pies apoyados, rodillas dobladas.', 'Empujá la cadera hacia arriba hasta que el torso quede paralelo al piso.', 'Apretá glúteos 1 segundo y bajá.'],
+      tips: ['Arriba, las tibias quedan verticales: ajustá los pies hasta lograrlo.', 'Mirá hacia adelante (mentón al pecho), no al techo.'],
+      errores: ['Arquear la lumbar arriba en vez de extender la cadera.', 'Empujar con la punta de los pies.'],
+      reemplazos: ['puente-gluteo', 'peso-muerto-rumano', 'patada-gluteo-polea', 'sentadillas'],
+      foto: 'Barbell_Hip_Thrust',
+      fig: { a: { x: 50, y: 86, t: -42, h: -60, lp: [76, 93], mp: [74, 93], ap: [52, 80] }, b: { x: 52, y: 64, t: -90, h: -75, lp: [76, 93], mp: [74, 93], ap: [54, 59] }, p: [{ k: 'banco', x1: 14, x2: 32, y: 66, legs: [17, 29] }, { k: 'barra', r: 7.5 }], hl: ['piernas'] }
+    },
+    {
+      id: 'puente-gluteo', nombre: 'Puente de glúteos', alias: ['puente de gluteos', 'puente gluteo', 'glute bridge', 'elevacion de cadera', 'puente'],
+      grupo: 'Piernas', musculos: { p: ['Glúteo mayor'], s: ['Isquiotibiales'] },
+      equipo: 'Piso (con o sin barra)', nivel: 'Principiante', tipo: 'bw_lastre',
+      pasos: ['Acostado boca arriba, rodillas dobladas y pies apoyados cerca de la cola.', 'Brazos al costado.', 'Subí la cadera hasta formar una línea rodillas–cadera–hombros.', 'Apretá glúteos y bajá lento.'],
+      tips: ['A una pierna es mucho más difícil: buena progresión sin peso.'],
+      errores: ['Arquear la espalda baja en vez de usar el glúteo.'],
+      reemplazos: ['hip-thrust', 'patada-gluteo-polea', 'peso-muerto-rumano'],
+      foto: 'Barbell_Glute_Bridge',
+      fig: { a: { x: 50, y: 90, t: -90, h: -90, a: [92, 92], lp: [72, 93], mp: [70, 93] }, b: { x: 52, y: 79, t: -117, h: -90, a: [96, 96], lp: [72, 93], mp: [70, 93] }, p: [], hl: ['piernas'] }
+    },
+    {
+      id: 'patada-gluteo-polea', nombre: 'Patada de glúteo en polea', alias: ['patada de gluteo', 'patada gluteo', 'glute kickback', 'cable kickback', 'patada en polea'],
+      grupo: 'Piernas', musculos: { p: ['Glúteo mayor'], s: ['Isquiotibiales'] },
+      equipo: 'Polea baja con tobillera', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Tobillera en la polea baja, de frente a la máquina y agarrado de ella.', 'Torso un poco inclinado adelante.', 'Llevá la pierna hacia atrás con la rodilla apenas doblada.', 'Volvé lento sin apoyar el pie.'],
+      tips: ['Movimiento chico y controlado: el glúteo trabaja, no la lumbar.'],
+      errores: ['Arquear la espalda para subir más la pierna.'],
+      reemplazos: ['hip-thrust', 'puente-gluteo', 'bulgara'],
+      foto: 'One-Legged_Cable_Kickback',
+      fig: { a: PIE({ t: 22, ap: [78, 46], lp: [52, 88], mp: [56, 93], lk: 1, f: 150 }), b: PIE({ t: 22, ap: [78, 46], lp: [26, 74], mp: [56, 93], lk: 1, f: 170 }), p: [{ k: 'polea', x: 86, y: 90, tx: 88 }, { k: 'linea', x1: 84, y1: 30, x2: 84, y2: 93, w: 1.6 }], hl: ['piernas'] }
+    },
+    {
+      id: 'gemelos-pie', nombre: 'Gemelos de pie', alias: ['gemelos', 'pantorrillas', 'elevacion de talones', 'calf raise', 'gemelos parado', 'pantorrilla'],
+      grupo: 'Piernas', musculos: { p: ['Gemelos (gastrocnemio)'], s: ['Sóleo'] },
+      equipo: 'Máquina, escalón o mancuerna', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Parate con la punta de los pies en un escalón, talones afuera.', 'Bajá los talones hasta sentir estiramiento.', 'Subí en puntas de pie lo más alto posible.', 'Aguantá 1 segundo arriba y bajá lento.'],
+      tips: ['Recorrido completo y pausa abajo: los gemelos son muy elásticos y "rebotan".', 'Piernas rectas → gemelo; sentado → sóleo.'],
+      errores: ['Rebotar rápido con medio recorrido.'],
+      reemplazos: ['gemelos-sentado', 'prensa', 'soga'],
+      foto: 'Standing_Calf_Raises',
+      fig: { dur: 1.8, a: { x: 56, y: 57.5, t: 0, lp: [56, 91], mp: [56, 91], f: 110, g: 110 }, b: { x: 56, y: 52, t: 0, lp: [56, 85.5], mp: [56, 85.5], f: 150, g: 150 }, p: [{ k: 'caja', x: 58, y: 89, w: 20, h: 6 }], hl: ['piernas'] }
+    },
+    {
+      id: 'gemelos-sentado', nombre: 'Gemelos sentado', alias: ['gemelos sentado', 'soleo', 'seated calf raise', 'pantorrillas sentado'],
+      grupo: 'Piernas', musculos: { p: ['Sóleo'], s: ['Gemelos'] },
+      equipo: 'Máquina o mancuerna sobre las rodillas', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Sentado, almohadilla sobre los muslos cerca de las rodillas.', 'Punta de los pies en el apoyo.', 'Subí los talones lo más alto posible.', 'Bajá hasta estirar bien.'],
+      tips: ['El sóleo aguanta muchas reps: probá 15–25.'],
+      errores: ['Medio recorrido.'],
+      reemplazos: ['gemelos-pie', 'prensa'],
+      foto: 'Seated_Calf_Raise',
+      fig: { dur: 1.8, a: SENT({ lp: [76, 91], mp: [73, 91], f: 110, g: 110, a: [160, 100] }), b: SENT({ lp: [76, 85.5], mp: [73, 85.5], f: 150, g: 150, a: [160, 100] }), p: [ASIENTO, { k: 'caja', x: 74, y: 89, w: 14, h: 6 }], hl: ['piernas'] }
+    },
+    {
+      id: 'step-up', nombre: 'Subida al cajón (step-up)', alias: ['step up', 'subida al cajon', 'subidas al banco', 'step-ups'],
+      grupo: 'Piernas', musculos: { p: ['Cuádriceps', 'Glúteos'], s: ['Isquiotibiales', 'Pantorrillas'] },
+      equipo: 'Cajón o banco y mancuernas', nivel: 'Principiante', tipo: 'normal',
+      pasos: ['Frente a un cajón a la altura de la rodilla, apoyá un pie completo arriba.', 'Empujá con esa pierna hasta pararte arriba.', 'Bajá controlado con la otra pierna.', 'Completá las reps de un lado y cambiá.'],
+      tips: ['Que la pierna de abajo no ayude con impulso.'],
+      errores: ['Empujar con la pierna de abajo.', 'Rodilla hacia adentro.'],
+      reemplazos: ['bulgara', 'estocadas', 'sentadilla-goblet'],
+      foto: 'Dumbbell_Step_Ups',
+      fig: { a: { x: 50, y: 63, t: 18, lp: [70, 73], mp: [44, 93] }, b: { x: 64, y: 40, t: 0, lp: [69, 73], mp: [58, 70], mk: 1 }, p: [{ k: 'caja', x: 60, y: 75, w: 26, h: 20 }, { k: 'mancu', rot: 90 }], hl: ['piernas'] }
+    },
+    {
+      id: 'swing-kb', nombre: 'Swing con pesa rusa', alias: ['swing', 'kettlebell swing', 'swing kettlebell', 'pesa rusa'],
+      grupo: 'Piernas', musculos: { p: ['Glúteos', 'Isquiotibiales'], s: ['Erectores', 'Core', 'Hombros'] },
+      equipo: 'Pesa rusa', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['Pies un poco más anchos que los hombros, pesa rusa entre las piernas.', 'Bisagra de cadera: llevá la pesa atrás entre las piernas.', 'Extendé la cadera de golpe para lanzarla hasta la altura del pecho.', 'Dejala caer y repetí sin frenar.'],
+      tips: ['La fuerza sale de la cadera, no de los brazos.', 'Sirve como cardio y como trabajo de cadena posterior.'],
+      errores: ['Hacer una sentadilla en vez de bisagra.', 'Levantar la pesa con los hombros.'],
+      reemplazos: ['peso-muerto-rumano', 'hip-thrust', 'peso-muerto'],
+      foto: 'One-Arm_Kettlebell_Swings',
+      fig: { dur: 1.6, a: { x: 44, y: 63, t: 68, lp: [57, 93], mp: [55, 93], a: [190, 200] }, b: PIE({ a: [92, 92] }), p: [{ k: 'kb' }], hl: ['piernas'] }
+    },
+
+    /* ═════════════ CORE ═════════════ */
+    {
+      id: 'plancha', nombre: 'Plancha', alias: ['plancha abdominal', 'plank', 'plancha frontal'],
+      grupo: 'Core', musculos: { p: ['Recto abdominal', 'Transverso'], s: ['Oblicuos', 'Glúteos', 'Hombros'] },
+      equipo: 'Peso corporal', nivel: 'Principiante', tipo: 'time',
+      pasos: ['Apoyá antebrazos (codos bajo los hombros) y puntas de pie.', 'Cuerpo en línea recta de cabeza a talones.', 'Apretá abdomen y glúteos y respirá normal.', 'Aguantá el tiempo sin perder la posición.'],
+      tips: ['Mejor 3 × 30 s perfectos que 2 minutos con la cadera caída.', 'Para progresar: más tiempo, un brazo o un pie levantado, o disco en la espalda.'],
+      errores: ['Cadera caída (carga la lumbar).', 'Cola muy arriba.'],
+      reemplazos: ['plancha-lateral', 'rueda-abdominal', 'dead-bug', 'mountain-climbers'],
+      foto: 'Plank',
+      fig: { dur: 3.2, a: { x: 52, y: 80, t: 83, a: [180, 90], lp: [18, 91], f: 175 }, b: { x: 52, y: 79, t: 84, a: [180, 90], lp: [18, 91], f: 175 }, p: [], hl: ['torso'] }
+    },
+    {
+      id: 'plancha-lateral', nombre: 'Plancha lateral', alias: ['plancha lateral', 'side plank', 'puente lateral'],
+      grupo: 'Core', musculos: { p: ['Oblicuos'], s: ['Transverso', 'Glúteo medio', 'Cuadrado lumbar'] },
+      equipo: 'Peso corporal', nivel: 'Principiante', tipo: 'time',
+      pasos: ['De costado, apoyá un antebrazo con el codo bajo el hombro.', 'Piernas estiradas, un pie sobre el otro.', 'Subí la cadera hasta formar una línea recta.', 'Aguantá y cambiá de lado.'],
+      tips: ['Más fácil: con las rodillas apoyadas.'],
+      errores: ['Dejar caer la cadera.', 'Rotar el torso hacia el piso.'],
+      reemplazos: ['plancha', 'russian-twist', 'oblicuos'],
+      foto: 'Side_Bridge',
+      fig: { frente: false, a: { x: 50, y: 86, t: 72, h: 72, a: [180, 90], b: [0, 0], lp: [17, 91], f: 180 }, b: { x: 50, y: 77, t: 76, h: 76, a: [180, 90], b: [-30, -30], lp: [17, 91], f: 180 }, p: [], hl: ['torso'] }
+    },
+    {
+      id: 'crunch', nombre: 'Crunches cortos', alias: ['crunch', 'crunches', 'abdominales', 'abdominales cortos', 'encogimientos abdominales', 'crunch abdominal'],
+      grupo: 'Core', musculos: { p: ['Recto abdominal'], s: ['Oblicuos'] },
+      equipo: 'Peso corporal', nivel: 'Principiante', tipo: 'bw_lastre',
+      pasos: ['Acostado boca arriba, rodillas dobladas, pies apoyados.', 'Manos al costado de la cabeza (sin tirar del cuello) o cruzadas en el pecho.', 'Despegá los omóplatos del piso enrollando el torso.', 'Bajá lento.'],
+      tips: ['Exhalá al subir y apretá 1 segundo.', 'Si hacés muchas reps sin esfuerzo, sumá un disco en el pecho y bajá las reps.'],
+      errores: ['Tirar de la cabeza con las manos.', 'Subir con impulso hasta sentarse.'],
+      reemplazos: ['crunch-polea', 'elevacion-piernas', 'rueda-abdominal', 'dead-bug'],
+      foto: 'Crunches',
+      fig: { dur: 2, a: { x: 52, y: 90, t: -90, h: -90, a: [-30, -150], lp: [76, 93], mp: [74, 93] }, b: { x: 52, y: 90, t: -60, h: -50, a: [0, -120], lp: [76, 93], mp: [74, 93] }, p: [], hl: ['torso'] }
+    },
+    {
+      id: 'oblicuos', nombre: 'Crunch oblicuo', alias: ['oblicuos', 'crunch oblicuo', 'abdominales oblicuos', 'oblique crunch', 'bicicleta abdominal'],
+      grupo: 'Core', musculos: { p: ['Oblicuos'], s: ['Recto abdominal'] },
+      equipo: 'Peso corporal', nivel: 'Principiante', tipo: 'bw_lastre',
+      pasos: ['Acostado boca arriba con rodillas dobladas.', 'Manos detrás de la cabeza, codos abiertos.', 'Subí girando el torso para llevar un hombro hacia la rodilla contraria.', 'Bajá y alterná.'],
+      tips: ['El giro sale del torso, no del codo.'],
+      errores: ['Tirar del cuello.', 'Mover solo el codo.'],
+      reemplazos: ['russian-twist', 'plancha-lateral', 'crunch'],
+      foto: 'Oblique_Crunches_-_On_The_Floor',
+      fig: { dur: 2, a: { x: 52, y: 90, t: -90, h: -90, a: [-30, -150], lp: [76, 93], mp: [74, 93] }, b: { x: 52, y: 90, t: -55, h: -45, a: [5, -115], lp: [76, 93], mp: [70, 78], mk: 1 }, p: [], hl: ['torso'] }
+    },
+    {
+      id: 'elevacion-piernas', nombre: 'Elevación de piernas colgado', alias: ['elevacion de piernas', 'elevaciones de piernas', 'hanging leg raise', 'colgado piernas', 'abdominales colgado'],
+      grupo: 'Core', musculos: { p: ['Recto abdominal (porción baja)', 'Flexores de cadera'], s: ['Oblicuos', 'Antebrazos'] },
+      equipo: 'Barra fija', nivel: 'Intermedio', tipo: 'bw_lastre',
+      pasos: ['Colgate de la barra con los brazos estirados.', 'Subí las rodillas (o las piernas rectas) hacia el pecho enrollando la pelvis.', 'Bajá lento sin balancearte.'],
+      tips: ['Más fácil: rodillas dobladas o acostado en el piso/banco.', 'El abdomen trabaja cuando la pelvis se enrolla, no solo al subir las piernas.'],
+      errores: ['Balancearse.', 'Bajar las piernas de golpe.'],
+      reemplazos: ['elevacion-piernas-suelo', 'crunch', 'rueda-abdominal'],
+      foto: 'Hanging_Leg_Raise',
+      fig: { a: { x: 57, y: 59, t: 0, ap: [58, 10], lp: [57, 88], mp: [56, 88], f: 140 }, b: { x: 59, y: 58, t: -8, ap: [58, 10], l: [75, 175], f: 140 }, p: [{ k: 'fija', x: 58, y: 10 }], hl: ['torso', 'piernas'], vb: '0 -6 120 106' }
+    },
+    {
+      id: 'elevacion-piernas-suelo', nombre: 'Elevación de piernas acostado', alias: ['elevacion de piernas acostado', 'leg raise', 'elevaciones en el piso', 'abdominales inferiores'],
+      grupo: 'Core', musculos: { p: ['Recto abdominal (porción baja)', 'Flexores de cadera'], s: [] },
+      equipo: 'Piso o banco', nivel: 'Principiante', tipo: 'bw_lastre',
+      pasos: ['Acostado boca arriba, manos debajo de la cola o al costado.', 'Piernas rectas (o apenas dobladas).', 'Subilas hasta la vertical.', 'Bajá lento sin que la espalda baja se despegue del piso.'],
+      tips: ['Si se arquea la lumbar, doblá las rodillas o no bajes tanto.'],
+      errores: ['Arquear la espalda baja.'],
+      reemplazos: ['elevacion-piernas', 'dead-bug', 'crunch'],
+      foto: 'Flat_Bench_Lying_Leg_Raise',
+      fig: { a: { x: 60, y: 90, t: -90, h: -90, a: [90, 90], l: [93, 93], f: 0 }, b: { x: 60, y: 90, t: -90, h: -90, a: [90, 90], l: [5, 5], f: -90 }, p: [], hl: ['torso', 'piernas'] }
+    },
+    {
+      id: 'rueda-abdominal', nombre: 'Rueda abdominal', alias: ['rueda abdominal', 'ab wheel', 'ab roller', 'rueda'],
+      grupo: 'Core', musculos: { p: ['Recto abdominal', 'Transverso'], s: ['Dorsal ancho', 'Oblicuos', 'Hombros'] },
+      equipo: 'Rueda abdominal', nivel: 'Avanzado', tipo: 'bw_lastre',
+      pasos: ['De rodillas, rueda en el piso debajo de los hombros.', 'Rodá hacia adelante estirando el cuerpo y manteniendo el abdomen apretado.', 'Llegá hasta donde no se te arquee la espalda.', 'Volvé tirando con el abdomen.'],
+      tips: ['Empezá con recorrido corto o frente a una pared que te frene.'],
+      errores: ['Arquear la espalda baja al estirarte.'],
+      reemplazos: ['plancha', 'elevacion-piernas', 'crunch'],
+      foto: 'Ab_Roller',
+      fig: { a: { x: 50, y: 64, t: 55, ap: [64, 88], l: [180, -90], f: 180 }, b: { x: 52, y: 78, t: 80, ap: [90, 88], l: [-150, -90], f: 180 }, p: [{ k: 'rueda' }], hl: ['torso'] }
+    },
+    {
+      id: 'russian-twist', nombre: 'Giro ruso (russian twist)', alias: ['russian twist', 'giro ruso', 'giros rusos', 'rotaciones con disco'],
+      grupo: 'Core', musculos: { p: ['Oblicuos'], s: ['Recto abdominal', 'Flexores de cadera'] },
+      equipo: 'Disco o pelota (opcional)', nivel: 'Principiante', tipo: 'bw_lastre',
+      pasos: ['Sentado en el piso, rodillas dobladas, torso inclinado atrás a ~45°.', 'Manos juntas adelante (con o sin peso).', 'Girá el torso a un lado y al otro.', 'Para más dificultad, levantá los pies.'],
+      tips: ['Girá el torso entero, no solo los brazos.'],
+      errores: ['Encorvar la espalda.', 'Mover solo los brazos.'],
+      reemplazos: ['oblicuos', 'plancha-lateral', 'crunch-polea'],
+      foto: 'Russian_Twist',
+      fig: { dur: 1.8, a: { x: 50, y: 88, t: -32, lp: [74, 82], mp: [72, 84], f: 120, ap: [48, 80], bp: [52, 80] }, b: { x: 50, y: 88, t: -32, lp: [74, 82], mp: [72, 84], f: 120, ap: [62, 68], bp: [58, 72] }, p: [], hl: ['torso'] }
+    },
+    {
+      id: 'dead-bug', nombre: 'Dead bug (bicho muerto)', alias: ['dead bug', 'bicho muerto', 'insecto muerto'],
+      grupo: 'Core', musculos: { p: ['Transverso', 'Recto abdominal'], s: ['Oblicuos', 'Flexores de cadera'] },
+      equipo: 'Peso corporal', nivel: 'Principiante', tipo: 'bw_lastre',
+      pasos: ['Boca arriba, brazos al techo y rodillas a 90° sobre la cadera.', 'Pegá la espalda baja al piso.', 'Estirá un brazo atrás y la pierna contraria adelante, sin que la espalda se despegue.', 'Volvé y alterná.'],
+      tips: ['Lento y con la respiración: es control, no velocidad.', 'Ideal si te molesta la espalda con los crunches.'],
+      errores: ['Arquear la lumbar al estirar.'],
+      reemplazos: ['plancha', 'elevacion-piernas-suelo', 'crunch'],
+      foto: 'Dead_Bug',
+      fig: { a: { x: 60, y: 90, t: -90, h: -90, a: [0, 0], l: [0, 90], f: 0 }, b: { x: 60, y: 90, t: -90, h: -90, a: [-80, -80], b: [0, 0], l: [80, 82], m: [0, 90], f: 0 }, p: [], hl: ['torso'] }
+    },
+    {
+      id: 'crunch-polea', nombre: 'Crunch en polea', alias: ['crunch polea', 'cable crunch', 'abdominales en polea', 'rezo', 'abdominal arrodillado'],
+      grupo: 'Core', musculos: { p: ['Recto abdominal'], s: ['Oblicuos'] },
+      equipo: 'Polea alta con soga', nivel: 'Intermedio', tipo: 'normal',
+      pasos: ['De rodillas frente a la polea alta, soga al costado de la cabeza.', 'Cadera quieta.', 'Enrollá el torso llevando los codos hacia las rodillas.', 'Volvé lento.'],
+      tips: ['Te deja cargar peso y progresar como cualquier otro músculo.'],
+      errores: ['Sentarte sobre los talones (trabaja la cadera, no el abdomen).'],
+      reemplazos: ['crunch', 'rueda-abdominal', 'elevacion-piernas'],
+      foto: 'Cable_Crunch',
+      fig: { a: { x: 50, y: 66, t: 20, h: 30, a: [10, 160], l: [175, -90], f: 180 }, b: { x: 50, y: 66, t: 85, h: 120, a: [95, 240], l: [175, -90], f: 180 }, p: [{ k: 'polea', x: 72, y: 6, tx: 76 }], hl: ['torso'], vb: '0 -6 120 106' }
+    },
+    {
+      id: 'mountain-climbers', nombre: 'Escaladores (mountain climbers)', alias: ['escaladores', 'mountain climbers', 'mountain climber', 'trepadores'],
+      grupo: 'Core', musculos: { p: ['Recto abdominal', 'Flexores de cadera'], s: ['Hombros', 'Cuádriceps'] },
+      equipo: 'Peso corporal', nivel: 'Principiante', tipo: 'time',
+      pasos: ['Posición de flexión con brazos estirados.', 'Llevá una rodilla al pecho.', 'Cambiá de pierna rápido, como corriendo en el lugar.', 'Mantené la cadera baja.'],
+      tips: ['Sirve como core y como cardio: hacelo por tiempo (20–40 s).'],
+      errores: ['Subir mucho la cola.'],
+      reemplazos: ['plancha', 'burpees', 'soga'],
+      foto: 'Mountain_Climbers',
+      fig: { dur: 1, a: { x: 58, y: 72, t: 68, ap: [80, 93], lp: [26, 91], mp: [52, 88], mk: 1, f: 165, g: 165 }, b: { x: 58, y: 72, t: 68, ap: [80, 93], lp: [52, 88], mp: [26, 91], lk: 1, f: 165, g: 165 }, p: [], hl: ['torso', 'piernas'] }
+    },
+
+    /* ═════════════ CARDIO ═════════════ */
+    {
+      id: 'cinta', nombre: 'Cinta (caminar / correr)', alias: ['cinta', 'correr', 'trotar', 'caminar', 'caminadora', 'treadmill', 'running'],
+      grupo: 'Cardio', musculos: { p: ['Sistema cardiovascular', 'Piernas'], s: ['Glúteos', 'Pantorrillas'] },
+      equipo: 'Cinta o al aire libre', nivel: 'Principiante', tipo: 'cardio',
+      pasos: ['Empezá caminando 3–5 minutos para entrar en calor.', 'Subí la velocidad hasta un ritmo en el que puedas hablar entrecortado.', 'Mantené el tiempo elegido y terminá bajando de a poco.'],
+      tips: ['Caminar con inclinación (8–12%) quema mucho y no castiga las rodillas.', 'No te agarres de las barandas.'],
+      errores: ['Agarrarse de la cinta (baja el esfuerzo real).'],
+      reemplazos: ['bici', 'eliptico', 'remo-ergometro', 'soga'],
+      foto: 'Jogging_Treadmill',
+      fig: { dur: 0.9, a: { x: 56, y: 60, t: 8, a: [150, 60], b: [-150, 160], l: [140, 190], m: [200, -100], g: 150 }, b: { x: 56, y: 60, t: 8, a: [-150, 160], b: [150, 60], l: [200, -100], m: [140, 190], f: 150, g: 90 }, p: [{ k: 'linea', x1: 26, y1: 92, x2: 92, y2: 92, w: 3 }], hl: ['piernas'] }
+    },
+    {
+      id: 'bici', nombre: 'Bicicleta fija', alias: ['bici', 'bicicleta', 'bicicleta fija', 'spinning', 'bike'],
+      grupo: 'Cardio', musculos: { p: ['Sistema cardiovascular', 'Cuádriceps'], s: ['Glúteos', 'Isquiotibiales', 'Pantorrillas'] },
+      equipo: 'Bicicleta fija', nivel: 'Principiante', tipo: 'cardio',
+      pasos: ['Ajustá el asiento: con el pedal abajo, la rodilla queda apenas doblada.', 'Pedaleá a un ritmo cómodo 3–5 min para entrar en calor.', 'Subí resistencia o velocidad según el objetivo.'],
+      tips: ['Para intervalos: 30 s fuerte / 60–90 s suave, 8–10 veces.', 'Cero impacto: ideal si te molestan las rodillas al correr.'],
+      errores: ['Asiento muy bajo (sobrecarga la rodilla).'],
+      reemplazos: ['eliptico', 'cinta', 'remo-ergometro'],
+      foto: 'Bicycling_Stationary',
+      fig: { dur: 1.2, a: { x: 50, y: 56, t: 40, ap: [76, 50], lp: [70, 78], mp: [62, 92], f: 100, g: 110 }, b: { x: 50, y: 56, t: 40, ap: [76, 50], lp: [62, 92], mp: [70, 78], f: 110, g: 100 }, p: [{ k: 'linea', x1: 44, y1: 59, x2: 54, y2: 59, w: 3 }, { k: 'linea', x1: 50, y1: 60, x2: 66, y2: 85, w: 1.6 }, { k: 'linea', x1: 66, y1: 85, x2: 66, y2: 93, w: 1.6 }, { k: 'linea', x1: 66, y1: 85, x2: 78, y2: 52, w: 1.6 }], hl: ['piernas'] }
+    },
+    {
+      id: 'eliptico', nombre: 'Elíptico', alias: ['eliptico', 'elliptical', 'escaladora'],
+      grupo: 'Cardio', musculos: { p: ['Sistema cardiovascular', 'Piernas'], s: ['Glúteos', 'Brazos'] },
+      equipo: 'Elíptico', nivel: 'Principiante', tipo: 'cardio',
+      pasos: ['Subite y agarrá las manijas móviles.', 'Empujá y tirá con brazos y piernas a un ritmo constante.', 'Subí la resistencia para que cueste.'],
+      tips: ['Sin impacto y trabaja todo el cuerpo.'],
+      errores: ['Apoyarse con todo el peso en las manijas.'],
+      reemplazos: ['bici', 'cinta', 'remo-ergometro'],
+      foto: 'Elliptical_Trainer',
+      fig: { dur: 1.4, a: { x: 56, y: 56, t: 4, ap: [72, 46], bp: [62, 50], lp: [64, 88], mp: [44, 90] }, b: { x: 56, y: 56, t: 4, ap: [62, 50], bp: [72, 46], lp: [44, 90], mp: [64, 88] }, p: [{ k: 'linea', x1: 36, y1: 93, x2: 84, y2: 93, w: 2 }], hl: ['piernas', 'brazos'] }
+    },
+    {
+      id: 'remo-ergometro', nombre: 'Remo (máquina de cardio)', alias: ['remo ergometro', 'remoergometro', 'maquina de remo', 'rowing', 'remo cardio', 'concept2'],
+      grupo: 'Cardio', musculos: { p: ['Sistema cardiovascular', 'Piernas', 'Espalda'], s: ['Brazos', 'Core'] },
+      equipo: 'Remoergómetro', nivel: 'Principiante', tipo: 'cardio',
+      pasos: ['Orden de la remada: piernas → torso → brazos.', 'Empujá con las piernas, inclinate apenas atrás y tirá la manija al abdomen.', 'Volvé al revés: brazos → torso → piernas.'],
+      tips: ['El 60% de la fuerza sale de las piernas.', 'Ritmo: 1 tiempo para tirar, 2 para volver.'],
+      errores: ['Tirar con los brazos antes de estirar las piernas.'],
+      reemplazos: ['bici', 'eliptico', 'remo-bajo-polea', 'soga'],
+      foto: 'Rowing_Stationary',
+      fig: { dur: 1.8, a: { x: 52, y: 84, t: 25, ap: [84, 72], lp: [78, 84], mp: [76, 84], f: 30 }, b: { x: 34, y: 84, t: -18, ap: [42, 70], lp: [78, 84], mp: [76, 84], f: 30 }, p: [{ k: 'linea', x1: 20, y1: 89, x2: 88, y2: 89, w: 2.4 }, { k: 'linea', x1: 84, y1: 78, x2: 84, y2: 93, w: 2.4 }], hl: ['piernas', 'torso'] }
+    },
+    {
+      id: 'soga', nombre: 'Saltar la soga', alias: ['soga', 'saltar la soga', 'saltar la cuerda', 'jump rope', 'comba'],
+      grupo: 'Cardio', musculos: { p: ['Sistema cardiovascular', 'Pantorrillas'], s: ['Hombros', 'Core'] },
+      equipo: 'Soga', nivel: 'Principiante', tipo: 'cardio',
+      pasos: ['Soga a la altura justa: pisándola, las manijas llegan a las axilas.', 'Codos pegados al cuerpo; la soga se gira con las muñecas.', 'Saltos chiquitos, en la punta de los pies.'],
+      tips: ['Intervalos: 30–60 s saltando / 30 s de pausa.'],
+      errores: ['Saltar muy alto.', 'Girar con los brazos enteros.'],
+      reemplazos: ['cinta', 'burpees', 'mountain-climbers', 'bici'],
+      foto: 'Rope_Jumping',
+      fig: { dur: 0.8, frente: true, a: PIE({ lp: [59, 93], a: [165, 120], f: 180 }), b: { x: 56, y: 54, t: 0, lp: [59, 88], a: [165, 120], f: 200 }, p: [{ k: 'soga' }], hl: ['piernas'] }
+    },
+    {
+      id: 'burpees', nombre: 'Burpees', alias: ['burpee', 'burpees'],
+      grupo: 'Cardio', musculos: { p: ['Sistema cardiovascular', 'Todo el cuerpo'], s: ['Pectoral', 'Cuádriceps', 'Core'] },
+      equipo: 'Peso corporal', nivel: 'Intermedio', tipo: 'cardio',
+      pasos: ['De pie, bajá a cuclillas y apoyá las manos en el piso.', 'Saltá con los pies atrás a posición de flexión (opcional: hacé una flexión).', 'Volvé los pies adelante de un salto.', 'Saltá arriba con los brazos al techo.'],
+      tips: ['Versión fácil: sin flexión y sin salto, caminando los pies atrás.'],
+      errores: ['Cadera caída en la plancha.', 'Caer duro con las rodillas trabadas.'],
+      reemplazos: ['mountain-climbers', 'soga', 'cinta'],
+      foto: null,
+      fig: { dur: 1.6, a: { x: 62, y: 76, t: 70, ap: [84, 93], lp: [30, 91], f: 165 }, b: { x: 56, y: 55, t: 0, a: [0, 0], lp: [57, 89], mp: [55, 89], f: 150 }, p: [], hl: ['piernas', 'torso'] }
+    },
+  ];
+
+  // ── Búsqueda por nombre (tolerante a mayúsculas, acentos y palabras sueltas) ──
+  const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9ñ ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const BY_ID = Object.fromEntries(E.map(e => [e.id, e]));
+  const INDEX = new Map();
+  for (const e of E) for (const n of [e.nombre, e.id.replace(/-/g, ' '), ...(e.alias || [])]) { const k = norm(n); if (k && !INDEX.has(k)) INDEX.set(k, e); }
+  const STOP = new Set(['de', 'con', 'en', 'el', 'la', 'a', 'al', 'los', 'las', 'y']);
+  const words = s => norm(s).split(' ').filter(w => w && !STOP.has(w)).map(w => w.replace(/(es|s)$/, ''));
+
+  /** Busca la ficha para un nombre escrito por el usuario. grupo (opcional) desempata. */
+  function buscar(nombre, grupo) {
+    const k = norm(nombre);
+    if (!k) return null;
+    if (INDEX.has(k)) return INDEX.get(k);
+    // Puntaje por palabras compartidas con nombre/alias (singularizadas)
+    const q = words(nombre);
+    let best = null, bestS = 0;
+    for (const [key, e] of INDEX) {
+      const w = words(key);
+      const hit = q.filter(x => w.includes(x)).length;
+      if (!hit) continue;
+      let s = (hit + (w.includes(q[0]) ? 0.5 : 0)) / Math.max(q.length, w.length);
+      if (grupo && (e.grupo === grupo || (grupo === 'Cuádriceps' || grupo === 'Glúteos') && e.grupo === 'Piernas' || grupo === 'Abdominales' && e.grupo === 'Core')) s += 0.15;
+      if (s > bestS) { bestS = s; best = e; }
+    }
+    return bestS >= 0.6 ? best : null;
+  }
+  const FOTO_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
+  const fotos = e => e && e.foto ? [FOTO_BASE + e.foto + '/0.jpg', FOTO_BASE + e.foto + '/1.jpg'] : [];
+
+  root.KAISHU_EJERCICIOS = { lista: E, porId: BY_ID, buscar, norm, fotos, GRUPOS: ['Pecho', 'Espalda', 'Hombros', 'Bíceps', 'Tríceps', 'Piernas', 'Core', 'Cardio'] };
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, updateProfile } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
@@ -2452,6 +3637,7 @@ function buildExCard(ex) {
         ${prLine ? `<div class="ex-pr">${prLine}</div>` : ''}
       </div>
       <div class="card-header-right">
+        ${kxFind(ex.name, ex.muscle) ? `<button class="kx-info" title="Cómo se hace" data-n="${escHtml(ex.name)}" data-m="${escHtml(ex.muscle)}" onclick="event.stopPropagation();kxOpenFor(this.dataset.n,this.dataset.m)">i</button>` : ''}
         <div class="prog-pill ${allDone?'done-all':''}">${done}/${total}</div>
         <svg class="chevron" id="chev-${ex.id}" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
@@ -2636,7 +3822,7 @@ window.deleteEx = async (id) => {
 
 
 /* ── MODAL ADD EX ── */
-window.openAddExModal = () => { document.getElementById('modal-add-ex').classList.add('open'); document.getElementById('ex-name-inp').value=''; };
+window.openAddExModal = () => { document.getElementById('modal-add-ex').classList.add('open'); document.getElementById('ex-name-inp').value=''; const h = document.getElementById('kx-add-hint'); if (h) h.innerHTML = ''; };
 window.closeModal = (id) => { document.getElementById(id).classList.remove('open'); };
 let _addingEx = false;
 window.addExercise = async () => {
@@ -2668,6 +3854,157 @@ window.addExercise = async () => {
   closeModal('modal-add-ex'); renderExercises(); showToast('Ejercicio agregado ✓');
 };
 document.getElementById('modal-add-ex').addEventListener('click', function(e){ if(e.target===this) closeModal('modal-add-ex'); });
+
+/* ── BIBLIOTECA DE EJERCICIOS (v1.27) ──
+   Ficha "cómo se hace" + reemplazos + biblioteca con buscador. Todo sale de la base fija
+   KAISHU_EJERCICIOS (script clásico de arriba): cero llamadas a la IA. Dibujo de palito
+   animado siempre disponible (offline); foto real de free-exercise-db (dominio público)
+   cuando hay señal — el <img> va con crossorigin para que el service worker la cachee. */
+const KX = window.KAISHU_EJERCICIOS;
+const KXF = window.KaishuFigura;
+let _kxPhotoTimer = null, _kxStack = [];
+// Ojo: renderExercises() la puede llamar antes de que corra este bloque → nada de const de acá adentro
+function kxFind(name, muscle) {
+  const db = window.KAISHU_EJERCICIOS; if (!db) return null;
+  const _kxFindMemo = (window._kxFindMemo ||= new Map());
+  const key = name + '|' + muscle;
+  if (!_kxFindMemo.has(key)) { let r = null; try { r = db.buscar(name, muscle); } catch (e) {} _kxFindMemo.set(key, r); }
+  return _kxFindMemo.get(key);
+}
+function kxInCatalog(e) {
+  return exercises.find(x => kxFind(x.name, x.muscle)?.id === e.id) || null;
+}
+function kxView() { try { return localStorage.getItem('kx-view') || 'foto'; } catch (e) { return 'foto'; } }
+function kxSetView(v) { try { localStorage.setItem('kx-view', v); } catch (e) {} }
+function kxFig(e, mini) { return KXF.figuraSVG(e.fig, { ink: '#f0ede8', eq: '#6f747c', bg: '#141414', fit: !!mini }); }
+function kxStopPhoto() { if (_kxPhotoTimer) { clearInterval(_kxPhotoTimer); _kxPhotoTimer = null; } }
+
+function kxRenderMedia(e) {
+  kxStopPhoto();
+  const box = document.getElementById('kx-media'); if (!box) return;
+  const fotos = KX.fotos(e);
+  const view = fotos.length && kxView() === 'foto' ? 'foto' : 'dibujo';
+  document.querySelectorAll('#kx-media-tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === view));
+  document.getElementById('kx-media-tabs').style.display = fotos.length ? '' : 'none';
+  if (view === 'dibujo') { box.innerHTML = kxFig(e); document.getElementById('kx-credit').textContent = ''; return; }
+  box.innerHTML = fotos.map((u, i) => `<img src="${u}" crossorigin="anonymous" alt="" style="opacity:${i ? 0 : 1}">`).join('') + '<div class="kx-loading">Cargando foto…</div>';
+  document.getElementById('kx-credit').textContent = 'Foto: free-exercise-db (dominio público)';
+  const imgs = [...box.querySelectorAll('img')];
+  let failed = false;
+  imgs.forEach(img => {
+    img.onload = () => box.querySelector('.kx-loading')?.remove();
+    img.onerror = () => { // sin señal o foto caída → dibujo
+      if (failed) return; failed = true; kxStopPhoto();
+      box.innerHTML = kxFig(e);
+      document.getElementById('kx-credit').textContent = 'Sin conexión: mostramos el dibujo';
+    };
+  });
+  let k = 0;
+  _kxPhotoTimer = setInterval(() => { if (!document.getElementById('kx-media')?.isConnected) return kxStopPhoto(); k = 1 - k; imgs.forEach((im, i) => im.style.opacity = i === k ? 1 : 0); }, 1300);
+}
+window.kxMediaTab = (v) => { kxSetView(v); const e = KX.porId[_kxStack[_kxStack.length - 1]]; if (e) kxRenderMedia(e); };
+
+function kxRenderFicha(e) {
+  const ov = document.getElementById('kx-ficha');
+  const mine = kxInCatalog(e);
+  const chips = (arr, cls) => (arr || []).map(m => `<span class="kx-chip ${cls}">${escHtml(m)}</span>`).join('');
+  const li = arr => (arr || []).map(t => `<li>${escHtml(t)}</li>`).join('');
+  const alts = (e.reemplazos || []).map(id => KX.porId[id]).filter(Boolean).map(a => {
+    const have = kxInCatalog(a);
+    return `<div class="kx-row" onclick="kxOpen('${a.id}', true)">
+      <div class="kx-mini">${kxFig(a, true)}</div>
+      <div class="kx-row-txt"><div class="kx-row-name">${escHtml(a.nombre)}</div><div class="kx-row-sub">${escHtml(a.musculos.p.join(' · '))} · ${escHtml(a.equipo)}</div></div>
+      ${have ? '<span class="kx-have">✓ en tu lista</span>' : `<button class="kx-add" onclick="event.stopPropagation();kxAddToList('${a.id}')">＋</button>`}
+    </div>`;
+  }).join('');
+  ov.querySelector('.kx-title').textContent = e.nombre;
+  ov.querySelector('.kx-back').textContent = _kxStack.length > 1 ? '←' : '✕';
+  ov.querySelector('.kx-scroll').innerHTML = `
+    <div id="kx-media-tabs" class="kx-tabs"><button data-v="foto" onclick="kxMediaTab('foto')">📷 Foto</button><button data-v="dibujo" onclick="kxMediaTab('dibujo')">✏️ Dibujo</button></div>
+    <div class="kx-media" id="kx-media"></div>
+    <div class="kx-credit" id="kx-credit"></div>
+    <div class="kx-meta"><span>🏷️ ${escHtml(e.grupo)}</span><span>🏋️ ${escHtml(e.equipo)}</span><span>📶 ${escHtml(e.nivel)}</span></div>
+    <div class="kx-h">Músculos</div>
+    <div class="kx-chips">${chips(e.musculos.p, 'p')}${chips(e.musculos.s, 's')}</div>
+    <div class="kx-legend"><span class="kx-dot p"></span>principales <span class="kx-dot s"></span>secundarios</div>
+    <div class="kx-h">Cómo se hace</div><ol class="kx-list">${li(e.pasos)}</ol>
+    ${e.tips?.length ? `<div class="kx-h">💡 Consejos</div><ul class="kx-list">${li(e.tips)}</ul>` : ''}
+    ${e.errores?.length ? `<div class="kx-h">⚠️ Errores comunes</div><ul class="kx-list kx-err">${li(e.errores)}</ul>` : ''}
+    ${alts ? `<div class="kx-h">🔁 Si no podés hacerlo, reemplazalo por</div><div class="kx-alts">${alts}</div>` : ''}
+    ${mine ? '' : `<button class="kx-main-btn" onclick="kxAddToList('${e.id}')">＋ Agregar a mis ejercicios</button>`}
+    <div class="kx-foot">Ficha de la biblioteca de Kaishu · no usa la IA</div>`;
+  ov.querySelector('.kx-scroll').scrollTop = 0;
+  kxRenderMedia(e);
+}
+
+/** Abre la ficha. push=true la apila (desde un reemplazo) para volver con ←. */
+window.kxOpen = (id, push) => {
+  const e = KX && KX.porId[id]; if (!e) return;
+  if (!push) _kxStack = [];
+  _kxStack.push(id);
+  document.getElementById('kx-ficha').classList.add('open');
+  kxRenderFicha(e);
+};
+window.kxOpenFor = (name, muscle) => {
+  const e = kxFind(name, muscle);
+  if (e) kxOpen(e.id);
+  else { kxOpenLib(name); showToast('No está en la biblioteca: buscalo acá'); }
+};
+window.kxBack = () => {
+  _kxStack.pop();
+  if (_kxStack.length) kxRenderFicha(KX.porId[_kxStack[_kxStack.length - 1]]);
+  else { kxStopPhoto(); document.getElementById('kx-ficha').classList.remove('open'); }
+};
+window.kxAddToList = (id) => {
+  const e = KX.porId[id]; if (!e) return;
+  kxStopPhoto(); _kxStack = [];
+  document.getElementById('kx-ficha').classList.remove('open');
+  document.getElementById('kx-lib').classList.remove('open');
+  openAddExModal();
+  document.getElementById('ex-name-inp').value = e.nombre;
+  kxFillAddModal(e.nombre);
+};
+// Al escribir el nombre en "Agregar ejercicio": si está en la biblioteca, completa grupo y tipo
+window.kxFillAddModal = (v) => {
+  const e = KX && KX.lista.find(x => KX.norm(x.nombre) === KX.norm(v));
+  const hint = document.getElementById('kx-add-hint');
+  if (!e) { if (hint) hint.innerHTML = ''; return; }
+  const sel = document.getElementById('ex-muscle-inp');
+  if ([...sel.options].some(o => o.value === e.grupo)) sel.value = e.grupo;
+  document.getElementById('ex-type-inp').value = e.tipo === 'cardio' ? 'time' : e.tipo;
+  if (hint) hint.innerHTML = `📖 Está en la biblioteca · <a onclick="kxOpen('${e.id}')">ver cómo se hace</a>`;
+};
+
+/* ── Pantalla biblioteca ── */
+let _kxLibGroup = 'Todos';
+window.kxOpenLib = (q) => {
+  const ov = document.getElementById('kx-lib');
+  ov.classList.add('open');
+  const inp = document.getElementById('kx-q');
+  inp.value = typeof q === 'string' ? q : '';
+  kxRenderLib();
+};
+window.kxLibGroup = (g) => { _kxLibGroup = g; kxRenderLib(); };
+window.kxRenderLib = () => {
+  const q = KX.norm(document.getElementById('kx-q').value);
+  document.getElementById('kx-groups').innerHTML = ['Todos', ...KX.GRUPOS].map(g =>
+    `<button class="kx-g ${g === _kxLibGroup ? 'on' : ''}" onclick="kxLibGroup('${g}')">${g}</button>`).join('');
+  const qs = q.split(' ').filter(Boolean);
+  const list = KX.lista.filter(e => (_kxLibGroup === 'Todos' || e.grupo === _kxLibGroup) &&
+    (!qs.length || qs.every(w => KX.norm([e.nombre, ...(e.alias || []), ...e.musculos.p, ...e.musculos.s, e.equipo].join(' ')).includes(w))));
+  document.getElementById('kx-lib-list').innerHTML = list.length ? list.map(e => `
+    <div class="kx-row" onclick="kxOpen('${e.id}')">
+      <div class="kx-mini">${kxFig(e, true)}</div>
+      <div class="kx-row-txt"><div class="kx-row-name">${escHtml(e.nombre)}${kxInCatalog(e) ? ' <span class="kx-have">✓</span>' : ''}</div><div class="kx-row-sub">${escHtml(e.musculos.p.join(' · '))}</div></div>
+    </div>`).join('') : '<div class="kx-empty">Nada con ese nombre. Probá con otra palabra (ej: "remo", "glúteo", "polea").</div>';
+  document.getElementById('kx-lib-count').textContent = `${list.length} de ${KX.lista.length} ejercicios`;
+};
+window.kxCloseLib = () => document.getElementById('kx-lib').classList.remove('open');
+(function kxInitDatalist() {
+  const dl = document.getElementById('kx-datalist');
+  if (dl && KX) dl.innerHTML = KX.lista.map(e => `<option value="${escHtml(e.nombre)}">`).join('');
+})();
+
 
 /* ── MOODS ── */
 function renderMoods() {
@@ -5065,7 +6402,8 @@ function renderWorkoutMode() {
   const lastStats = getLastSessionStats(ex.name);
 
   document.getElementById('wm-ex-name').textContent = ex.name;
-  document.getElementById('wm-ex-muscle').textContent = ex.muscle;
+  { const m = document.getElementById('wm-ex-muscle'); m.textContent = ex.muscle;
+    if (kxFind(ex.name, ex.muscle)) { const a = document.createElement('a'); a.className = 'kx-wm-link'; a.textContent = '📖 Cómo se hace'; a.onclick = () => kxOpenFor(ex.name, ex.muscle); m.appendChild(a); } }
   document.getElementById('wm-progress-text').textContent = `Ejercicio ${wmExIndex+1} de ${total}`;
   document.getElementById('wm-progress-fill').style.width = `${((wmExIndex+1)/total)*100}%`;
 
