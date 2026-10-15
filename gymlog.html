@@ -509,6 +509,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .kx-empty{font-size:13px;color:#777;text-align:center;padding:30px 10px}
 .kx-info{width:26px;height:26px;border-radius:50%;border:1px solid #333;background:#1a1a1a;color:#aaa;font-size:12px;font-weight:700;font-family:'DM Mono',monospace;cursor:pointer;flex-shrink:0;padding:0;line-height:1}
 .kx-wm-link{display:inline-block;margin-left:8px;color:var(--accent,#E83535);font-weight:700;cursor:pointer}
+.kx-nomedia{font-size:13px;color:#777;text-align:center;line-height:1.6;padding:20px}
+.kx-mini{display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:22px}.kx-mini img{width:100%;height:100%;object-fit:cover;background:#fff}
+.kx-more{width:100%;padding:12px;border-radius:12px;border:1px dashed #333;background:transparent;color:#aaa;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
 .kx-add-hint{font-size:12px;color:#888;margin:6px 2px 0;min-height:0}.kx-add-hint a{color:var(--accent,#E83535);font-weight:700;cursor:pointer;text-decoration:underline}
 .wm-info-row{display:flex;gap:10px;margin-bottom:16px}
 .wm-info-box{flex:1;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;padding:10px;text-align:center}
@@ -1031,7 +1034,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button class="profile-link-btn" onclick="openGuide(0)">📖 Ver la guía de la app</button>
         <button class="profile-link-btn" onclick="exportData()">⬇️ Exportar mis datos (JSON)</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.27</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.29</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -2507,7 +2510,8 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
     .replace(/[^a-z0-9ñ ]+/g, ' ').replace(/\s+/g, ' ').trim();
   const BY_ID = Object.fromEntries(E.map(e => [e.id, e]));
   const INDEX = new Map();
-  for (const e of E) for (const n of [e.nombre, e.id.replace(/-/g, ' '), ...(e.alias || [])]) { const k = norm(n); if (k && !INDEX.has(k)) INDEX.set(k, e); }
+  const indexar = (e, nombres) => { for (const n of nombres) { const k = norm(n); if (k && !INDEX.has(k)) INDEX.set(k, e); } };
+  for (const e of E) { e.curada = true; indexar(e, [e.nombre, e.id.replace(/-/g, ' '), ...(e.alias || [])]); }
   const STOP = new Set(['de', 'con', 'en', 'el', 'la', 'a', 'al', 'los', 'las', 'y']);
   const words = s => norm(s).split(' ').filter(w => w && !STOP.has(w)).map(w => w.replace(/(es|s)$/, ''));
 
@@ -2525,6 +2529,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
       if (!hit) continue;
       let s = (hit + (w.includes(q[0]) ? 0.5 : 0)) / Math.max(q.length, w.length);
       if (grupo && (e.grupo === grupo || (grupo === 'Cuádriceps' || grupo === 'Glúteos') && e.grupo === 'Piernas' || grupo === 'Abdominales' && e.grupo === 'Core')) s += 0.15;
+      if (e.curada) s += 0.05; // a igual parecido, gana la ficha completa
       if (s > bestS) { bestS = s; best = e; }
     }
     return bestS >= 0.6 ? best : null;
@@ -2532,7 +2537,56 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   const FOTO_BASE = 'https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/';
   const fotos = e => e && e.foto ? [FOTO_BASE + e.foto + '/0.jpg', FOTO_BASE + e.foto + '/1.jpg'] : [];
 
-  root.KAISHU_EJERCICIOS = { lista: E, porId: BY_ID, buscar, norm, fotos, GRUPOS: ['Pecho', 'Espalda', 'Hombros', 'Bíceps', 'Tríceps', 'Piernas', 'Core', 'Cardio'] };
+  /* ── Base grande (v1.28): Data/ejercicios-es.json, 821 ejercicios ──
+     Se baja una sola vez (el service worker la guarda por URL con ?v=) y se suma a las 78 fichas de arriba.
+     Las fichas curadas mantienen su texto y dibujo; de la base toman `alt` (reemplazos calculados). */
+  let cargando = null, cargada = false;
+  /* Dibujo "por familia" (paso 4b): el ejercicio nuevo usa la pose de su pariente curado y cambia lo que tiene en las
+     manos según su equipo (barra / mancu / kb / nada). Lo del entorno (banco, polea, paralelas…) queda igual. */
+  const MANO = ['barra', 'mancu', 'kb'];
+  function figAdaptada(fig, eq) {
+    const f = JSON.parse(JSON.stringify(fig));
+    const vieja = (f.p || []).find(p => MANO.includes(p.k));
+    if (!eq || (vieja && vieja.k === eq)) return f;
+    f.p = (f.p || []).filter(p => !MANO.includes(p.k));
+    if (eq === 'barra') f.p.push({ k: 'barra', r: (vieja && vieja.r) || 6, on: vieja && vieja.on });
+    else if (eq === 'barra-sh') f.p.push({ k: 'barra', r: 6, on: 'sh' });
+    else if (eq === 'mancu') f.p.push({ k: 'mancu', rot: vieja && vieja.rot != null ? vieja.rot : 90 });
+    else if (eq === 'kb') f.p.push({ k: 'kb' });
+    return f;
+  }
+  const tipoDe = x => x.cat === 'cardio' || x.cat === 'movilidad' ? 'time' : x.equipo === 'Peso corporal' ? 'bw_lastre' : 'normal';
+  function cargarBase(url) {
+    if (cargada) return Promise.resolve(true);
+    if (cargando) return cargando;
+    cargando = fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }).then(j => {
+      for (const x of j.ejercicios || []) {
+        const c = BY_ID[x.id];
+        if (c) { // ficha curada: solo suma reemplazos calculados, subgrupo y nombre en inglés para buscar
+          c.alt = x.alt || []; c.sub = c.sub || x.sub; c.nombre_en = x.nombre_en; c.foto = c.foto || x.foto;
+          c.cat = c.cat || x.cat; indexar(c, [x.nombre_en]); continue;
+        }
+        const fig = x.figDe && BY_ID[x.figDe] && BY_ID[x.figDe].fig ? figAdaptada(BY_ID[x.figDe].fig, x.figEq) : null;
+        const e = { id: x.id, nombre: x.nombre, nombre_en: x.nombre_en, alias: [], grupo: x.grupo, sub: x.sub, cat: x.cat,
+          musculos: x.musculos || { p: [], s: [] }, equipo: x.equipo || 'Otro', nivel: x.nivel, tipo: tipoDe(x),
+          pasos: x.pasos || [], tips: x.tips || [], errores: [], reemplazos: [], alt: x.alt || [], foto: x.foto,
+          sugerible: !!x.sugerible, mecanica: x.mecanica, fuerza: x.fuerza, fig, figDe: fig ? x.figDe : null };
+        E.push(e); BY_ID[e.id] = e; indexar(e, [e.nombre, x.nombre_en]);
+      }
+      cargada = true; return true;
+    }).catch(err => { console.warn('Biblioteca: no se pudo cargar la base grande', err); cargando = null; return false; });
+    return cargando;
+  }
+  /** Reemplazos de un ejercicio: primero los elegidos a mano, después los calculados. */
+  function reemplazosDe(e, n = 6) {
+    const ids = [...(e.reemplazos || []), ...(e.alt || [])];
+    const out = [], vistos = new Set([e.id]);
+    for (const id of ids) { const r = BY_ID[id]; if (r && !vistos.has(id)) { vistos.add(id); out.push(r); if (out.length >= n) break; } }
+    return out;
+  }
+
+  root.KAISHU_EJERCICIOS = { lista: E, porId: BY_ID, buscar, norm, fotos, cargarBase, reemplazosDe,
+    cargada: () => cargada, GRUPOS: ['Pecho', 'Espalda', 'Hombros', 'Bíceps', 'Tríceps', 'Piernas', 'Core', 'Cardio'] };
 })(typeof window !== 'undefined' ? window : globalThis);
 
 </script>
@@ -3855,13 +3909,17 @@ window.addExercise = async () => {
 };
 document.getElementById('modal-add-ex').addEventListener('click', function(e){ if(e.target===this) closeModal('modal-add-ex'); });
 
-/* ── BIBLIOTECA DE EJERCICIOS (v1.27) ──
+/* ── BIBLIOTECA DE EJERCICIOS (v1.27 → v1.29) ──
    Ficha "cómo se hace" + reemplazos + biblioteca con buscador. Todo sale de la base fija
-   KAISHU_EJERCICIOS (script clásico de arriba): cero llamadas a la IA. Dibujo de palito
-   animado siempre disponible (offline); foto real de free-exercise-db (dominio público)
-   cuando hay señal — el <img> va con crossorigin para que el service worker la cachee. */
+   KAISHU_EJERCICIOS (script clásico de arriba): cero llamadas a la IA.
+   v1.27: 78 fichas completas (texto propio + dibujo de palito animado, siempre offline).
+   v1.28: + base grande Data/ejercicios-es.json (821, traducida) que se baja una vez y queda en el
+   service worker; las fichas nuevas tienen foto y reemplazos calculados (`alt`).
+   v1.29: dibujos por familia — ~440 ejercicios nuevos usan la pose de su pariente curado (figDe/figEq).
+   Fotos de free-exercise-db (dominio público) con crossorigin para que el service worker las cachee. */
 const KX = window.KAISHU_EJERCICIOS;
 const KXF = window.KaishuFigura;
+const KX_URL = 'Data/ejercicios-es.json?v=4'; // subir ?v= cada vez que se reemplace el archivo en el repo
 let _kxPhotoTimer = null, _kxStack = [];
 // Ojo: renderExercises() la puede llamar antes de que corra este bloque → nada de const de acá adentro
 function kxFind(name, muscle) {
@@ -3871,32 +3929,47 @@ function kxFind(name, muscle) {
   if (!_kxFindMemo.has(key)) { let r = null; try { r = db.buscar(name, muscle); } catch (e) {} _kxFindMemo.set(key, r); }
   return _kxFindMemo.get(key);
 }
-function kxInCatalog(e) {
-  return exercises.find(x => kxFind(x.name, x.muscle)?.id === e.id) || null;
-}
+// Ids de la biblioteca que ya están en tu catálogo (se calcula una vez por pantalla)
+function kxMineSet() { return new Set(exercises.map(x => kxFind(x.name, x.muscle)?.id).filter(Boolean)); }
+function kxInCatalog(e) { return kxMineSet().has(e.id); }
 function kxView() { try { return localStorage.getItem('kx-view') || 'foto'; } catch (e) { return 'foto'; } }
 function kxSetView(v) { try { localStorage.setItem('kx-view', v); } catch (e) {} }
-function kxFig(e, mini) { return KXF.figuraSVG(e.fig, { ink: '#f0ede8', eq: '#6f747c', bg: '#141414', fit: !!mini }); }
+function kxFig(e, mini) { return e.fig ? KXF.figuraSVG(e.fig, { ink: '#f0ede8', eq: '#6f747c', bg: '#141414', fit: !!mini }) : ''; }
+// Miniatura: dibujo si tiene; si no, la primera foto (lazy); si tampoco, un ícono
+function kxMini(e) {
+  if (e.fig) return kxFig(e, true);
+  const f = KX.fotos(e)[0];
+  return f ? `<img loading="lazy" src="${f}" crossorigin="anonymous" alt="" onerror="this.replaceWith(document.createTextNode('🏋️'))">` : '🏋️';
+}
+// Los dibujos "por familia" son de referencia: lo decimos para no engañar
+function kxCreditoFig(e) { const p = e.figDe && KX.porId[e.figDe]; return p ? `Dibujo de referencia: mismo movimiento que «${p.nombre}»` : ''; }
 function kxStopPhoto() { if (_kxPhotoTimer) { clearInterval(_kxPhotoTimer); _kxPhotoTimer = null; } }
+function kxSinMedia(box, msg) {
+  box.innerHTML = `<div class="kx-nomedia">📶<br>${msg}</div>`;
+}
 
 function kxRenderMedia(e) {
   kxStopPhoto();
   const box = document.getElementById('kx-media'); if (!box) return;
-  const fotos = KX.fotos(e);
-  const view = fotos.length && kxView() === 'foto' ? 'foto' : 'dibujo';
+  const fotos = KX.fotos(e), credit = document.getElementById('kx-credit');
+  const view = fotos.length && (kxView() === 'foto' || !e.fig) ? 'foto' : 'dibujo';
   document.querySelectorAll('#kx-media-tabs button').forEach(b => b.classList.toggle('on', b.dataset.v === view));
-  document.getElementById('kx-media-tabs').style.display = fotos.length ? '' : 'none';
-  if (view === 'dibujo') { box.innerHTML = kxFig(e); document.getElementById('kx-credit').textContent = ''; return; }
+  document.getElementById('kx-media-tabs').style.display = fotos.length && e.fig ? '' : 'none';
+  if (view === 'dibujo') {
+    if (e.fig) { box.innerHTML = kxFig(e); credit.textContent = kxCreditoFig(e); }
+    else { kxSinMedia(box, 'Este ejercicio no tiene foto ni dibujo todavía'); credit.textContent = ''; }
+    return;
+  }
   box.innerHTML = fotos.map((u, i) => `<img src="${u}" crossorigin="anonymous" alt="" style="opacity:${i ? 0 : 1}">`).join('') + '<div class="kx-loading">Cargando foto…</div>';
-  document.getElementById('kx-credit').textContent = 'Foto: free-exercise-db (dominio público)';
+  credit.textContent = 'Foto: free-exercise-db (dominio público)';
   const imgs = [...box.querySelectorAll('img')];
   let failed = false;
   imgs.forEach(img => {
     img.onload = () => box.querySelector('.kx-loading')?.remove();
-    img.onerror = () => { // sin señal o foto caída → dibujo
+    img.onerror = () => { // sin señal o foto caída → dibujo, o aviso si no tiene
       if (failed) return; failed = true; kxStopPhoto();
-      box.innerHTML = kxFig(e);
-      document.getElementById('kx-credit').textContent = 'Sin conexión: mostramos el dibujo';
+      if (e.fig) { box.innerHTML = kxFig(e); credit.textContent = 'Sin conexión: mostramos el dibujo' + (e.figDe ? ' (de referencia)' : ''); }
+      else { kxSinMedia(box, 'La foto se carga con conexión.<br>Una vez vista, queda guardada en el celu.'); credit.textContent = ''; }
     };
   });
   let k = 0;
@@ -3906,31 +3979,32 @@ window.kxMediaTab = (v) => { kxSetView(v); const e = KX.porId[_kxStack[_kxStack.
 
 function kxRenderFicha(e) {
   const ov = document.getElementById('kx-ficha');
-  const mine = kxInCatalog(e);
+  const mineSet = kxMineSet(), mine = mineSet.has(e.id);
   const chips = (arr, cls) => (arr || []).map(m => `<span class="kx-chip ${cls}">${escHtml(m)}</span>`).join('');
   const li = arr => (arr || []).map(t => `<li>${escHtml(t)}</li>`).join('');
-  const alts = (e.reemplazos || []).map(id => KX.porId[id]).filter(Boolean).map(a => {
-    const have = kxInCatalog(a);
-    return `<div class="kx-row" onclick="kxOpen('${a.id}', true)">
-      <div class="kx-mini">${kxFig(a, true)}</div>
-      <div class="kx-row-txt"><div class="kx-row-name">${escHtml(a.nombre)}</div><div class="kx-row-sub">${escHtml(a.musculos.p.join(' · '))} · ${escHtml(a.equipo)}</div></div>
-      ${have ? '<span class="kx-have">✓ en tu lista</span>' : `<button class="kx-add" onclick="event.stopPropagation();kxAddToList('${a.id}')">＋</button>`}
-    </div>`;
-  }).join('');
+  const alts = KX.reemplazosDe(e, 6).map(a => `<div class="kx-row" onclick="kxOpen('${a.id}', true)">
+      <div class="kx-mini">${kxMini(a)}</div>
+      <div class="kx-row-txt"><div class="kx-row-name">${escHtml(a.nombre)}</div><div class="kx-row-sub">${escHtml((a.musculos.p || []).join(' · '))} · ${escHtml(a.equipo)}</div></div>
+      ${mineSet.has(a.id) ? '<span class="kx-have">✓ en tu lista</span>' : `<button class="kx-add" onclick="event.stopPropagation();kxAddToList('${a.id}')">＋</button>`}
+    </div>`).join('');
+  const sinCargar = !KX.cargada() && !alts;
+  const meta = [['🏷️', e.grupo + (e.sub && e.sub !== e.grupo ? ' · ' + e.sub : '')], ['🏋️', e.equipo], ['📶', e.nivel], ['🧘', e.cat === 'movilidad' ? 'Movilidad' : '']]
+    .filter(m => m[1]).map(m => `<span>${m[0]} ${escHtml(m[1])}</span>`).join('');
   ov.querySelector('.kx-title').textContent = e.nombre;
   ov.querySelector('.kx-back').textContent = _kxStack.length > 1 ? '←' : '✕';
   ov.querySelector('.kx-scroll').innerHTML = `
     <div id="kx-media-tabs" class="kx-tabs"><button data-v="foto" onclick="kxMediaTab('foto')">📷 Foto</button><button data-v="dibujo" onclick="kxMediaTab('dibujo')">✏️ Dibujo</button></div>
     <div class="kx-media" id="kx-media"></div>
     <div class="kx-credit" id="kx-credit"></div>
-    <div class="kx-meta"><span>🏷️ ${escHtml(e.grupo)}</span><span>🏋️ ${escHtml(e.equipo)}</span><span>📶 ${escHtml(e.nivel)}</span></div>
+    <div class="kx-meta">${meta}</div>
     <div class="kx-h">Músculos</div>
     <div class="kx-chips">${chips(e.musculos.p, 'p')}${chips(e.musculos.s, 's')}</div>
-    <div class="kx-legend"><span class="kx-dot p"></span>principales <span class="kx-dot s"></span>secundarios</div>
+    <div class="kx-legend"><span class="kx-dot p"></span>principales ${e.musculos.s?.length ? '<span class="kx-dot s"></span>secundarios' : ''}</div>
     <div class="kx-h">Cómo se hace</div><ol class="kx-list">${li(e.pasos)}</ol>
     ${e.tips?.length ? `<div class="kx-h">💡 Consejos</div><ul class="kx-list">${li(e.tips)}</ul>` : ''}
     ${e.errores?.length ? `<div class="kx-h">⚠️ Errores comunes</div><ul class="kx-list kx-err">${li(e.errores)}</ul>` : ''}
     ${alts ? `<div class="kx-h">🔁 Si no podés hacerlo, reemplazalo por</div><div class="kx-alts">${alts}</div>` : ''}
+    ${sinCargar ? '<div class="kx-foot">Cargando reemplazos…</div>' : ''}
     ${mine ? '' : `<button class="kx-main-btn" onclick="kxAddToList('${e.id}')">＋ Agregar a mis ejercicios</button>`}
     <div class="kx-foot">Ficha de la biblioteca de Kaishu · no usa la IA</div>`;
   ov.querySelector('.kx-scroll').scrollTop = 0;
@@ -3944,6 +4018,8 @@ window.kxOpen = (id, push) => {
   _kxStack.push(id);
   document.getElementById('kx-ficha').classList.add('open');
   kxRenderFicha(e);
+  // Si la base grande todavía no llegó, la pedimos y refrescamos los reemplazos
+  if (!KX.cargada()) kxCargar().then(ok => { if (ok && _kxStack[_kxStack.length - 1] === id && document.getElementById('kx-ficha').classList.contains('open')) kxRenderFicha(e); });
 };
 window.kxOpenFor = (name, muscle) => {
   const e = kxFind(name, muscle);
@@ -3955,6 +4031,8 @@ window.kxBack = () => {
   if (_kxStack.length) kxRenderFicha(KX.porId[_kxStack[_kxStack.length - 1]]);
   else { kxStopPhoto(); document.getElementById('kx-ficha').classList.remove('open'); }
 };
+// Grupo de la app para un ejercicio de la biblioteca (Piernas se abre en Cuádriceps/Glúteos si corresponde)
+function kxGrupoApp(e) { return e.grupo === 'Piernas' && (e.sub === 'Cuádriceps' || e.sub === 'Glúteos') ? e.sub : e.grupo; }
 window.kxAddToList = (id) => {
   const e = KX.porId[id]; if (!e) return;
   kxStopPhoto(); _kxStack = [];
@@ -3966,44 +4044,88 @@ window.kxAddToList = (id) => {
 };
 // Al escribir el nombre en "Agregar ejercicio": si está en la biblioteca, completa grupo y tipo
 window.kxFillAddModal = (v) => {
-  const e = KX && KX.lista.find(x => KX.norm(x.nombre) === KX.norm(v));
+  const n = KX && KX.norm(v);
+  const e = n && KX.lista.find(x => KX.norm(x.nombre) === n);
   const hint = document.getElementById('kx-add-hint');
   if (!e) { if (hint) hint.innerHTML = ''; return; }
   const sel = document.getElementById('ex-muscle-inp');
-  if ([...sel.options].some(o => o.value === e.grupo)) sel.value = e.grupo;
+  const g = kxGrupoApp(e);
+  if ([...sel.options].some(o => o.value === g)) sel.value = g;
   document.getElementById('ex-type-inp').value = e.tipo === 'cardio' ? 'time' : e.tipo;
   if (hint) hint.innerHTML = `📖 Está en la biblioteca · <a onclick="kxOpen('${e.id}')">ver cómo se hace</a>`;
 };
 
+/* ── Carga de la base grande ── */
+function kxCargar() {
+  return KX.cargarBase(KX_URL).then(ok => {
+    window._kxBaseFallo = !ok;
+    if (ok && !window._kxBaseLista) {
+      window._kxBaseLista = true;
+      window._kxFindMemo = new Map(); // ahora tus ejercicios pueden matchear con más fichas
+      kxInitDatalist();
+    }
+    return ok;
+  });
+}
+
 /* ── Pantalla biblioteca ── */
-let _kxLibGroup = 'Todos';
+let _kxLibGroup = 'Todos', _kxLibMax = 60;
+const KX_CHIPS = () => ['Todos', ...KX.GRUPOS, 'Movilidad'];
 window.kxOpenLib = (q) => {
   const ov = document.getElementById('kx-lib');
   ov.classList.add('open');
   const inp = document.getElementById('kx-q');
   inp.value = typeof q === 'string' ? q : '';
+  _kxLibMax = 60;
   kxRenderLib();
+  if (!KX.cargada()) kxCargar().then(ok => { if (ov.classList.contains('open')) kxRenderLib(); if (!ok) showToast('Sin conexión: por ahora se ven las 78 fichas principales'); });
 };
-window.kxLibGroup = (g) => { _kxLibGroup = g; kxRenderLib(); };
+window.kxLibGroup = (g) => { _kxLibGroup = g; _kxLibMax = 60; kxRenderLib(); document.querySelector('#kx-lib .kx-scroll').scrollTop = 0; };
+window.kxLibMore = () => { _kxLibMax += 120; kxRenderLib(); };
+const _kxHay = new WeakMap(); // texto de búsqueda por ejercicio (se arma una vez)
+function kxHaystack(e) {
+  if (!_kxHay.has(e)) _kxHay.set(e, KX.norm([e.nombre, e.nombre_en, ...(e.alias || []), ...(e.musculos.p || []), ...(e.musculos.s || []), e.equipo, e.sub, e.grupo].filter(Boolean).join(' ')));
+  return _kxHay.get(e);
+}
 window.kxRenderLib = () => {
   const q = KX.norm(document.getElementById('kx-q').value);
-  document.getElementById('kx-groups').innerHTML = ['Todos', ...KX.GRUPOS].map(g =>
-    `<button class="kx-g ${g === _kxLibGroup ? 'on' : ''}" onclick="kxLibGroup('${g}')">${g}</button>`).join('');
+  document.getElementById('kx-groups').innerHTML = KX_CHIPS().map(g =>
+    `<button class="kx-g ${g === _kxLibGroup ? 'on' : ''}" onclick="kxLibGroup('${g}')">${g === 'Movilidad' ? '🧘 ' : ''}${g}</button>`).join('');
   const qs = q.split(' ').filter(Boolean);
-  const list = KX.lista.filter(e => (_kxLibGroup === 'Todos' || e.grupo === _kxLibGroup) &&
-    (!qs.length || qs.every(w => KX.norm([e.nombre, ...(e.alias || []), ...e.musculos.p, ...e.musculos.s, e.equipo].join(' ')).includes(w))));
-  document.getElementById('kx-lib-list').innerHTML = list.length ? list.map(e => `
+  const enGrupo = e => _kxLibGroup === 'Movilidad' ? e.cat === 'movilidad'
+    : e.cat !== 'movilidad' && (_kxLibGroup === 'Todos' || e.grupo === _kxLibGroup);
+  // Relevancia: 0 = el nombre tiene todas las palabras · 1 = es su músculo principal · 2 = el resto (secundarios, equipo…)
+  const rel = e => {
+    if (!qs.length) return 0;
+    const n = KX.norm(e.nombre + ' ' + (e.nombre_en || '') + ' ' + (e.alias || []).join(' '));
+    if (qs.every(w => n.includes(w))) return 0;
+    const p = KX.norm((e.musculos.p || []).join(' ') + ' ' + (e.sub || ''));
+    return qs.every(w => p.includes(w) || n.includes(w)) ? 1 : 2;
+  };
+  const list = KX.lista.filter(e => enGrupo(e) && (!qs.length || qs.every(w => kxHaystack(e).includes(w))))
+    .map(e => [rel(e), e])
+    // relevancia, después las fichas completas, después alfabético
+    .sort((x, y) => x[0] - y[0] || (y[1].curada ? 1 : 0) - (x[1].curada ? 1 : 0) || x[1].nombre.localeCompare(y[1].nombre, 'es'))
+    .map(x => x[1]);
+  const mineSet = kxMineSet();
+  const shown = list.slice(0, _kxLibMax);
+  document.getElementById('kx-lib-list').innerHTML = list.length ? shown.map(e => `
     <div class="kx-row" onclick="kxOpen('${e.id}')">
-      <div class="kx-mini">${kxFig(e, true)}</div>
-      <div class="kx-row-txt"><div class="kx-row-name">${escHtml(e.nombre)}${kxInCatalog(e) ? ' <span class="kx-have">✓</span>' : ''}</div><div class="kx-row-sub">${escHtml(e.musculos.p.join(' · '))}</div></div>
-    </div>`).join('') : '<div class="kx-empty">Nada con ese nombre. Probá con otra palabra (ej: "remo", "glúteo", "polea").</div>';
-  document.getElementById('kx-lib-count').textContent = `${list.length} de ${KX.lista.length} ejercicios`;
+      <div class="kx-mini">${kxMini(e)}</div>
+      <div class="kx-row-txt"><div class="kx-row-name">${escHtml(e.nombre)}${mineSet.has(e.id) ? ' <span class="kx-have">✓</span>' : ''}</div><div class="kx-row-sub">${escHtml((e.musculos.p || []).join(' · '))}${e.equipo ? ' · ' + escHtml(e.equipo) : ''}</div></div>
+    </div>`).join('') + (list.length > shown.length ? `<button class="kx-more" onclick="kxLibMore()">Mostrar más (${list.length - shown.length})</button>` : '')
+    : '<div class="kx-empty">Nada con ese nombre. Probá con otra palabra (ej: "remo", "glúteo", "polea").</div>';
+  const total = KX.lista.filter(enGrupo).length;
+  document.getElementById('kx-lib-count').textContent = `${list.length} de ${total} ejercicios` + (KX.cargada() ? '' : window._kxBaseFallo ? ' · sin conexión: solo las fichas principales' : ' · cargando la biblioteca completa…');
 };
 window.kxCloseLib = () => document.getElementById('kx-lib').classList.remove('open');
-(function kxInitDatalist() {
+function kxInitDatalist() {
   const dl = document.getElementById('kx-datalist');
   if (dl && KX) dl.innerHTML = KX.lista.map(e => `<option value="${escHtml(e.nombre)}">`).join('');
-})();
+}
+kxInitDatalist();
+// Precarga silenciosa unos segundos después de abrir la app, así en el gym ya está aunque no haya señal
+setTimeout(() => { if (navigator.onLine !== false) kxCargar(); }, 4000);
 
 
 /* ── MOODS ── */
