@@ -512,6 +512,19 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .kx-nomedia{font-size:13px;color:#777;text-align:center;line-height:1.6;padding:20px}
 .kx-mini{display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:22px}.kx-mini img{width:100%;height:100%;object-fit:cover;background:#fff}
 .kx-more{width:100%;padding:12px;border-radius:12px;border:1px dashed #333;background:transparent;color:#aaa;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer}
+.kx-sheet-ov{display:none;position:fixed;inset:0;z-index:10015;background:rgba(0,0,0,.6);align-items:flex-end;justify-content:center}
+.kx-sheet-ov.open{display:flex}
+.kx-sheet{background:#141414;border-radius:18px 18px 0 0;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;padding:14px 16px calc(20px + env(safe-area-inset-bottom,0px));box-sizing:border-box;color:#f0ede8;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;gap:8px}
+.kx-sheet-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.kx-sheet-k{font-size:10px;letter-spacing:1.5px;color:var(--accent,#E83535);font-weight:700}
+.kx-sheet-t{font-size:18px;font-weight:700}
+.kx-motivo{display:flex;align-items:center;gap:14px;width:100%;text-align:left;padding:14px;border-radius:14px;border:1px solid #2e2e2e;background:#1a1a1a;color:#f0ede8;font-family:inherit;cursor:pointer}
+.kx-motivo b{display:block;font-size:15px}.kx-motivo small{display:block;font-size:12px;color:#888;margin-top:2px}
+.kx-motivo-i{font-size:26px;width:34px;text-align:center}
+.kx-chip-motivo{align-self:flex-start;padding:6px 12px;border-radius:20px;border:1px solid var(--accent,#E83535);background:transparent;color:#ddd;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer}
+.kx-pick{font-size:12px;font-weight:700;color:var(--accent,#E83535);border:1px solid var(--accent,#E83535);border-radius:20px;padding:5px 12px;white-space:nowrap}
+.kx-check{display:flex;align-items:center;gap:8px;font-size:13px;color:#ccc;padding:8px 2px}.kx-check input{width:18px;height:18px;accent-color:var(--accent,#E83535)}
+.kx-swap-btn{font-size:13px}
 .kx-add-hint{font-size:12px;color:#888;margin:6px 2px 0;min-height:0}.kx-add-hint a{color:var(--accent,#E83535);font-weight:700;cursor:pointer;text-decoration:underline}
 .wm-info-row{display:flex;gap:10px;margin-bottom:16px}
 .wm-info-box{flex:1;background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;padding:10px;text-align:center}
@@ -1034,7 +1047,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button class="profile-link-btn" onclick="openGuide(0)">📖 Ver la guía de la app</button>
         <button class="profile-link-btn" onclick="exportData()">⬇️ Exportar mis datos (JSON)</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.29</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.30</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -1086,6 +1099,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
   <div class="kx-top"><button class="kx-back" onclick="kxBack()">✕</button><div class="kx-title"></div></div>
   <div class="kx-scroll"></div>
 </div>
+<div class="kx-sheet-ov" id="kx-swap" onclick="if(event.target===this)kxSwapClose()"><div class="kx-sheet"></div></div>
 <datalist id="kx-datalist"></datalist>
 
 <div class="modal-overlay" id="modal-add-ex">
@@ -2564,13 +2578,13 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         const c = BY_ID[x.id];
         if (c) { // ficha curada: solo suma reemplazos calculados, subgrupo y nombre en inglés para buscar
           c.alt = x.alt || []; c.sub = c.sub || x.sub; c.nombre_en = x.nombre_en; c.foto = c.foto || x.foto;
-          c.cat = c.cat || x.cat; indexar(c, [x.nombre_en]); continue;
+          c.cat = c.cat || x.cat; c.equipoN = x.equipo; c.mecanica = x.mecanica; c.nivelN = x.nivel; indexar(c, [x.nombre_en]); continue;
         }
         const fig = x.figDe && BY_ID[x.figDe] && BY_ID[x.figDe].fig ? figAdaptada(BY_ID[x.figDe].fig, x.figEq) : null;
         const e = { id: x.id, nombre: x.nombre, nombre_en: x.nombre_en, alias: [], grupo: x.grupo, sub: x.sub, cat: x.cat,
           musculos: x.musculos || { p: [], s: [] }, equipo: x.equipo || 'Otro', nivel: x.nivel, tipo: tipoDe(x),
           pasos: x.pasos || [], tips: x.tips || [], errores: [], reemplazos: [], alt: x.alt || [], foto: x.foto,
-          sugerible: !!x.sugerible, mecanica: x.mecanica, fuerza: x.fuerza, fig, figDe: fig ? x.figDe : null };
+          sugerible: !!x.sugerible, mecanica: x.mecanica, fuerza: x.fuerza, fig, figDe: fig ? x.figDe : null, equipoN: x.equipo, nivelN: x.nivel };
         E.push(e); BY_ID[e.id] = e; indexar(e, [e.nombre, x.nombre_en]);
       }
       cargada = true; return true;
@@ -3691,7 +3705,7 @@ function buildExCard(ex) {
         ${prLine ? `<div class="ex-pr">${prLine}</div>` : ''}
       </div>
       <div class="card-header-right">
-        ${kxFind(ex.name, ex.muscle) ? `<button class="kx-info" title="Cómo se hace" data-n="${escHtml(ex.name)}" data-m="${escHtml(ex.muscle)}" onclick="event.stopPropagation();kxOpenFor(this.dataset.n,this.dataset.m)">i</button>` : ''}
+        ${kxFind(ex.name, ex.muscle) ? `<button class="kx-info kx-swap-btn" title="Reemplazar" onclick="event.stopPropagation();kxSwapOpen(${ex.id})">🔄</button><button class="kx-info" title="Cómo se hace" data-n="${escHtml(ex.name)}" data-m="${escHtml(ex.muscle)}" onclick="event.stopPropagation();kxOpenFor(this.dataset.n,this.dataset.m)">i</button>` : ''}
         <div class="prog-pill ${allDone?'done-all':''}">${done}/${total}</div>
         <svg class="chevron" id="chev-${ex.id}" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </div>
@@ -3909,13 +3923,14 @@ window.addExercise = async () => {
 };
 document.getElementById('modal-add-ex').addEventListener('click', function(e){ if(e.target===this) closeModal('modal-add-ex'); });
 
-/* ── BIBLIOTECA DE EJERCICIOS (v1.27 → v1.29) ──
+/* ── BIBLIOTECA DE EJERCICIOS (v1.27 → v1.30) ──
    Ficha "cómo se hace" + reemplazos + biblioteca con buscador. Todo sale de la base fija
    KAISHU_EJERCICIOS (script clásico de arriba): cero llamadas a la IA.
    v1.27: 78 fichas completas (texto propio + dibujo de palito animado, siempre offline).
    v1.28: + base grande Data/ejercicios-es.json (821, traducida) que se baja una vez y queda en el
    service worker; las fichas nuevas tienen foto y reemplazos calculados (`alt`).
    v1.29: dibujos por familia — ~440 ejercicios nuevos usan la pose de su pariente curado (figDe/figEq).
+   v1.30: 🔄 Reemplazar en plena rutina (al final de este bloque).
    Fotos de free-exercise-db (dominio público) con crossorigin para que el service worker las cachee. */
 const KX = window.KAISHU_EJERCICIOS;
 const KXF = window.KaishuFigura;
@@ -4126,6 +4141,140 @@ function kxInitDatalist() {
 kxInitDatalist();
 // Precarga silenciosa unos segundos después de abrir la app, así en el gym ya está aunque no haya señal
 setTimeout(() => { if (navigator.onLine !== false) kxCargar(); }, 4000);
+
+/* ── 🔄 REEMPLAZAR EN PLENA RUTINA (v1.30) ──
+   Motivo → candidatos → elegís uno → toma el lugar del original en la sesión de hoy (misma posición, mismas series).
+   El original queda en tu lista con su historial. Opcional: cambiarlo también en la rutina que está en curso.
+   Regla "ocupada" (aprobada por el usuario): se ocupa la ESTACIÓN — máquina/polea/Smith/paralelas/barra fija/banco
+   romano → otro equipo; con barra, mancuernas o peso corporal solo se descarta ese ejercicio. */
+const KX_ESTACION = new Set(['Máquina', 'Polea', 'Smith', 'Paralelas', 'Barra fija', 'Banco romano']);
+const KX_GUIADO = new Set(['Máquina', 'Polea', 'Smith']);
+const KX_MOTIVOS = {
+  ocupada: { icon: '🚫', t: 'Está ocupada', d: 'Otra máquina o equipo para el mismo músculo' },
+  molesta: { icon: '🤕', t: 'Me molesta', d: 'Opciones más guiadas y suaves para la articulación' },
+  notengo: { icon: '❌', t: 'No tengo ese equipo', d: 'Lo mismo con otro equipo' },
+};
+let _kxSwap = null; // { exId, lib, motivo, max }
+const kxEq = e => e.equipoN || e.equipo || '';
+// Candidatos: reemplazos de la ficha (manuales + calculados) y, si hacen falta, más del mismo músculo principal
+function kxCandidatos(lib) {
+  const out = KX.reemplazosDe(lib, 40);
+  const vistos = new Set([lib.id, ...out.map(x => x.id)]);
+  const prim = (lib.musculos.p || [])[0];
+  if (KX.cargada() && prim) {
+    for (const x of KX.lista) {
+      if (vistos.has(x.id) || x.cat === 'movilidad' || (x.musculos.p || [])[0] !== prim) continue;
+      if (x.sugerible === false) continue;
+      out.push(x); vistos.add(x.id);
+    }
+  }
+  return out.filter(x => x.cat !== 'movilidad' && x.sugerible !== false);
+}
+function kxFiltrarMotivo(lib, cands, motivo) {
+  const eq = kxEq(lib);
+  if (motivo === 'ocupada') return KX_ESTACION.has(eq) ? cands.filter(x => kxEq(x) !== eq) : cands;
+  if (motivo === 'notengo') return cands.filter(x => kxEq(x) !== eq);
+  // molesta: fuera lo avanzado; primero lo guiado (máquina/polea/Smith) y lo aislado, respetando el orden de parecido
+  const ok = cands.filter(x => (x.nivelN || x.nivel) !== 'Avanzado');
+  const pts = x => (KX_GUIADO.has(kxEq(x)) ? 2 : 0) + (x.mecanica === 'aislado' ? 1 : 0);
+  return ok.map((x, i) => [x, i]).sort((a, b) => pts(b[0]) - pts(a[0]) || a[1] - b[1]).map(a => a[0]);
+}
+window.kxSwapOpen = (exId) => {
+  const ex = exercises.find(e => e.id === exId); if (!ex) return;
+  const lib = kxFind(ex.name, ex.muscle);
+  if (!lib) { showToast('Este ejercicio no está en la biblioteca: no tengo reemplazos para sugerirte'); return; }
+  _kxSwap = { exId, lib, motivo: null, max: 5 };
+  document.getElementById('kx-swap').classList.add('open');
+  kxSwapRender();
+  if (!KX.cargada()) kxCargar().then(ok => { if (ok && _kxSwap && document.getElementById('kx-swap').classList.contains('open')) kxSwapRender(); });
+};
+window.kxSwapClose = () => { _kxSwap = null; document.getElementById('kx-swap').classList.remove('open'); };
+window.kxSwapMotivo = (m) => { _kxSwap.motivo = m; _kxSwap.max = 5; kxSwapRender(); };
+window.kxSwapMas = () => { _kxSwap.max += 5; kxSwapRender(); };
+function kxSwapRender() {
+  const s = _kxSwap; if (!s) return;
+  const ex = exercises.find(e => e.id === s.exId);
+  const box = document.querySelector('#kx-swap .kx-sheet');
+  if (!ex) { kxSwapClose(); return; }
+  const head = `<div class="kx-sheet-top"><div><div class="kx-sheet-k">🔄 REEMPLAZAR</div><div class="kx-sheet-t">${escHtml(ex.name)}</div></div><button class="kx-back" onclick="kxSwapClose()">✕</button></div>`;
+  if (!s.motivo) {
+    box.innerHTML = head + `<div class="kx-h" style="margin-top:6px">¿Qué pasa?</div>` +
+      Object.entries(KX_MOTIVOS).map(([k, m]) => `<button class="kx-motivo" onclick="kxSwapMotivo('${k}')"><span class="kx-motivo-i">${m.icon}</span><span><b>${m.t}</b><small>${m.d}</small></span></button>`).join('');
+    return;
+  }
+  const lista = kxFiltrarMotivo(s.lib, kxCandidatos(s.lib), s.motivo);
+  const mine = kxMineSet();
+  const rutina = activeRoutineId && routines.find(r => r.fid === activeRoutineId);
+  const m = KX_MOTIVOS[s.motivo];
+  box.innerHTML = head +
+    `<button class="kx-chip-motivo" onclick="kxSwapMotivo(null)">${m.icon} ${m.t} · cambiar</button>` +
+    (lista.length ? lista.slice(0, s.max).map(x => `<div class="kx-row" onclick="kxSwapElegir('${x.id}')">
+        <div class="kx-mini" onclick="event.stopPropagation();kxOpen('${x.id}')">${kxMini(x)}</div>
+        <div class="kx-row-txt"><div class="kx-row-name">${escHtml(x.nombre)}${mine.has(x.id) ? ' <span class="kx-have">✓</span>' : ''}</div><div class="kx-row-sub">${escHtml((x.musculos.p || []).join(' · '))} · ${escHtml(kxEq(x))}</div></div>
+        <span class="kx-pick">Usar</span></div>`).join('')
+      + (lista.length > s.max ? `<button class="kx-more" onclick="kxSwapMas()">Ver más opciones (${lista.length - s.max})</button>` : '')
+      : `<div class="kx-empty">${KX.cargada() ? 'No encontré reemplazos para este motivo.' : 'Cargando la biblioteca…'}</div>`) +
+    (rutina ? `<label class="kx-check"><input type="checkbox" id="kx-swap-rutina"> Cambiarlo también en la rutina «${escHtml(rutina.name)}»</label>` : '') +
+    `<div class="kx-foot">Tocá la foto para ver cómo se hace · el original queda en tu lista</div>`;
+}
+// Series del reemplazo: misma cantidad que el original; reps del original, peso a completar
+function kxSeriesPara(orig, tipo) {
+  return (orig.series || []).map(s => tipo === 'time' ? { secs: s.secs || '30', done: false }
+    : { reps: s.reps || '10', kg: '0', done: false }).slice(0, 10);
+}
+window.kxSwapElegir = async (libId) => {
+  const s = _kxSwap; if (!s) return;
+  const orig = exercises.find(e => e.id === s.exId), lib = KX.porId[libId];
+  if (!orig || !lib) return;
+  const cambiarRutina = !!document.getElementById('kx-swap-rutina')?.checked;
+  kxSwapClose();
+  // 1) El reemplazo en tu catálogo: si ya lo tenés, se usa ese (con su historial); si no, se crea
+  let nuevo = exercises.find(e => kxFind(e.name, e.muscle)?.id === lib.id);
+  if (!nuevo) {
+    const tipo = lib.tipo === 'cardio' ? 'time' : (lib.tipo || 'normal');
+    nuevo = { id: newExId(), name: lib.nombre, muscle: kxGrupoApp(lib), type: tipo, note: '', series: kxSeriesPara(orig, tipo) };
+    if (!nuevo.series.length) nuevo.series = [tipo === 'time' ? { secs: '30', done: false } : { reps: '10', kg: '0', done: false }];
+    exercises.push(nuevo);
+    addDoc(collection(db, 'users', uid(), 'exercises'), nuevo)
+      .then(ref => { nuevo.fid = ref.id; saveEx(nuevo); })
+      .catch(e => console.warn('No se pudo guardar el reemplazo', e));
+  } else if ((nuevo.series || []).filter(x => !x.done).length < (orig.series || []).length && !(nuevo.series || []).some(x => x.done)) {
+    // Si ya lo tenés pero con menos series, igualamos la cantidad (sin tocar pesos que ya tenía)
+    while (nuevo.series.length < orig.series.length) nuevo.series.push({ ...nuevo.series[nuevo.series.length - 1], done: false });
+    saveEx(nuevo);
+  }
+  // 2) La sesión de hoy: toma el lugar del original
+  if (sessionPlanActive && sessionPlan.includes(orig.id)) {
+    const yaEstaba = sessionPlan.includes(nuevo.id);
+    sessionPlan = sessionPlan.flatMap(id => id === orig.id ? (yaEstaba ? [] : [nuevo.id]) : [id]);
+  } else if (sessionPlanActive) {
+    if (!sessionPlan.includes(nuevo.id)) sessionPlan.push(nuevo.id);
+  }
+  // 3) Opcional: también en la rutina en curso
+  let enRutina = false;
+  if (cambiarRutina && activeRoutineId) {
+    const r = routines.find(x => x.fid === activeRoutineId);
+    const i = r ? (r.exercises || []).findIndex(re => findExMatch(re.name, re.muscle)?.id === orig.id) : -1;
+    if (i >= 0) {
+      r.exercises[i] = { name: nuevo.name, muscle: nuevo.muscle, type: nuevo.type };
+      saveRoutineDB(r).then(() => { renderRoutines(); renderRoutinePillsSelector(); }).catch(e => console.warn('No se pudo actualizar la rutina', e));
+      enRutina = true;
+    }
+  }
+  saveSessionPlanState(); saveDraft();
+  renderExercises(); renderSessionPlannerBar();
+  // 4) Modo entrenamiento abierto: el reemplazo queda en la misma pantalla
+  const wm = document.getElementById('workout-mode-overlay');
+  if (wm && wm.classList.contains('open')) {
+    const i = wmFilteredExercises.findIndex(e => e.id === orig.id);
+    if (i >= 0) {
+      if (wmFilteredExercises.some(e => e.id === nuevo.id)) { wmFilteredExercises.splice(i, 1); wmExIndex = Math.max(0, Math.min(i, wmFilteredExercises.length - 1)); }
+      else { wmFilteredExercises[i] = nuevo; wmExIndex = i; }
+    }
+    renderWorkoutMode();
+  }
+  showToast(`🔄 ${orig.name} → ${nuevo.name}` + (enRutina ? ' · también en la rutina' : ' · solo por hoy'));
+};
 
 
 /* ── MOODS ── */
@@ -6525,7 +6674,10 @@ function renderWorkoutMode() {
 
   document.getElementById('wm-ex-name').textContent = ex.name;
   { const m = document.getElementById('wm-ex-muscle'); m.textContent = ex.muscle;
-    if (kxFind(ex.name, ex.muscle)) { const a = document.createElement('a'); a.className = 'kx-wm-link'; a.textContent = '📖 Cómo se hace'; a.onclick = () => kxOpenFor(ex.name, ex.muscle); m.appendChild(a); } }
+    if (kxFind(ex.name, ex.muscle)) {
+      const a = document.createElement('a'); a.className = 'kx-wm-link'; a.textContent = '📖 Cómo se hace'; a.onclick = () => kxOpenFor(ex.name, ex.muscle); m.appendChild(a);
+      const b = document.createElement('a'); b.className = 'kx-wm-link'; b.textContent = '🔄 Reemplazar'; b.onclick = () => kxSwapOpen(ex.id); m.appendChild(b);
+    } }
   document.getElementById('wm-progress-text').textContent = `Ejercicio ${wmExIndex+1} de ${total}`;
   document.getElementById('wm-progress-fill').style.width = `${((wmExIndex+1)/total)*100}%`;
 
