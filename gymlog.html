@@ -271,6 +271,9 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
 .gm-check{width:38px;height:38px;border-radius:50%;border:2px solid #333;display:flex;align-items:center;justify-content:center;color:#555;flex-shrink:0}
 .gm-check.done{border-color:var(--accent,#E83535);background:var(--red-light);color:var(--accent,#E83535)}
 .gm-label{font-size:11px;color:#777;font-weight:700;letter-spacing:0.4px}
+.guide-new{display:inline-block;vertical-align:middle;margin-left:8px;font-size:10px;font-weight:800;letter-spacing:1px;color:var(--on-accent,#fff);background:var(--accent,#E83535);border-radius:6px;padding:3px 7px}
+.gm-chip{font-size:11px;font-weight:600;border-radius:12px;padding:3px 9px;background:#111;border:1px solid #2e2e2e;color:#bbb}
+.gm-mot{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;background:#111;border:1px solid #2a2a2a;font-size:13px;margin-top:7px}
 .guide-ic{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;flex-shrink:0}
 .add-ex-btn{width:100%;padding:12px;background:none;border:1.5px dashed #333;border-radius:var(--radius);color:#666;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;font-weight:600}
 
@@ -1029,7 +1032,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
           </div>
         </div>
         <div class="profile-field">
-          <div class="profile-label">🍽️ Pestañas opcionales</div>
+          <div class="profile-label">⚙️ Opcionales</div>
           <div style="background:#1e1e1e;border:1px solid #2e2e2e;border-radius:12px;padding:12px 14px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
               <div>
@@ -1040,6 +1043,15 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
                 <div id="comidas-toggle-dot" style="position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#888;transition:transform 0.15s"></div>
               </div>
             </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #2a2a2a">
+              <div>
+                <div style="font-size:13px;color:#ddd;font-weight:600">Mostrar a mi Kaishu</div>
+                <div style="font-size:11px;color:#555;margin-top:2px">La mascota del círculo de arriba, los festejos de récords, el resumen al terminar y el minijuego. Si la apagás, tu progreso sigue sumando</div>
+              </div>
+              <div id="kaishu-toggle" onclick="toggleKaishu()" style="flex-shrink:0;width:44px;height:26px;border-radius:20px;background:#333;position:relative;cursor:pointer;transition:background 0.15s">
+                <div id="kaishu-toggle-dot" style="position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#888;transition:transform 0.15s"></div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="profile-autosave" id="profile-autosave">Los cambios se guardan solos</div>
@@ -1047,7 +1059,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <button class="profile-link-btn" onclick="openGuide(0)">📖 Ver la guía de la app</button>
         <button class="profile-link-btn" onclick="exportData()">⬇️ Exportar mis datos (JSON)</button>
         <button onclick="doLogout()" style="width:100%;margin-top:10px;padding:12px;background:none;border:1px solid #2e2e2e;border-radius:var(--radius-sm);color:#666;font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer">Cerrar sesión</button>
-        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.30</div>
+        <div style="text-align:center;font-size:10px;color:#444;font-family:'DM Mono',monospace;letter-spacing:1px;margin-top:14px">KaishuGymLog v1.31</div>
       </div>
 
       <!-- MIS RUTINAS -->
@@ -1352,6 +1364,54 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
         <div class="guide-text">En <b>Coach</b>, una IA lee tu historial y te devuelve un análisis con recomendaciones concretas. Para que sirva, conviene tener algunas semanas registradas.</div>
       </div>
 
+      <div class="guide-slide" data-news="1">
+        <div class="guide-visual">
+          <div class="gm-card">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div id="guide-fig-lib" style="width:112px;height:92px;background:#141414;border-radius:10px;flex-shrink:0;color:#f0ede8;display:flex;align-items:center;justify-content:center;font-size:30px">🏋️</div>
+              <div style="min-width:0">
+                <div style="font-size:15px;font-weight:700">Press de banca</div>
+                <div style="font-size:12px;color:#777">Pecho · Barra</div>
+                <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:7px"><span class="gm-chip" style="color:var(--accent,#E83535);border-color:var(--accent,#E83535)">Pectoral</span><span class="gm-chip">Tríceps</span><span class="gm-chip">Hombro</span></div>
+              </div>
+            </div>
+            <div class="gm-label" style="margin-top:12px">CÓMO SE HACE</div>
+            <div style="font-size:12px;color:#bbb;margin-top:4px;line-height:1.5">1 · Escápulas juntas, pies firmes<br>2 · Bajá la barra al pecho controlando</div>
+            <div class="gm-label" style="margin-top:10px">🔁 REEMPLAZOS</div>
+            <div style="font-size:12px;color:#bbb;margin-top:4px">Press con mancuernas · Press en máquina · Flexiones</div>
+          </div>
+        </div>
+        <div class="guide-title">Biblioteca de ejercicios<span class="guide-new">NUEVO</span></div>
+        <div class="guide-text">Más de <b>800 ejercicios</b> con foto o dibujo animado: qué músculos trabajan, cómo se hacen y con qué reemplazarlos. Tocá la <b>i</b> en un ejercicio de Hoy, <b>📖 Cómo se hace</b> en Pantalla completa, o abrila desde <b>Perfil → 📚 Biblioteca</b>. Una vez cargada, anda sin señal.</div>
+      </div>
+
+      <div class="guide-slide">
+        <div class="guide-visual">
+          <div class="gm-card">
+            <div class="gm-label" style="color:var(--accent,#E83535)">🔄 REEMPLAZAR</div>
+            <div style="font-size:15px;font-weight:700;margin-top:2px">Press de pecho en máquina</div>
+            <div class="gm-mot" style="border-color:var(--accent,#E83535)"><span style="font-size:18px">🚫</span><span>Está ocupada</span></div>
+            <div class="gm-mot"><span style="font-size:18px">🤕</span><span>Me molesta</span></div>
+            <div class="gm-mot"><span style="font-size:18px">❌</span><span>No tengo ese equipo</span></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px"><span style="flex:1;color:#ddd">→ Press con mancuernas</span><span style="font-size:11px;font-weight:700;color:var(--accent,#E83535);border:1px solid var(--accent,#E83535);border-radius:20px;padding:4px 10px">Usar</span></div>
+          </div>
+        </div>
+        <div class="guide-title">¿Máquina ocupada?<span class="guide-new">NUEVO</span></div>
+        <div class="guide-text">Tocá <b>🔄</b> en el ejercicio (o <b>🔄 Reemplazar</b> en Pantalla completa), decí qué pasa y elegí una alternativa: toma su lugar en la sesión de hoy con las mismas series. Si querés, tildás para cambiarlo también en la rutina.</div>
+      </div>
+
+      <div class="guide-slide">
+        <div class="guide-visual">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+            <div id="guide-kz-eggs" style="display:flex;gap:18px;align-items:flex-end;justify-content:center;min-height:100px;font-size:56px">🥚</div>
+            <div style="font-size:13px;color:#aaa;font-weight:600">🟣 Sombra · 🟠 Mecha · 🟢 Espina</div>
+            <div class="gm-card" style="padding:10px 12px"><div style="display:flex;justify-content:space-between;font-size:11px;color:#888;font-weight:600"><span>+10 XP</span><span>Kaishu · nivel 3</span></div><div class="kz-xp-bar" style="margin-top:6px"><div class="kz-xp-fill" style="width:60%"></div></div></div>
+          </div>
+        </div>
+        <div class="guide-title">Tu Kaishu</div>
+        <div class="guide-text">El círculo de arriba a la derecha es tu mascota. Elegí un camino y crece con cada entreno: <b>+10 XP</b> por día, <b>+5</b> por récord y <b>+10</b> por semana de 3 días o más. Te festeja los récords y corre en el minijuego. ¿No es lo tuyo? Apagalo en <b>Perfil</b>: tu progreso sigue sumando igual.</div>
+      </div>
+
       <div class="guide-slide">
         <div class="guide-visual">
           <div class="gm-card" style="display:flex;flex-direction:column;gap:10px">
@@ -1361,7 +1421,7 @@ html,body{height:100%;background:#0d0d0d;font-family:'DM Sans',sans-serif;color:
           </div>
         </div>
         <div class="guide-title">Todo queda guardado</div>
-        <div class="guide-text">La nube al lado del nombre te dice si todo se subió. Si se pone amarilla es que no hay señal: tus series quedan en el teléfono y se suben solas después. En <b>Perfil</b> elegís tu color, tu objetivo, recordatorios y si querés la pestaña <b>Comidas</b>.</div>
+        <div class="guide-text">La nube al lado del nombre te dice si todo se subió. Si se pone amarilla es que no hay señal: tus series quedan en el teléfono y se suben solas después. En <b>Perfil</b> elegís tu color, tu objetivo, recordatorios, la pestaña <b>Comidas</b> y si querés ver a tu <b>Kaishu</b>.</div>
       </div>
 
     </div>
@@ -4452,7 +4512,7 @@ function buildSummary(entry, recs, kzBefore, kzAfter) {
       ${statUps.length ? `<div class="sum-stats">${statUps.map(s => `<span style="color:${s.col}">${s.icon} ${s.n} +${kzAfter.stats[s.k] - kzBefore.stats[s.k]}</span>`).join('')}</div>` : ''}</div>`;
   } else {
     emojiEl.className = 'summary-emoji';
-    xpHtml = `<button class="kz-btn" style="margin-top:10px" onclick="closeSummary();openKaishu()">🥚 Elegí tu Kaishu y ganá experiencia con cada entreno</button>`;
+    xpHtml = kzOff() ? '' : `<button class="kz-btn" style="margin-top:10px" onclick="closeSummary();openKaishu()">🥚 Elegí tu Kaishu y ganá experiencia con cada entreno</button>`;
   }
   document.getElementById('sum-records').innerHTML = xpHtml + (recs.length ? `<div style="text-align:left;margin-top:10px">${recs.map(recordLineHTML).join('')}</div>` : maxLine);
   document.getElementById('summary-overlay').classList.add('open');
@@ -7054,7 +7114,7 @@ function recordLineHTML(rec) {
    Shown once per account (profile.guideVersion, mirrored in localStorage so it doesn't
    flash again offline) and replayable from Perfil → "Ver la guía de la app". Bump
    GUIDE_VERSION when the app changes enough that everyone should see it again. */
-const GUIDE_VERSION = 1;
+const GUIDE_VERSION = 2; // v1.31: biblioteca, reemplazar y Kaishu (quien ya vio la v1 arranca en las novedades)
 let _guideIdx = 0;
 const GUIDE_SEEN_KEY = () => 'kaishu_guide_v' + GUIDE_VERSION + '_' + (currentUser?.uid || 'anon');
 function guideSlidesCount() { return document.querySelectorAll('#guide-track .guide-slide').length; }
@@ -7080,6 +7140,13 @@ window.openGuide = (start) => {
   [['guide-ic-saved', 'saved'], ['guide-ic-pending', 'pending'], ['guide-ic-stuck', 'stuck']].forEach(([id, st]) => {
     const el = document.getElementById(id); if (el) el.innerHTML = SAVE_ICONS[st];
   });
+  // v1.31: dibujos de las pantallas nuevas (se generan acá: el motor y las imágenes ya están cargados)
+  try {
+    const fl = document.getElementById('guide-fig-lib'), e = window.KAISHU_EJERCICIOS && KAISHU_EJERCICIOS.porId['press-banca'];
+    if (fl && e && e.fig && window.KaishuFigura) fl.innerHTML = KaishuFigura.figuraSVG(e.fig, { ink: '#f0ede8', eq: '#6f747c', bg: '#141414', fit: true });
+    const eg = document.getElementById('guide-kz-eggs');
+    if (eg && !eg.dataset.done) { eg.innerHTML = ['sombra', 'mecha', 'espina'].map(p => kzStageFigure(p, 0, 92, 90)).join(''); eg.dataset.done = '1'; }
+  } catch (err) { console.warn('guía: dibujos', err); }
   _guideIdx = Math.max(0, Math.min(guideSlidesCount() - 1, start || 0));
   g.classList.add('open');
   renderGuide();
@@ -7102,7 +7169,12 @@ function maybeShowGuide() {
   let seenLocal = false;
   try { seenLocal = localStorage.getItem(GUIDE_SEEN_KEY()) === '1'; } catch (e) {}
   if (seenLocal || (profile.guideVersion || 0) >= GUIDE_VERSION) return;
-  openGuide(0);
+  // Ya vio una guía anterior → solo las novedades (arranca en la primera pantalla marcada data-news)
+  let sawOld = (profile.guideVersion || 0) >= 1;
+  try { sawOld = sawOld || localStorage.getItem('kaishu_guide_v1_' + (currentUser?.uid || 'anon')) === '1'; } catch (e) {}
+  const slides = [...document.querySelectorAll('#guide-track .guide-slide')];
+  const news = slides.findIndex(x => x.dataset.news);
+  openGuide(sawOld && news > 0 ? news : 0);
 }
 (function setupGuideSwipe() {
   const vp = document.getElementById('guide-viewport');
@@ -7831,7 +7903,12 @@ const kzStages = path => (KZ[path] && KZ[path].stages) || KZ_STAGES;
 const kzStageFor = (path, lv) => kzStages(path).filter(s => s <= lv).pop();
 const kzEvoOf = lv => KZ_EVOS.filter(e => e.lv <= lv).pop();
 
+// v1.31: la mascota se puede apagar desde Perfil (profile.kaishuOff). Apagada, kaishuState() da null y
+// todo cae a su versión sin mascota (🔥 en récords, toast en vez de cameo, kaiju clásico en el minijuego).
+// La XP se calcula desde el historial, así que al volver a prenderla no se perdió nada.
+const kzOff = () => profile.kaishuOff === true;
 function kaishuState() {
+  if (kzOff()) return null;
   const k = profile.kaishu;
   if (!k || !KZ[k.path]) return null;
   const since = new Date(k.startedAt || Date.now());
@@ -7858,6 +7935,13 @@ function kaishuState() {
 // Header circle: your Kaishu's face (zoomed on the egg), with a "!" when it leveled up
 function renderKaishuHeader() {
   const el = document.getElementById('avatar-btn'); if (!el) return;
+  applyKaishuToggle();
+  if (kzOff()) { // sin mascota: el círculo vuelve a ser tu foto (o tu inicial) y lleva a Perfil
+    el.classList.remove('kaishu'); el.title = 'Perfil'; el.innerHTML = '';
+    if (profile.avatarUrl) { const im = document.createElement('img'); im.src = profile.avatarUrl; im.alt = ''; im.style.objectPosition = profile.photoPos || 'center center'; el.appendChild(im); }
+    else el.textContent = ((profile.nickname || '').trim().charAt(0) || '👤').toUpperCase();
+    return;
+  }
   const st = kaishuState();
   el.classList.add('kaishu');
   if (!st) { el.innerHTML = '<span class="kz-face-wrap">🥚</span><span class="kz-new">!</span>'; el.title = 'Elegí tu Kaishu'; return; }
@@ -7868,7 +7952,21 @@ function renderKaishuHeader() {
 }
 
 let _kzPreview = null; // stage shown in "ver todas las etapas" (null = your real level)
+function applyKaishuToggle() {
+  const on = !kzOff(), t = document.getElementById('kaishu-toggle'), d = document.getElementById('kaishu-toggle-dot');
+  if (!t || !d) return;
+  t.style.background = on ? 'var(--accent,#E83535)' : '#333';
+  d.style.transform = on ? 'translateX(18px)' : 'translateX(0)';
+  d.style.background = on ? '#fff' : '#888';
+}
+window.toggleKaishu = () => {
+  profile.kaishuOff = !kzOff();
+  renderKaishuHeader();
+  autoSaveProfile(300);
+  showToast(profile.kaishuOff ? 'Kaishu oculto — tu progreso sigue sumando' : '🥚 ¡Volvió tu Kaishu!');
+};
 window.openKaishu = () => {
+  if (kzOff()) { switchTab('perfil', document.querySelector('[data-tab=perfil]')); return; }
   document.getElementById('kz-screen').style.display = 'flex';
   _kzPreview = null;
   renderKaishu(true);
